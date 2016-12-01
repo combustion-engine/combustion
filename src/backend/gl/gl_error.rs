@@ -43,21 +43,17 @@ pub enum GLError {
 static mut CHECK_DISABLED: AtomicBool = ATOMIC_BOOL_INIT;
 
 macro_rules! check_errors {
-    () => { match GLError::check() {
-        Err(err)  => {
-            debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
-            return Err(err.into());
-        },
-        Ok(_) => {}
-    } };
+    () => {if let Err(err) = GLError::check() {
+        debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
+        return Err(err.into());
+    }};
 
-    ($ret:expr) => { match GLError::check() {
-        Err(err)  => {
-            debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
-            return Err(err.into());
-        },
-        Ok(_) => $ret
-    } };
+    ($ret:expr) => { if let Err(err) = GLError::check() {
+        debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
+        return Err(err.into());
+   } else {
+        $ret
+   }};
 }
 
 macro_rules! checked {

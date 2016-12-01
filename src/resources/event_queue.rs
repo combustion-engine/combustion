@@ -10,6 +10,11 @@ pub struct Resource {
     pub queue: Vec<Event>
 }
 
+impl Default for Resource {
+    #[inline(always)]
+    fn default() -> Resource { Resource::new() }
+}
+
 impl Resource {
     pub fn new() -> Resource {
         Resource { queue: Vec::with_capacity(256) }

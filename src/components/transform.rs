@@ -18,6 +18,11 @@ impl specs::Component for Component {
     type Storage = specs::VecStorage<Component>;
 }
 
+impl Default for Component {
+    #[inline(always)]
+    fn default() -> Component { Component::new() }
+}
+
 impl Component {
     /// Create a new identity transform
     pub fn new() -> Component {

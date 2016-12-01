@@ -21,6 +21,11 @@ pub struct Resource {
     pub queue: Vec<RenderItem>
 }
 
+impl Default for Resource {
+    #[inline(always)]
+    fn default() -> Resource { Resource::new() }
+}
+
 impl Resource {
     pub fn new() -> Resource {
         Resource { queue: Vec::with_capacity(RENDER_QUEUE_SIZE) }

@@ -25,14 +25,14 @@ enum_from_primitive! {
 
 impl From<GLDebugSource> for String {
     fn from(value: GLDebugSource) -> String {
-        format!("{}", match value {
+        match value {
             GLDebugSource::Api => "API",
             GLDebugSource::WindowSystem => "Window System",
             GLDebugSource::ShaderCompiler => "Shader Compiler",
             GLDebugSource::ThirdParty => "Third Party",
             GLDebugSource::Application => "Application",
             GLDebugSource::Other => "Other Source",
-        }).into()
+        }.into()
     }
 }
 

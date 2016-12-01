@@ -1,4 +1,4 @@
-#![allow(unknown_lints, unused_imports, dead_code, inline_always)]
+#![allow(unknown_lints, unused_imports, dead_code, inline_always, toplevel_ref_arg)]
 #![feature(proc_macro, receiver_try_iter, specialization)]
 
 #[macro_use]

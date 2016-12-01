@@ -192,7 +192,7 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
                     });
                 }
 
-                let ref mut cameras = world.write::<Camera>();
+                let mut cameras = world.write::<Camera>();
 
                 let camera_entity = world.read_resource::<CameraResource>().entity();
 

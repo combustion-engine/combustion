@@ -6,6 +6,11 @@ pub struct Resource {
     pub delta: (f64, f64)
 }
 
+impl Default for Resource {
+    #[inline(always)]
+    fn default() -> Resource { Resource::new() }
+}
+
 impl Resource {
     pub fn new() -> Resource {
         Resource {

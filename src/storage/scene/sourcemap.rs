@@ -27,6 +27,11 @@ unsafe impl<'a> Send for SourceMap<'a> {}
 
 unsafe impl<'a> Sync for SourceMap<'a> {}
 
+impl<'a> Default for SourceMap<'a> {
+    #[inline(always)]
+    fn default() -> SourceMap<'a> { SourceMap::new() }
+}
+
 impl<'a> SourceMap<'a> {
     pub fn new() -> SourceMap<'a> {
         SourceMap { inner: RwLock::default() }
@@ -58,7 +63,7 @@ impl<'a> SourceMap<'a> {
         let inner = self.inner.read().unwrap();
 
         // Just clone the Arc instead of bothering with a reference to it
-        Ok(inner.sources.get(index).map(|source| source.clone()))
+        Ok(inner.sources.get(index).cloned())
     }
 
     pub fn add(&mut self, scene: Arc<assimp::Scene<'a>>, name: String) -> AppResult<usize> {

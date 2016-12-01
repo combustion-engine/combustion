@@ -46,6 +46,11 @@ impl<T> FreelistVecMap<T> {
     }
 
     #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.map.is_empty()
+    }
+
+    #[inline(always)]
     pub fn len(&self) -> usize {
         self.map.len()
     }

@@ -1,4 +1,4 @@
-#![allow(bad_style)]
+#![allow(bad_style, clippy)]
 
 mod __gl_imports {
     pub use std::mem;

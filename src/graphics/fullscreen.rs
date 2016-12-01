@@ -6,6 +6,11 @@ pub struct Toggle {
     last_pos: (i32, i32)
 }
 
+impl Default for Toggle {
+    #[inline(always)]
+    fn default() -> Toggle { Toggle::new() }
+}
+
 impl Toggle {
     pub fn new() -> Toggle {
         Toggle {
