@@ -1,0 +1,48 @@
+[package]
+authors = ["novacrazy <novacrazy@gmail.com>"]
+exclude = ["*.png"]
+include = ["Cargo.toml", "src/**/*.rs"]
+license = "MIT"
+name = "combustion"
+version = "0.1.0"
+
+[dependencies]
+enum_primitive = "0.1.0"
+image = "0.10.3"
+lazy_static = "0.2.2"
+libc = "0.2.17"
+nalgebra = "0.10.1"
+num-traits = "0.1.36"
+num_cpus = "1.1.0"
+oncemutex = "0.1.1"
+petgraph = "0.4.1"
+regex = "0.1.80"
+rusttype = "0.2.1"
+time = "0.1.35"
+vec_map = "0.6.0"
+
+[dependencies.assimp]
+features = ["default", "compat"]
+path = "E:/code/projects/2016/assimp-rs"
+
+[dependencies.glfw]
+features = ["all"]
+version = "0.11.0"
+
+[dependencies.lazy]
+path = "E:/code/projects/2016/lazy"
+
+[dependencies.nice_glfw]
+path = "E:/code/projects/2016/nice_glfw"
+
+[dependencies.palette]
+git = "git://github.com/Ogeon/palette.git"
+
+[dependencies.specs]
+features = ["parallel"]
+git = "git://github.com/slide-rs/specs.git"
+
+[profile]
+
+[profile.release]
+lto = true
