@@ -63,7 +63,7 @@ fn main() {
             WindowHint::DoubleBuffer(true),
             WindowHint::OpenGlDebugContext(true),
         ])
-        .title("OpenGL Testing")
+        .title("Combustion")
         .create()
         .expect("Couldn't create window");
 
