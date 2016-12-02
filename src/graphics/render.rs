@@ -90,6 +90,15 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
     let mut delta: systems::Delta = 0.0;
     let mut last = PreciseTime::now();
 
+    let lighting_shader_frag = gl::GLShaderBuilder::new(gl::GLShaderVariant::FragmentShader)?.file("shaders/deferred_lighting.frag")?.compile()?.finish();
+    let lighting_shader_vert = gl::GLShaderBuilder::new(gl::GLShaderVariant::VertexShader)?.file("shaders/deferred_lighting.vert")?.compile()?.finish();
+
+    let lighting_shader = gl::GLShaderProgramBuilder::new()?
+        .attach_shader(lighting_shader_frag)?
+        .attach_shader(lighting_shader_vert)?
+        .link()?
+        .finish();
+
     //This is constantly swapped out for the render queue resource
     let mut final_render_queue = Vec::with_capacity(resources::render_queue::RENDER_QUEUE_SIZE);
 
@@ -276,8 +285,8 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
             }));
 
             //Step six, the lighting pass
-            try!(pipeline.lighting_pass(|| {
-                //TODO
+            try!(pipeline.lighting_pass(&lighting_shader, |_: &gl::GLShaderProgram| {
+                //TODO: Set all lighting uniforms
                 Ok(())
             }));
 
