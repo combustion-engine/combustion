@@ -24,7 +24,7 @@ impl super::Entity<Entity> for Entity {
                           .with(Position(Point3::new(0.0, 0.0, -1.0)))
                           .with(Rotation::none())
                           .with(LookAtConstraint::new(LookAtTarget::Position(Point3::new(0.0, 0.0, 0.0))))
-                          .with(Camera::new_perspective(16.0 / 9.0, 90.0f32.to_radians(), 0.1, 1000.0))
+                          .with(Camera::new_perspective(16.0 / 9.0, 70.0f32.to_radians(), 0.1, 1000.0))
                           .build();
 
         Ok(Entity(camera))
