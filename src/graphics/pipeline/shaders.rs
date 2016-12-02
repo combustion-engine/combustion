@@ -23,3 +23,5 @@ void main() {
     color.a = 1.0;
 }
 ";
+
+pub static SCREEN_SHADER_NAMES: [&'static str; 1] = ["screen"];

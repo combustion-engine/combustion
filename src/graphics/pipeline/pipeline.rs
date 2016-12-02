@@ -6,10 +6,18 @@ use super::gbuffer::Gbuffer;
 use super::stage::Stage;
 use super::screen::ScreenQuad;
 
+use super::shaders::{SCREEN_VERTEX_SHADER_SRC, SCREEN_FRAGMENT_SHADER_SRC, SCREEN_SHADER_NAMES};
+
 pub const GEOMETRY_STAGE_COMPONENTS: [(GLenum, GLenum); 3] = [
     (glb::RGB, glb::RGB16F),
     (glb::RGB, glb::RGB16F),
     (glb::RGB, glb::RGB16F),
+];
+
+pub const LIGHTING_STAGE_NAMES: [&'static str; 3] = [
+    "colors",
+    "normals",
+    "RMDs"
 ];
 
 pub const LIGHTING_STAGE_COMPONENTS: [(GLenum, GLenum); 1] = [
@@ -22,18 +30,31 @@ pub struct Pipeline {
     final_stage: Stage,
 
     geometry_shader: GLShaderProgram,
+    screen_shader: GLShaderProgram,
 
     screen: ScreenQuad
 }
 
 impl Pipeline {
     pub fn new(width: usize, height: usize) -> GLResult<Pipeline> {
-        let vertex_shader = try!(GLShader::from_file("shaders/deferred.vert", GLShaderVariant::VertexShader));
-        let fragment_shader = try!(GLShader::from_file("shaders/deferred.frag", GLShaderVariant::FragmentShader));
+        let geometry_vertex_shader = try!(GLShader::from_file("shaders/deferred_geometry.vert", GLShaderVariant::VertexShader));
+        let geometry_fragment_shader = try!(GLShader::from_file("shaders/deferred_geometry.frag", GLShaderVariant::FragmentShader));
 
-        let deferred_shader = GLShaderProgramBuilder::new()?
-            .attach_shader(vertex_shader)?
-            .attach_shader(fragment_shader)?
+        let geometry_shader = GLShaderProgramBuilder::new()?
+            .attach_shader(geometry_vertex_shader)?
+            .attach_shader(geometry_fragment_shader)?
+            .link()?
+            .finish();
+
+        let screen_vertex_shader = try!(GLShader::from_source(SCREEN_VERTEX_SHADER_SRC.to_string(),
+                                                              GLShaderVariant::VertexShader));
+
+        let screen_fragment_shader = try!(GLShader::from_source(SCREEN_FRAGMENT_SHADER_SRC.to_string(),
+                                                                GLShaderVariant::FragmentShader));
+
+        let screen_shader = GLShaderProgramBuilder::new()?
+            .attach_shader(screen_vertex_shader)?
+            .attach_shader(screen_fragment_shader)?
             .link()?
             .finish();
 
@@ -45,7 +66,8 @@ impl Pipeline {
             geometry_stage: geometry_stage,
             lighting_stage: lighting_stage,
             final_stage: final_stage,
-            geometry_shader: deferred_shader,
+            geometry_shader: geometry_shader,
+            screen_shader: screen_shader,
             screen: try!(ScreenQuad::new())
         })
     }
@@ -55,7 +77,7 @@ impl Pipeline {
         try!(self.geometry_stage.bind());
 
         unsafe {
-            glb::ClearColor(0.25, 0.25, 0.25, 1.0);
+            glb::ClearColor(0.0, 0.0, 0.0, 0.0);
             glb::Clear(glb::COLOR_BUFFER_BIT | glb::DEPTH_BUFFER_BIT | glb::STENCIL_BUFFER_BIT);
 
             //glb::Enable(glb::STENCIL_TEST);
@@ -81,14 +103,16 @@ impl Pipeline {
     }
 
     /// The Lighting pass applies custom shaders to the G-Buffer data to light the scene as desired.
-    pub fn lighting_pass<F>(&mut self, mut f: F) -> GLResult<()> where F: FnMut() -> GLResult<()> {
+    pub fn lighting_pass<F>(&mut self, shader: &GLShaderProgram, mut f: F) -> GLResult<()> where F: FnMut(&GLShaderProgram) -> GLResult<()> {
         try!(self.lighting_stage.bind());
 
-        unsafe {
-            glb::Clear(glb::COLOR_BUFFER_BIT);
-        }
+        try!(shader.use_program());
 
-        try!(f());
+        try!(self.geometry_stage.gbuffer().unwrap().bind_textures(&shader, &LIGHTING_STAGE_NAMES));
+
+        try!(f(&shader));
+
+        try!(self.screen.draw());
 
         Ok(())
     }
@@ -98,9 +122,11 @@ impl Pipeline {
     pub fn final_pass(&mut self) -> GLResult<()> {
         try!(self.final_stage.bind());
 
-        let gbuffer: &Gbuffer = self.geometry_stage.gbuffer().unwrap();
+        try!(self.screen_shader.use_program());
 
-        try!(self.screen.draw(gbuffer.component(1).unwrap()));
+        try!(self.lighting_stage.gbuffer().unwrap().bind_textures(&self.screen_shader, &SCREEN_SHADER_NAMES));
+
+        try!(self.screen.draw());
 
         Ok(())
     }
