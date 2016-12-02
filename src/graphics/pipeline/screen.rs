@@ -5,8 +5,6 @@ use ::backend::gl::*;
 use ::backend::gl::types::*;
 use ::backend::gl::bindings as glb;
 
-use super::shaders::{SCREEN_VERTEX_SHADER_SRC, SCREEN_FRAGMENT_SHADER_SRC};
-
 static QUAD_DATA: [f32; 20] = [
     -1.0, 1.0, 0.0, 0.0, 1.0,
     -1.0, -1.0, 0.0, 0.0, 0.0,
@@ -17,22 +15,10 @@ static QUAD_DATA: [f32; 20] = [
 pub struct ScreenQuad {
     vao: GLVertexArray,
     buffer: GLBuffer,
-    shader: GLShaderProgram
 }
 
 impl ScreenQuad {
     pub fn new() -> GLResult<ScreenQuad> {
-        let screen_vertex_shader = try!(GLShader::from_source(SCREEN_VERTEX_SHADER_SRC.to_string(),
-                                                              GLShaderVariant::VertexShader));
-
-        let screen_fragment_shader = try!(GLShader::from_source(SCREEN_FRAGMENT_SHADER_SRC.to_string(),
-                                                                GLShaderVariant::FragmentShader));
-
-        let screen_shader = GLShaderProgramBuilder::new()?
-            .attach_shader(screen_vertex_shader)?
-            .attach_shader(screen_fragment_shader)?
-            .link()?
-            .finish();
 
         let vao = try!(GLVertexArray::new());
 
@@ -66,31 +52,22 @@ impl ScreenQuad {
 
         Ok(ScreenQuad {
             vao: vao,
-            buffer: buffer,
-            shader: screen_shader
+            buffer: buffer
         })
     }
 
-    pub fn draw(&mut self, texture: &GLTexture) -> GLResult<()> {
-        try!(DEFAULT_FRAMEBUFFER.bind());
-
+    pub fn draw(&mut self) -> GLResult<()> {
         unsafe {
             glb::Clear(glb::COLOR_BUFFER_BIT);
 
             glb::Disable(glb::DEPTH_TEST);
             glb::Disable(glb::STENCIL_TEST);
+            glb::Disable(glb::CULL_FACE);
         }
 
         check_errors!();
 
         try!(self.vao.bind());
-
-        try!(self.shader.use_program());
-
-        unsafe {
-            glb::ActiveTexture(glb::TEXTURE0);
-            try!(texture.bind());
-        }
 
         check_errors!();
 
