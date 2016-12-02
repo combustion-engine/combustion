@@ -17,7 +17,7 @@ in vec3 UV;
 //uniform sampler2D texture_specular1;
 
 void main() {
-    gColor = vec3(1.0, 1.0, 1.0);
+    gColor = vec3(0.2, 1.0, 1.0);
     gNormal = pack_channels(normalize(Normal));
     gRMD = vec3(0.1, 0.0, gl_FragCoord.z / gl_FragCoord.w);
 }
