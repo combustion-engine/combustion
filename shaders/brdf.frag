@@ -139,7 +139,7 @@ MaterialB parse_material_b(vec2 uv) {
     return MaterialB(data.r, data.g, data.ba);
 }
 
-uniform vec3 camera_position;
+uniform vec3 view_position;
 
 #define MAX_LIGHTS 16
 
@@ -294,7 +294,7 @@ void main() {
             float attenuation;
 
             //Vectors
-            vec3 view_direction = normalize(camera_position - Position);
+            vec3 view_direction = normalize(view_position - Position);
             vec3 half_direction = normalize(light_direction + view_direction);
 
             //Ignore attenuation for infinite lights
