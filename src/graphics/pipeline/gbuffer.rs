@@ -20,6 +20,16 @@ pub const COLOR_ATTACHMENTS: [GLenum; 32] = [
     glb::COLOR_ATTACHMENT30, glb::COLOR_ATTACHMENT31,
 ];
 
+pub const TEXTURES: [GLenum; 32] = [
+    glb::TEXTURE0, glb::TEXTURE1, glb::TEXTURE2, glb::TEXTURE3, glb::TEXTURE4,
+    glb::TEXTURE5, glb::TEXTURE6, glb::TEXTURE7, glb::TEXTURE8, glb::TEXTURE9,
+    glb::TEXTURE10, glb::TEXTURE11, glb::TEXTURE12, glb::TEXTURE13, glb::TEXTURE14,
+    glb::TEXTURE15, glb::TEXTURE16, glb::TEXTURE17, glb::TEXTURE18, glb::TEXTURE19,
+    glb::TEXTURE20, glb::TEXTURE21, glb::TEXTURE22, glb::TEXTURE23, glb::TEXTURE24,
+    glb::TEXTURE25, glb::TEXTURE26, glb::TEXTURE27, glb::TEXTURE28, glb::TEXTURE29,
+    glb::TEXTURE30, glb::TEXTURE31,
+];
+
 impl Gbuffer {
     pub fn new(width: usize, height: usize, mut framebuffer: &mut GLFramebuffer,
                components: &[(GLenum, GLenum)]) -> GLResult<Gbuffer> {
@@ -74,6 +84,24 @@ impl Gbuffer {
     #[inline]
     pub fn component(&self, component: usize) -> Option<&GLTexture> {
         self.buffers.get(component)
+    }
+
+    pub fn bind_textures(&self, shader: &GLShaderProgram, names: &[&str]) -> GLResult<()> {
+        for ((i, texture), name) in self.buffers.iter().zip(names.iter()) {
+            let mut loc = try!(shader.get_uniform(name));
+
+            try!(loc.int1(i as GLint));
+
+            unsafe {
+                glb::ActiveTexture(TEXTURES[i]);
+            }
+
+            check_errors!();
+
+            try!(texture.bind());
+        }
+
+        Ok(())
     }
 
     pub fn resize(&mut self, width: usize, height: usize) -> GLResult<()> {
