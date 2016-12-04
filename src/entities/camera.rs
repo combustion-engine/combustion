@@ -18,11 +18,13 @@ impl super::Entity<Entity> for Entity {
         use components::isometry::Component as Isometry;
         use components::camera::Component as Camera;
         use components::constraints::lookat::{Component as LookAtConstraint, LookAtTarget};
+        use ::game::components::bob::Component as Bob;
 
         let camera = world.create_now()
                           .with(Transform::new())
-                          .with(Position(Point3::new(0.0, 0.0, -1.0)))
-                          .with(Rotation::none())
+                          .with(Position(Point3::new(0.0, 0.0, 0.0)))
+                          .with(Isometry::empty())
+                          .with(Bob::new())
                           .with(LookAtConstraint::new(LookAtTarget::Position(Point3::new(0.0, 0.0, 0.0))))
                           .with(Camera::new_perspective(16.0 / 9.0, 70.0f32.to_radians(), 0.1, 1000.0))
                           .build();

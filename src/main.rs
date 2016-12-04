@@ -61,7 +61,7 @@ fn main() {
             WindowHint::Visible(true),
             //WindowHint::Samples(Some(2)),
             WindowHint::DoubleBuffer(true),
-            WindowHint::OpenGlDebugContext(true),
+            //WindowHint::OpenGlDebugContext(true),
         ])
         .title("Combustion")
         .create()
@@ -74,7 +74,7 @@ fn main() {
     backend::gl::bindings::load_all_with(|symbol| window.get_proc_address(symbol) as *const _);
 
     //Enable debugging of OpenGL messages
-    backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
+    //backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
 
     //Create channel for forwarding events to the render thread
     let (tx, rx) = mpsc::channel();

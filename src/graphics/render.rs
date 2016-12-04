@@ -99,6 +99,31 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
         .link()?
         .finish();
 
+    try!(lighting_shader.use_program());
+
+    //////////////////
+
+    println!("Loading textures...");
+
+    let texture = {
+        use ::backend::gl::*;
+
+        let mut texture = GLTexture::new(GLTextureKind::Texture2D).unwrap();
+
+        texture.load_from_file("models/uv_test_512.png", None).expect("Couldn't load texture");
+
+        texture.set_filter(GLTextureFilter::Linear, Some(GLTextureFilter::Linear)).expect("Couldn't set texture filtering");
+
+        let max_anisotropy = texture.get_max_anisotropy().expect("Couldn't get max anisotropy value");
+        texture.set_anisotropy(max_anisotropy).expect("Couldn't set max anisotropy");
+
+        texture.generate_mipmap().expect("Couldn't generate mipmaps");
+
+        texture
+    };
+
+    //////////////////
+
     //This is constantly swapped out for the render queue resource
     let mut final_render_queue = Vec::with_capacity(resources::render_queue::RENDER_QUEUE_SIZE);
 
@@ -146,10 +171,11 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
             scene.update(0.0);
         } else {
             // Steps two, buffer GPU data, get render items, and get the view/projection matrices
-            let (view, projection) = try!(scene.with_world_sources(|world: &mut specs::World, mut sources: &mut SourceMap| -> AppResult<_> {
+            let (view_position, view, projection) = try!(scene.with_world_sources(|world: &mut specs::World, mut sources: &mut SourceMap| -> AppResult<_> {
                 use resources::render_queue::{RenderItem, Resource as RenderQueue};
 
                 use components::transform::Component as Transform;
+                use components::position::Component as Position;
                 use components::mesh::Component as Mesh;
                 use components::gpu_buffer::Component as GPU_Buffer;
                 use components::renderable::Component as Renderable;
@@ -158,6 +184,7 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
                 use resources::camera::Resource as CameraResource;
 
                 let ref transforms = world.read::<Transform>();
+                let ref positions = world.read::<Position>();
                 let ref meshes = world.read::<Mesh>();
 
                 let ref mut gpu_buffers = world.write::<GPU_Buffer>();
@@ -205,6 +232,7 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
 
                 let camera_entity = world.read_resource::<CameraResource>().entity();
 
+                let mut view_position = Point3::new(0.0, 0.0, 0.0);
                 let mut view_matrix = Matrix4::new_identity(4);
                 let mut projection_matrix = Matrix4::new_identity(4);
 
@@ -219,13 +247,17 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
                     projection_matrix = camera.kind.to_homogeneous();
                 }
 
+                if let Some(position) = positions.get(camera_entity) {
+                    view_position = position.0;
+                }
+
                 if let Some(transform) = transforms.get(camera_entity) {
                     view_matrix = transform.matrix;
                 }
 
                 render_queue.swap(&mut final_render_queue);
 
-                Ok((view_matrix, projection_matrix))
+                Ok((view_position, view_matrix, projection_matrix))
             }));
 
             //Step three, set off the system updates
@@ -262,6 +294,14 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
 
                     try!(buffer.bind_attrib_arrays(&[BufferField::Vertex, BufferField::Normal, BufferField::Uv, BufferField::Tangent, BufferField::Bitangent]));
 
+                    unsafe {
+                        glb::ActiveTexture(glb::TEXTURE0);
+                    }
+
+                    check_errors!();
+
+                    try!(texture.bind());
+
                     let mvp = projection * view * item.transform;
                     let inverse = item.inverse.unwrap_or(Matrix4::new_identity(4));
 
@@ -285,8 +325,11 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
             }));
 
             //Step six, the lighting pass
-            try!(pipeline.lighting_pass(&lighting_shader, |_: &gl::GLShaderProgram| {
-                //TODO: Set all lighting uniforms
+            try!(pipeline.lighting_pass(&lighting_shader, |shader: &gl::GLShaderProgram| {
+                try!(shader.get_uniform("view_position")?.point3f(&view_position));
+                try!(shader.get_uniform("view")?.mat4(&view, false));
+                try!(shader.get_uniform("projection")?.mat4(&projection, false));
+
                 Ok(())
             }));
 

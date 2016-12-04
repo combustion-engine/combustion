@@ -106,7 +106,7 @@ fn main() {
         .common_hints(&[
             WindowHint::Visible(true),
             //WindowHint::Samples(Some(4)),
-            WindowHint::DoubleBuffer(true)
+            WindowHint::DoubleBuffer(true),
         ])
         .title("OpenGL Testing")
         .create()

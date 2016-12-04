@@ -1,6 +1,6 @@
 use specs;
 use petgraph::graph::NodeIndex;
-use ::storage::scene::graph::Ix;
+use ::scene::graph::Ix;
 
 #[derive(Copy, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Component {

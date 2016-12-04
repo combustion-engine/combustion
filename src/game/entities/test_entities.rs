@@ -16,22 +16,31 @@ pub fn load(mut scene: &mut Scene) -> AppResult<()> {
         use ::components::transform::Component as Transform;
         use ::components::position::Component as Position;
         use ::components::rotation::Component as Rotation;
+        use ::components::scale::Component as Scale;
         use ::components::mesh::Component as Mesh;
         use ::components::gpu_buffer::Component as GPU_Buffer;
         use ::components::renderable::Component as Renderable;
 
         use ::game::components::turntable::Component as Turntable;
 
-        let buddha = try!(assimp::Scene::import("./models/buddha_uv.fbx", None));
+        let effects = assimp::postprocess::PostprocessEffectBuilder::target_realtime_fast()
+            .optimize_meshes(true)
+            .find_instances(true)
+            .calc_tangent_space(true)
+            .gen_smooth_normals(true)
+            .improve_cache_locality(true);
 
-        let buddha_source = try!(sources.add(Arc::new(buddha), "Buddha".into()));
+        let buddha = try!(assimp::Scene::import("./models/twilight.obj", Some(effects.build())));
 
-        println!("Buddha model stored at index: {}", buddha_source);
+        let buddha_source = try!(sources.add(Arc::new(buddha), "Twilight".into()));
+
+        println!("Twilight model stored at index: {}", buddha_source);
 
         world.create_now()
              .with(Transform::new())
-             .with(Position(Point3::new(0.0, 0.0, 0.0)))
+             .with(Position(Point3::new(0.0, -0.25, 0.0)))
              .with(Rotation::none())
+             .with(Scale::uniform(1.0 / 18.0))
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))
              .with(GPU_Buffer::new())
@@ -39,8 +48,9 @@ pub fn load(mut scene: &mut Scene) -> AppResult<()> {
 
         world.create_now()
              .with(Transform::new())
-             .with(Position(Point3::new(-0.5, 0.0, 0.0)))
+             .with(Position(Point3::new(-0.5, -0.25, 0.0)))
              .with(Rotation::none())
+             .with(Scale::uniform(1.0 / 18.0))
              .with(Turntable { rate: 2.0 })
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))
@@ -49,8 +59,9 @@ pub fn load(mut scene: &mut Scene) -> AppResult<()> {
 
         world.create_now()
              .with(Transform::new())
-             .with(Position(Point3::new(0.5, 0.0, 0.0)))
+             .with(Position(Point3::new(0.5, -0.25, 0.0)))
              .with(Rotation::none())
+             .with(Scale::uniform(1.0 / 18.0))
              .with(Turntable { rate: -2.0 })
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))

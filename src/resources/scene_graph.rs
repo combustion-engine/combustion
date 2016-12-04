@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use specs;
 
-use ::storage::scene::graph::SceneGraph;
+use ::scene::graph::SceneGraph;
 
 pub struct Resource {
     graph: SceneGraph
@@ -11,6 +11,12 @@ pub struct Resource {
 impl Resource {
     pub fn new(world: &specs::World) -> Resource {
         Resource { graph: SceneGraph::new(world) }
+    }
+}
+
+impl From<SceneGraph> for Resource {
+    fn from(graph: SceneGraph) -> Resource {
+        Resource { graph: graph }
     }
 }
 

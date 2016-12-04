@@ -1,3 +1,5 @@
+use nalgebra::Vector2;
+
 use ::backend::gl::*;
 use ::backend::gl::types::*;
 use ::backend::gl::bindings as glb;
@@ -6,22 +8,24 @@ use super::gbuffer::Gbuffer;
 use super::stage::Stage;
 use super::screen::ScreenQuad;
 
-use super::shaders::{SCREEN_VERTEX_SHADER_SRC, SCREEN_FRAGMENT_SHADER_SRC, SCREEN_SHADER_NAMES};
-
 pub const GEOMETRY_STAGE_COMPONENTS: [(GLenum, GLenum); 3] = [
-    (glb::RGB, glb::RGB16F),
-    (glb::RGB, glb::RGB16F),
-    (glb::RGB, glb::RGB16F),
+    (glb::RGBA, glb::RGBA32F),
+    (glb::RGBA, glb::RGBA32F),
+    (glb::RGB, glb::RGB32F),
 ];
 
 pub const LIGHTING_STAGE_NAMES: [&'static str; 3] = [
-    "colors",
-    "normals",
-    "RMDs"
+    "ColorRs",
+    "NormalMs",
+    "Positions"
 ];
 
 pub const LIGHTING_STAGE_COMPONENTS: [(GLenum, GLenum); 1] = [
     (glb::RGB, glb::RGB16F)
+];
+
+pub const SCREEN_SHADER_NAMES: [&'static str; 1] = [
+    "screen"
 ];
 
 pub struct Pipeline {
@@ -32,7 +36,8 @@ pub struct Pipeline {
     geometry_shader: GLShaderProgram,
     screen_shader: GLShaderProgram,
 
-    screen: ScreenQuad
+    screen: ScreenQuad,
+    resolution: Vector2<f32>
 }
 
 impl Pipeline {
@@ -46,11 +51,8 @@ impl Pipeline {
             .link()?
             .finish();
 
-        let screen_vertex_shader = try!(GLShader::from_source(SCREEN_VERTEX_SHADER_SRC.to_string(),
-                                                              GLShaderVariant::VertexShader));
-
-        let screen_fragment_shader = try!(GLShader::from_source(SCREEN_FRAGMENT_SHADER_SRC.to_string(),
-                                                                GLShaderVariant::FragmentShader));
+        let screen_vertex_shader = try!(GLShader::from_file("shaders/screen.vert", GLShaderVariant::VertexShader));
+        let screen_fragment_shader = try!(GLShader::from_file("shaders/screen.frag", GLShaderVariant::FragmentShader));
 
         let screen_shader = GLShaderProgramBuilder::new()?
             .attach_shader(screen_vertex_shader)?
@@ -68,7 +70,8 @@ impl Pipeline {
             final_stage: final_stage,
             geometry_shader: geometry_shader,
             screen_shader: screen_shader,
-            screen: try!(ScreenQuad::new())
+            screen: try!(ScreenQuad::new()),
+            resolution: Vector2::new(width as f32, height as f32)
         })
     }
 
@@ -124,6 +127,10 @@ impl Pipeline {
 
         try!(self.screen_shader.use_program());
 
+        let mut res_uniform = try!(self.screen_shader.get_uniform("resolution"));
+
+        try!(res_uniform.vec2f(&self.resolution));
+
         try!(self.lighting_stage.gbuffer().unwrap().bind_textures(&self.screen_shader, &SCREEN_SHADER_NAMES));
 
         try!(self.screen.draw());
@@ -135,6 +142,8 @@ impl Pipeline {
         try!(self.geometry_stage.resize(width, height));
         try!(self.lighting_stage.resize(width, height));
         try!(self.final_stage.resize(width, height));
+
+        self.resolution = Vector2::new(width as f32, height as f32);
 
         Ok(())
     }
