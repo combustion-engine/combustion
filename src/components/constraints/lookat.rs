@@ -15,8 +15,7 @@ pub enum LookAtTarget {
 #[derive(Clone, Debug)]
 pub struct Component {
     pub target: LookAtTarget,
-    pub up: Vector3<f32>,
-    pub lh: bool
+    pub up: Vector3<f32>
 }
 
 impl specs::Component for Component {
@@ -29,7 +28,6 @@ impl Component {
         Component {
             target: target,
             up: Vector3::new(0.0, 1.0, 0.0),
-            lh: false
         }
     }
 }
