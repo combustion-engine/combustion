@@ -223,7 +223,7 @@ impl Buffer {
 
                 try!(buffer.buffer_elements(&indices, usage));
 
-                self.uv_buffer = Some(buffer);
+                self.index_buffer = Some(buffer);
             }
 
             self.num_indices = indices.len();
