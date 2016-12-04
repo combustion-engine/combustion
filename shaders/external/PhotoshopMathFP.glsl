@@ -1,3 +1,6 @@
+#ifndef SHADER_EXTERNAL_PHOTOSHOP_MATH_FP_INCLUDED
+#define SHADER_EXTERNAL_PHOTOSHOP_MATH_FP_INCLUDED
+
 /*
 ** Copyright (c) 2012, Romain Dura romain@shazbits.com
 ** 
@@ -261,3 +264,5 @@ vec3 BlendLuminosity(vec3 base, vec3 blend) {
 #define LevelsControlInput(color, minInput, gamma, maxInput)                    GammaCorrection(LevelsControlInputRange(color, minInput, maxInput), gamma)
 #define LevelsControlOutputRange(color, minOutput, maxOutput)                   mix(vec3(minOutput), vec3(maxOutput), color)
 #define LevelsControl(color, minInput, gamma, maxInput, minOutput, maxOutput)   LevelsControlOutputRange(LevelsControlInput(color, minInput, gamma, maxInput), minOutput, maxOutput)
+
+#endif //SHADER_EXTERNAL_PHOTOSHOP_MATH_FP_INCLUDED
