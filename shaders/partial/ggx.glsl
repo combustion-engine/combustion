@@ -4,17 +4,17 @@
 #include "../lib/constants.glsl"
 #include "../lib/utils.glsl"
 
-float ggx_distribution(float sigma2, float NdotH2) {
-    float denom = NdotH2 * (sigma2 - 1.0) + 1.0;
+float ggx_distribution(float sigma2, float NdotM2) {
+    float D = (NdotM2 * (sigma2 - 1.0)) + 1.0;
 
-    return sigma2 / (PI * denom * denom);
+    return sigma2 / (PI * D * D);
 }
 
-float gtr_distribution(float sigma2, float NdotH, float gamma) {
-    float N = chiX(NdotH) * (gamma - 1.0) * (sigma2 - 1.0);
+float ggx_distribution_gamma(float sigma2, float NdotM, float gamma) {
+    float N = chiX(NdotM) * (gamma - 1.0) * (sigma2 - 1.0);
 
     float D1 = PI * (1.0 - pow(sigma2, 1.0 - gamma));
-    float D2 = (NdotH * NdotH) * (sigma2 - 1.0) + 1.0;
+    float D2 = (NdotM * NdotM) * (sigma2 - 1.0) + 1.0;
 
     return N / (D1 * pow(D2, gamma));
 }
@@ -22,26 +22,26 @@ float gtr_distribution(float sigma2, float NdotH, float gamma) {
 //http://learnopengl.com/#!PBR/Theory
 //float ggx_schlick_distribution(float roughness, float NdotV)
 
-float ggx_anisotropic_distribution(float sigma, float NdotH2, vec3 H, vec3 X, vec3 Y, float ax, float ay) {
+float ggx_anisotropic_distribution(float sigma, float NdotM2, vec3 M, vec3 X, vec3 Y, float ax, float ay) {
     float sax = sigma * ax;
     float say = sigma * ay;
 
     float A = 1.0 / (PI * sax * say);
 
-    float XdotH = dot(X, H);
-    float YdotH = dot(Y, H);
+    float XdotM = dot(X, M);
+    float YdotM = dot(Y, M);
 
-    float B1 = (XdotH * XdotH) / (sax * sax);
-    float B2 = (YdotH * YdotH) / (say * say);
+    float B1 = (XdotM * XdotM) / (sax * sax);
+    float B2 = (YdotM * YdotM) / (say * say);
 
-    float B = B1 + B2 + NdotH2;
+    float B = B1 + B2 + NdotM2;
 
     return (A * (1.0 / (B * B)));
 }
 
-float ggx_geo_attenuation(float sigma2, float cosAlpha) {
-    return (chiX(cosAlpha) * 2.0 * cosAlpha) /
-           (cosAlpha + sqrt(sigma2 + ((1.0 - sigma2) * cosAlpha * cosAlpha)));
+float ggx_geo_attenuation(float sigma2, float NdotM) {
+    return (chiX(NdotM) * 2.0 * NdotM) /
+           (NdotM + sqrt(sigma2 + ((1.0 - sigma2) * NdotM * NdotM)));
 }
 
 //https://hal.inria.fr/hal-00942452v1/document
