@@ -1,0 +1,17 @@
+[package]
+authors = ["novacrazy <novacrazy@gmail.com>"]
+exclude = ["*.png"]
+include = ["Cargo.toml", "src/**/*.rs"]
+license = "MIT"
+name = "combustion_common"
+version = "0.1.0"
+
+[dependencies]
+lazy_static = "0.2.2"
+num-traits = "0.1.36"
+regex = "0.1.80"
+vec_map = "0.6.0"
+
+[lib]
+crate-type = ["dylib"]
+name = "combustion_common"
