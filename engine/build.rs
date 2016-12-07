@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate combustion_common as common;
 extern crate capnpc;
 
 use std::env;
@@ -16,23 +18,31 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) {
 }
 
 fn compile_capnprotos(out_dir: String) {
-    create_dir_all(out_dir + "/protocols").unwrap();
+    create_dir_all(out_dir.clone() + "/protocols").unwrap();
 
-    visit_dirs(Path::new("src"), &|entry: &DirEntry| {
+    visit_dirs(Path::new("src/protocols"), &|entry: &DirEntry| {
         if let Some(ext) = entry.path().as_path().extension() {
             if ext == "capnp" {
-                capnpc::CompilerCommand::new()
-                    .file(entry.path())
-                    .src_prefix("src")
-                    .run()
-                    .expect("compiling schema");
+                info!("Attempting to compile: {:?} to {}", entry.path(), out_dir);
+
+                if let Err(err) = capnpc::CompilerCommand::new().src_prefix("src").file(entry.path()).run() {
+                    error!("Failed to compile protocol: {}", err);
+                } else {
+                    info!("Success!");
+                }
             }
         }
     });
 }
 
 fn main() {
+    common::log::init_global_logger("logs/build").unwrap();
+
     let out_dir = env::var("OUT_DIR").unwrap();
 
+    info!("Compiling Cap'N Proto protocols");
     compile_capnprotos(out_dir.clone());
+    info!("Finished all Cap'N Proto protocols");
 }
+
+

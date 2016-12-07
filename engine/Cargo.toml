@@ -10,9 +10,13 @@ version = "0.1.0"
 [build-dependencies]
 capnpc = "0.7.5"
 
+[build-dependencies.combustion_common]
+path = "../common"
+
 [dependencies]
 capnp = "0.7.5"
 capnpc = "0.7.5"
+chrono = "0.2.25"
 enum_primitive = "0.1.0"
 hlua = "0.1.9"
 image = "0.10.3"
