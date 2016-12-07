@@ -49,6 +49,7 @@ uniform mat4 projection;
 uniform vec2 resolution;
 
 uniform float gamma = 2.2;
+uniform float depth_edge_threshold = 0.25;
 
 #include "lighting_phong.glsl"
 #include "lighting_pbr.glsl"
@@ -124,7 +125,7 @@ void main() {
     //Encode color Luma for FXAA usage
     gColor.a = dot(gColor.rgb, vec3(0.299, 0.587, 0.114));
 
-    if(sg < 0.25) {
+    if(sg < depth_edge_threshold) {
         //Invert Luma to tell the screen shader not to use FXAA on this texel
         gColor.a = -gColor.a;
     }
