@@ -4,3 +4,7 @@ bindings_doc
 *.iml
 Cargo.lock
 .DS_Store
+*.log
+engine/models/
+*.exe
+*.dll
