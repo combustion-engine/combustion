@@ -34,7 +34,7 @@ pub fn load(mut scene: &mut Scene) -> AppResult<()> {
 
         let buddha_source = try!(sources.add(Arc::new(buddha), "Twilight".into()));
 
-        println!("Twilight model stored at index: {}", buddha_source);
+        info!("Twilight model stored at index: {}", buddha_source);
 
         let buffer = GPU_Buffer::new();
 

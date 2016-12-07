@@ -96,7 +96,7 @@ enum RenderSignal {
 fn main() {
     let mut glfw: Glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    println!("Vulkan Supported: {}", glfw.vulkan_supported());
+    info!("Vulkan Supported: {}", glfw.vulkan_supported());
 
     //Create the window
     let (mut window, events): (glfw::Window, _) = nice_glfw::WindowBuilder::new(&mut glfw)
@@ -130,7 +130,7 @@ fn main() {
 
     //spawn new thread to handle all the rendering
     thread::spawn(move || {
-        println!("Rendering thread started...");
+        info!("Rendering thread started...");
 
         //Active context on current thread
         glfw::make_context_current(Some(&context));
@@ -239,7 +239,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
 
     //////////////////
 
-    println!("Loading scene...");
+    info!("Loading scene...");
 
     let effects = pp::PostprocessEffectBuilder::target_realtime_fast()
         .optimize_meshes(true)
@@ -254,7 +254,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
 
     //////////////////
 
-    println!("Loading textures...");
+    info!("Loading textures...");
 
     let mut texture: GLTexture = GLTexture::new(GLTextureKind::Texture2D).unwrap();
 
@@ -302,7 +302,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
     let mut ibo = 0;
     let mut ubo = 0;
 
-    println!("Buffering data...");
+    info!("Buffering data...");
 
     unsafe {
         // Create Vertex Array Object
@@ -316,7 +316,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
         let ref bitangents = mesh.bitangents().unwrap();
         let (dimensions, ref uvs) = mesh.uv_channel(0).unwrap();
 
-        println!("Loading model with {} indices", indices.len());
+        info!("Loading model with {} indices", indices.len());
 
         num_indices = indices.len();
 
@@ -439,7 +439,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
 
     u_pi.float1(PI).unwrap();
 
-    println!("Starting render loop...");
+    info!("Starting render loop...");
 
     'render: loop {
         let mut resize_to: Option<(i32, i32)> = None;
@@ -457,11 +457,11 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
                 },
                 RenderSignal::Resume => {
                     should_render = true;
-                    println!("Resuming render");
+                    info!("Resuming render");
                 },
                 RenderSignal::Pause => {
                     should_render = false;
-                    println!("Pausing render");
+                    info!("Pausing render");
                 }
                 RenderSignal::SetFOV(value) => {
                     fov_modifier += value;
@@ -486,7 +486,7 @@ fn render_task(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal
             if let Some((width, height)) = resize_to {
                 unsafe { Viewport(0, 0, width as GLsizei, height as GLsizei); }
 
-                println!("Viewport resized to {}x{}", width, height);
+                info!("Viewport resized to {}x{}", width, height);
             }
 
             let rot = rot_degrees.to_radians();

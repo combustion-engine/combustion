@@ -9,6 +9,8 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use assimp::error::AiError;
 
+pub use ::common::error::*;
+
 use ::backend::gl::GLError;
 
 pub type AppResult<T> = Result<T, AppError>;

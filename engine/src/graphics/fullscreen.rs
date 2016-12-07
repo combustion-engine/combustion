@@ -23,7 +23,7 @@ impl Toggle {
     pub fn toggle(&mut self, glfw: &mut Glfw, window: &mut Window) {
         if self.is_fullscreen {
             window.set_monitor(WindowMode::Windowed, self.last_pos.0, self.last_pos.1, self.last_size.0 as u32, self.last_size.1 as u32, None);
-            println!("Window restored to {:?} at location {:?}", self.last_size, self.last_pos);
+            info!("Window restored to {:?} at location {:?}", self.last_size, self.last_pos);
         } else {
             self.last_pos = window.get_pos();
             self.last_size = window.get_size();
@@ -35,7 +35,7 @@ impl Toggle {
 
                 window.set_monitor(WindowMode::FullScreen(&monitor), 0, 0, mode.width, mode.height, Some(mode.refresh_rate));
 
-                println!("{}x{} fullscreen enabled at {}Hz on monitor {}", mode.width, mode.height, mode.refresh_rate, monitor.get_name());
+                info!("{}x{} fullscreen enabled at {}Hz on monitor {}", mode.width, mode.height, mode.refresh_rate, monitor.get_name());
             });
         }
 

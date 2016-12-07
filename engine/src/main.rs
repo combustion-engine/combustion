@@ -21,8 +21,8 @@ extern crate num_cpus;
 extern crate vec_map;
 extern crate petgraph;
 extern crate lazy;
-#[macro_use]
-extern crate hlua;
+extern crate capnp;
+extern crate capnpc;
 
 #[macro_use]
 extern crate combustion_common as common;
@@ -49,9 +49,13 @@ pub mod graphics;
 pub mod game;
 pub mod scripting;
 
+use error::*;
+
 use graphics::{RenderSignal, FullscreenToggle};
 
 fn main() {
+    common::log::init_global_logger("logs").expect("Could not initialize logging system!");
+
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     let (mut window, events) = nice_glfw::WindowBuilder::new(&mut glfw)
@@ -66,7 +70,9 @@ fn main() {
         ])
         .title("Combustion")
         .create()
-        .expect("Couldn't create window");
+        .expect_logged("Couldn't create window");
+
+    info!("Window created");
 
     //Enable interactivity
     window.set_all_polling(true);
@@ -90,22 +96,22 @@ fn main() {
     let render_thread: thread::JoinHandle<_> = thread::Builder::new().name("Render thread".to_string()).spawn(move || {
         use graphics::render::RenderLoopState;
 
-        println!("Render thread started...");
+        info!("Render thread started...");
 
         //Make the OpenGL context active on the render thread
         glfw::make_context_current(Some(&context));
 
-        let mut state: RenderLoopState = RenderLoopState::new(60.0);
+        let mut state: RenderLoopState = RenderLoopState::new(144.0);
 
         state.unpause();
 
-        graphics::render::start(&mut state, context, rx).expect("Render thread crashed");
+        graphics::render::start(&mut state, context, rx).expect_logged("Render thread crashed");
 
         //Once rendering has ended, free the OpenGL context
         glfw::make_context_current(None);
 
-        println!("Finished after {} frames", state.total_frames());
-    }).expect("Could not create Render thread");
+        info!("Finished after {} frames", state.total_frames());
+    }).expect_logged("Could not create Render thread");
 
     //Create fullscreen toggle in primary thread
     let mut fullscreen = FullscreenToggle::new();
@@ -117,6 +123,8 @@ fn main() {
             ret
         })
     }
+
+    info!("Listening for events...");
 
     //Since the primary thread will do nothing but wait on events, do that
     while !window.should_close() {
@@ -153,10 +161,12 @@ fn main() {
         }
     }
 
-    println!("Shutting down...");
+    info!("Shutting down...");
 
     //Signal the render thread to close
-    send_and_unpark!(RenderSignal::Stop).expect("Failed to signal render task.");
+    send_and_unpark!(RenderSignal::Stop).expect_logged("Failed to signal render task.");
 
-    render_thread.join().expect("Failed to join render thread");
+    render_thread.join().expect_logged("Failed to join render thread");
+
+    info!("Goodbye");
 }

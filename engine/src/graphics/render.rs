@@ -79,7 +79,7 @@ impl<'a> RenderLoopState {
 }
 
 pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>) -> AppResult<()> {
-    println!("Targeting {}Hz", state.refresh_rate);
+    info!("Targeting {}Hz", state.refresh_rate);
 
     let mut scene = try!(Scene::new());
     let mut pipeline = try!(Pipeline::new(1280, 720));
@@ -101,21 +101,21 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
 
     //////////////////
 
-    println!("Loading textures...");
+    info!("Loading textures...");
 
     let texture = {
         use ::backend::gl::*;
 
         let mut texture = GLTexture::new(GLTextureKind::Texture2D).unwrap();
 
-        texture.load_from_file("models/uv_test_8K.png", None).expect("Couldn't load texture");
+        texture.load_from_file("models/uv_test_8K.png", None).expect_logged("Couldn't load texture");
 
-        texture.set_filter(GLTextureFilter::Linear, Some(GLTextureFilter::Linear)).expect("Couldn't set texture filtering");
+        texture.set_filter(GLTextureFilter::Linear, Some(GLTextureFilter::Linear)).expect_logged("Couldn't set texture filtering");
 
-        let max_anisotropy = texture.get_max_anisotropy().expect("Couldn't get max anisotropy value");
-        texture.set_anisotropy(max_anisotropy).expect("Couldn't set max anisotropy");
+        let max_anisotropy = texture.get_max_anisotropy().expect_logged("Couldn't get max anisotropy value");
+        texture.set_anisotropy(max_anisotropy).expect_logged("Couldn't set max anisotropy");
 
-        texture.generate_mipmap().expect("Couldn't generate mipmaps");
+        texture.generate_mipmap().expect_logged("Couldn't generate mipmaps");
 
         texture
     };
@@ -145,11 +145,11 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
                     },
                     RenderSignal::Resume => {
                         state.unpause();
-                        println!("Resuming...");
+                        info!("Resuming...");
                     },
                     RenderSignal::Pause => {
                         state.pause();
-                        println!("Pausing...");
+                        info!("Pausing...");
                     }
                     RenderSignal::Event(event) => {
                         event_queue.push(Event::WindowEvent(event));
@@ -200,7 +200,7 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
                                 let buffer = try!(buffer_lock.get_mut());
 
                                 try!(buffer.buffer_from_mesh(mesh, gl::GLBufferUsage::StaticDraw));
-                                debug_println!("Buffered renderable to GPU!");
+                                debug!("Buffered renderable to GPU!");
                             }
                         }
 
@@ -271,7 +271,7 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
 
                 try!(pipeline.resize(width as usize, height as usize));
 
-                println!("Viewport resized to {}x{}", width, height);
+                info!("Viewport resized to {}x{}", width, height);
             }
 
             //Step five, the geometry rendering
