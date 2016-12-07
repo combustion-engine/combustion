@@ -11,13 +11,13 @@ use super::screen::ScreenQuad;
 pub const GEOMETRY_STAGE_COMPONENTS: [(GLenum, GLenum); 3] = [
     (glb::RGBA, glb::RGBA16F),
     (glb::RGBA, glb::RGBA32F),
-    (glb::RGB, glb::RGB32F),
+    (glb::RGBA, glb::RGBA32F),
 ];
 
 pub const LIGHTING_STAGE_NAMES: [&'static str; 3] = [
     "ColorSs",
     "NormalMs",
-    "Positions"
+    "PositionDs"
 ];
 
 pub const LIGHTING_STAGE_COMPONENTS: [(GLenum, GLenum); 1] = [
@@ -140,6 +140,10 @@ impl Pipeline {
         check_errors!();
 
         try!(shader.use_program());
+
+        let mut res_uniform = try!(shader.get_uniform("resolution"));
+
+        try!(res_uniform.vec2f(&self.resolution));
 
         try!(self.geometry_stage.gbuffer().unwrap().bind_textures(&shader, &LIGHTING_STAGE_NAMES));
 

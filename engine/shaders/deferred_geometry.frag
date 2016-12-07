@@ -5,7 +5,7 @@ precision highp float;
 
 layout (location = 0) out vec4 gColorS;
 layout (location = 1) out vec4 gNormalM;
-layout (location = 2) out vec3 gPosition;
+layout (location = 2) out vec4 gPositionD;
 
 in vec3 Position;
 in vec3 Normal;
@@ -23,5 +23,6 @@ void main() {
     gNormalM.xyz = Normal;
     gNormalM.w = metallic;
 
-    gPosition.xyz = Position;
+    gPositionD.xyz = Position;
+    gPositionD.w = gl_FragCoord.z / gl_FragCoord.w;
 }

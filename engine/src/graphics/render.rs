@@ -99,8 +99,6 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
         .link()?
         .finish();
 
-    try!(lighting_shader.use_program());
-
     //////////////////
 
     println!("Loading textures...");
