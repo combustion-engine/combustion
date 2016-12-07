@@ -4,15 +4,15 @@
 #include "utils.glsl"
 
 float Sobel_T(sampler2D tex, float x, float y) {
-    return texture(tex, vec2(x, y)).w;
+    return texture(tex, vec2(x, y), 0.0).w;
 }
 
 float sobel(vec2 rcp, sampler2D tex, vec2 uv) {
     const float sobel_h1[5] = float[5](1, 2,  0, -2,  -1);
     const float sobel_h2[5] = float[5](4, 8,  0, -8,  -4);
     const float sobel_h3[5] = float[5](6, 12, 0, -12, -6);
-    const float sobel_h4[5] = float[5](1, 2,  0, -2,  -1);
-    const float sobel_h5[5] = float[5](4, 8,  0, -8,  -4);
+    const float sobel_h4[5] = float[5](4, 8,  0, -8,  -4);
+    const float sobel_h5[5] = float[5](1, 2,  0, -2,  -1);
 
     const float sobel_v1[5] = float[5](-1, -4,  -6, -4, -1);
     const float sobel_v2[5] = float[5](-2, -8, -12, -8, -2);
@@ -24,9 +24,10 @@ float sobel(vec2 rcp, sampler2D tex, vec2 uv) {
 
     float C[5 * 5];
 
-    for(int i = 0; i < 5; i++) {
-        for(int j = 0; j < 5; j++) {
-            C[i * j] = Sobel_T(tex, uv.x + (rcp.x * M[i]), uv.y + (rcp.y * M[j]));
+    for(int row = 0; row < 5; row++) {
+        for(int col = 0; col < 5; col++) {
+            C[row * col] = Sobel_T(tex, uv.x + (rcp.x * M[col]),
+                                        uv.y + (rcp.y * M[row]));
         }
     }
 
