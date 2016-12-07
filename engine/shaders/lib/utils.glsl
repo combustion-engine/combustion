@@ -1,6 +1,14 @@
 #ifndef SHADER_LIB_UTILS_GLSL_INCLUDED
 #define SHADER_LIB_UTILS_GLSL_INCLUDED
 
+float dot5(float a[5], float b[5 * 5], int x) {
+    return a[0] * b[0 * x] +
+           a[1] * b[1 * x] +
+           a[2] * b[2 * x] +
+           a[3] * b[3 * x] +
+           a[4] * b[4 * x];
+}
+
 vec4 unpack_channels(vec4 values) {
     return (2.0 * values) - 1.0;
 }
