@@ -1,11 +1,11 @@
 use super::bindings::types::*;
 use super::bindings::*;
 
+use std::sync::{Arc, RwLock};
 use std::os::raw::c_void;
 use std::ffi::{CStr, CString};
 use std::ptr;
 use std::mem;
-use std::sync::atomic::{AtomicPtr, Ordering};
 use enum_primitive::FromPrimitive;
 
 use super::gl_error::*;
@@ -59,7 +59,7 @@ enum_from_primitive! {
 
 impl From<GLDebugType> for String {
     fn from(value: GLDebugType) -> String {
-        format!("{}", match value {
+        match value {
             GLDebugType::Error => "Error",
             GLDebugType::DeprecatedBehavior => "Deprecated Behaviour",
             GLDebugType::UndefinedBehavior => "Undefined Behaviour",
@@ -69,7 +69,7 @@ impl From<GLDebugType> for String {
             GLDebugType::PushGroup => "Push Group",
             GLDebugType::PopGroup => "Pop Group",
             GLDebugType::Other => "Other",
-        }).into()
+        }.into()
     }
 }
 
@@ -91,12 +91,12 @@ enum_from_primitive! {
 
 impl From<GLDebugSeverity> for String {
     fn from(value: GLDebugSeverity) -> String {
-        format!("{}", match value {
+        match value {
             GLDebugSeverity::High => "High",
             GLDebugSeverity::Medium => "Medium",
             GLDebugSeverity::Low => "Low",
             GLDebugSeverity::Notification => "Notification",
-        }).into()
+        }.into()
     }
 }
 
@@ -187,6 +187,12 @@ pub fn send_debug_message(id: GLuint,
 
     Ok(())
 }
+lazy_static! {
+    pub static ref DEBUG_IGNORED: Arc<RwLock<Vec<GLuint>>> = {
+        //Default ignores
+        Arc::new(RwLock::new(vec![131169, 131185, 131218, 131204]))
+    };
+}
 
 extern "system" fn debug_callback(source: GLenum,
                                   ty: GLenum,
@@ -195,12 +201,12 @@ extern "system" fn debug_callback(source: GLenum,
                                   _: GLsizei, //length
                                   message: *const GLchar,
                                   callback_ptr: *mut c_void) {
-    if id == 131169 || id == 131185 || id == 131218 || id == 131204 {
+    if DEBUG_IGNORED.read().unwrap().contains(&id) {
         return;
     }
 
     if callback_ptr.is_null() {
-        errln!("Invalid callback supplied to OpenGL Debug Callback invocation function.");
+        error!("Invalid callback supplied to OpenGL Debug Callback invocation function.");
     } else {
         unsafe {
             let callback: GLDebugProc = mem::transmute(callback_ptr);
@@ -222,20 +228,21 @@ pub fn default_debug_callback(id: GLuint, source: GLDebugSource, ty: GLDebugType
     let header = format!("Debug message: ({}): {}", id, message);
     let line = repeat("-").take(min(80, header.len())).collect::<String>();
 
-    println!("{}", header);
-    println!("{}", line);
-    println!("Source:   {}", source.into_string());
-    println!("Type:     {}", ty.into_string());
+    info!("{}", header);
+    info!("{}", line);
+    info!("Source:   {}", source.into_string());
+    info!("Type:     {}", ty.into_string());
+
     let severity_line = format!("Severity: {}", severity.into_string());
 
-    println!("{}", severity_line);
+    info!("{}", severity_line);
 
     //Reuse the header line if possible
     if severity_line.len() <= line.len() {
-        println!("{}", &line[..severity_line.len()]);
+        info!("{}", &line[..severity_line.len()]);
     } else {
         let last_line = repeat("-").take(min(80, severity_line.len()) - line.len()).collect::<String>();
 
-        println!("{}{}", line, last_line);
+        info!("{}{}", line, last_line);
     }
 }

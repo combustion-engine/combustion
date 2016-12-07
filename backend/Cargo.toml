@@ -25,6 +25,6 @@ path = "E:/code/projects/2016/lazy"
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
 
-[lib]
-crate-type = ["dylib"]
-name = "combustion_backend"
+# [lib]
+# crate-type = ["staticlib"]
+# name = "combustion_backend"
