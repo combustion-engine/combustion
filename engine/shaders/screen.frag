@@ -14,8 +14,7 @@ in vec2 UV;
 uniform sampler2D screen;
 uniform vec2 resolution;
 
-void main()
-{
+void main() {
     vec2 rcp = 1.0 / resolution;
 
     //Filthy console dummies
@@ -60,10 +59,19 @@ void main()
     //   then start at zero and increase until aliasing is a problem.
     float fxaaQualityEdgeThresholdMin = 0.0312;
 
-    color = FxaaPixelShader(UV, dummy4,
-                            screen, screen, screen,
-                            rcp, dummy4, dummy4, dummy4,
-                            fxaaQualitySubpix, fxaaQualityEdgeThreshold,
-                            fxaaQualityEdgeThresholdMin,
-                            dummy1, dummy1, dummy1, dummy4);
+    vec4 original_color = texture(screen, UV);
+
+    //If we signalled from the lighting shader that this is not on an edge, use the original color
+    if(original_color.a < 0.0) {
+        color.rgb = original_color.rgb;
+        color.a = 1.0;
+    } else {
+        //Otherwise apply our modified FXAA to the edge
+        color = FxaaPixelShader(UV, dummy4,
+                                screen, screen, screen,
+                                rcp, dummy4, dummy4, dummy4,
+                                fxaaQualitySubpix, fxaaQualityEdgeThreshold,
+                                fxaaQualityEdgeThresholdMin,
+                                dummy1, dummy1, dummy1, dummy4);
+    }
 }

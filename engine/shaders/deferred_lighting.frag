@@ -33,6 +33,8 @@ precision highp float;
  *  https://mouaif.wordpress.com/2009/01/05/photoshop-math-with-glsl-shaders/
  *  http://developer.amd.com/wordpress/media/2012/10/ShaderX_PerPixelAniso.pdf
  *  https://gist.github.com/bkaradzic/6011431
+ *  http://computergraphics.stackexchange.com/questions/3646/opengl-glsl-sobel-edge-detection-filter
+ *  http://www.cim.mcgill.ca/~image529/TA529/Image529_99/assignments/edge_detection/references/sobel.htm
  *
  * Videos/Presentations:
  *  https://www.youtube.com/watch?v=j-A0mwsJRmk
@@ -44,11 +46,14 @@ precision highp float;
 uniform vec3 view_position;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec2 resolution;
 
 uniform float gamma = 2.2;
 
 #include "lighting_phong.glsl"
 #include "lighting_pbr.glsl"
+
+#include "lib/sobel.glsl"
 
 layout (location = 0) out vec4 gColor;
 
@@ -56,7 +61,7 @@ in vec2 UV;
 
 uniform sampler2D ColorSs;
 uniform sampler2D NormalMs;
-uniform sampler2D Positions;
+uniform sampler2D PositionDs;
 
 void main() {
     vec2 MUV = UV;
@@ -69,7 +74,7 @@ void main() {
     } else if(UV.x > 0.5 && UV.y < 0.5) {
         gColor.rgb = texture(NormalMs, MUV).rgb;
     } else if(UV.x < 0.5 && UV.y > 0.5) {
-        gColor.rgb = texture(Positions, MUV).rgb;
+        gColor.rgb = texture(PositionDs, MUV).rgb;
     } else {
 #endif
 
@@ -78,7 +83,11 @@ void main() {
 
     vec3 Color      = gamma_decode(ColorS.rgb, 2.2);
     vec3 Normal     = normalize(NormalM.xyz);
-    vec3 Position   = texture(Positions, MUV).xyz;
+    vec4 PositionD  = texture(PositionDs, MUV);
+    vec3 Position = PositionD.xyz;
+    float Depth = PositionD.w;
+
+    float sg = sobel(1.0 / resolution, PositionDs, MUV);
 
     float smoothness = ColorS.w;
     float roughness = pow(1.0 - smoothness, 2.0);
@@ -114,4 +123,9 @@ void main() {
 
     //Encode color Luma for FXAA usage
     gColor.a = dot(gColor.rgb, vec3(0.299, 0.587, 0.114));
+
+    if(sg < 0.25) {
+        //Invert Luma to tell the screen shader not to use FXAA on this texel
+        gColor.a = -gColor.a;
+    }
 }
