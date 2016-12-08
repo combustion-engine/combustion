@@ -6,5 +6,6 @@ use common::log::init_global_logger;
 fn main() {
     init_global_logger("logs").unwrap();
 
-    info!("Testing")
+    info!("Testing");
+    error!("Error message");
 }

@@ -23,8 +23,8 @@ pub fn new_logger<P: AsRef<Path>>(path: P) -> io::Result<slog::Logger> {
 
     let log_file = try!(File::create(dir.as_path()));
 
-    let term_drain = slog_term::streamer().plain().use_utc_timestamp().async().build();
-    let file_drain = slog_stream::async_stream(log_file, EngineLogger);
+    let term_drain = slog_term::streamer().plain().use_utc_timestamp().build();
+    let file_drain = slog_stream::stream(log_file, EngineLogger);
 
     let logger = slog::Logger::root(slog::duplicate(term_drain, file_drain).fuse(), o!());
 
@@ -45,6 +45,13 @@ struct EngineLogger;
 
 impl slog_stream::Format for EngineLogger {
     fn format(&self, io: &mut Write, info: &slog::Record, _: &slog::OwnedKeyValueList) -> io::Result<()> {
-        writeln!(io, "{}: {}", chrono::UTC::now().to_rfc2822(), info.msg())
+        let level = slog::LOG_LEVEL_SHORT_NAMES[info.level().as_usize()];
+
+        if info.level().is_at_least(slog::Level::Warning) {
+            writeln!(io, "{}: {} - {}\n\tat {}:{}:{}", chrono::UTC::now().to_rfc2822(), level, info.msg(),
+                     info.file(), info.line(), info.column())
+        } else {
+            writeln!(io, "{}: {} - {}", chrono::UTC::now().to_rfc2822(), level, info.msg())
+        }
     }
 }
