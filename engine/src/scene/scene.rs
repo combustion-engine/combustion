@@ -76,6 +76,16 @@ impl<'a> Scene<'a> {
         self.planner.mut_world().write_resource()
     }
 
+    #[inline]
+    pub fn graph(&mut self) -> RwLockReadGuard<resources::scene_graph::Resource> {
+        self.planner.mut_world().read_resource()
+    }
+
+    #[inline]
+    pub fn mut_graph(&mut self) -> RwLockWriteGuard<resources::scene_graph::Resource> {
+        self.planner.mut_world().write_resource()
+    }
+
     #[inline(always)]
     pub fn world(&mut self) -> &mut specs::World {
         self.planner.mut_world()

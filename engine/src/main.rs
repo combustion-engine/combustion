@@ -1,4 +1,5 @@
-#![allow(unknown_lints, unused_imports, dead_code, inline_always, toplevel_ref_arg)]
+#![allow(unused_imports, dead_code)]
+#![allow(unknown_lints, inline_always, toplevel_ref_arg)]
 #![feature(proc_macro, receiver_try_iter, specialization)]
 
 #[macro_use]
@@ -48,6 +49,7 @@ pub mod scene;
 pub mod graphics;
 pub mod game;
 pub mod scripting;
+pub mod protocols;
 
 use error::*;
 
