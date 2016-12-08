@@ -1,17 +1,22 @@
 [package]
 authors = ["novacrazy <novacrazy@gmail.com>"]
-build = "build.rs"
 exclude = ["*.png"]
 include = ["Cargo.toml", "src/**/*.rs"]
 license = "MIT"
 name = "combustion"
 version = "0.1.0"
 
-[build-dependencies]
-capnpc = "0.7.5"
-
 [build-dependencies.combustion_common]
 path = "../common"
+
+[dependencies.combustion_backend]
+path = "../backend"
+
+[dependencies.combustion_common]
+path = "../common"
+
+[dependencies.combustion_protocols]
+path = "../protocols"
 
 [dependencies]
 capnp = "0.7.5"
@@ -33,23 +38,20 @@ vec_map = "0.6.0"
 
 [dependencies.assimp]
 features = ["default", "compat"]
-path = "E:/code/projects/2016/assimp-rs"
+path = "../deps/assimp-rs"
 
-[dependencies.combustion_backend]
-path = "../backend"
+[dependencies.lazy]
+path = "../deps/lazy"
 
-[dependencies.combustion_common]
-path = "../common"
+[dependencies.nice_glfw]
+path = "../deps/nice_glfw"
+
+[dependencies.squirrel-rs]
+path = "../deps/squirrel-rs"
 
 [dependencies.glfw]
 features = ["all"]
 version = "0.11.0"
-
-[dependencies.lazy]
-path = "E:/code/projects/2016/lazy"
-
-[dependencies.nice_glfw]
-path = "E:/code/projects/2016/nice_glfw"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
@@ -57,6 +59,3 @@ git = "git://github.com/Ogeon/palette.git"
 [dependencies.specs]
 features = ["parallel"]
 git = "git://github.com/slide-rs/specs.git"
-
-[dependencies.squirrel-rs]
-path = "E:/code/projects/2016/squirrel-rs"

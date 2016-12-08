@@ -20,7 +20,7 @@ vec_map = "0.6.0"
 path = "../common/"
 
 [dependencies.lazy]
-path = "E:/code/projects/2016/lazy"
+path = "../deps/lazy"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"

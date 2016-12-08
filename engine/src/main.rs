@@ -1,6 +1,7 @@
 #![allow(unused_imports, dead_code)]
 #![allow(unknown_lints, inline_always, toplevel_ref_arg)]
 #![feature(proc_macro, receiver_try_iter, specialization)]
+#![crate_type = "bin"]
 
 #[macro_use]
 extern crate lazy_static;
@@ -58,7 +59,7 @@ use graphics::{RenderSignal, FullscreenToggle};
 fn main() {
     common::log::init_global_logger("logs").expect("Could not initialize logging system!");
 
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).expect_logged("Could not initialize GLFW!");
 
     let (mut window, events) = nice_glfw::WindowBuilder::new(&mut glfw)
         .try_modern_context_hints()
