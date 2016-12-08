@@ -3,15 +3,24 @@ authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "texture_compressor"
 version = "0.1.0"
 
+[dependencies]
+clap = "2.19.1"
+glfw = "0.11.0"
+image = "0.10.4"
+
 [dependencies.combustion_backend]
 path = "../../backend"
 
 [dependencies.combustion_common]
 path = "../../common"
 
-[dependencies]
-glfw = "0.11.0"
-image = "0.10.4"
-
 [dependencies.nice_glfw]
-path = "E:/code/projects/2016/nice_glfw"
+path = "../../deps/nice_glfw"
+
+[[bin]]
+name = "texture_compressor"
+path = "src/main.rs"
+
+[lib]
+name = "texture_compressor"
+path = "src/lib.rs"
