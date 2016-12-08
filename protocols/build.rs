@@ -22,8 +22,6 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) {
 
 /// Visit directories, find .capnp files, compile them, then replace absolute module references with `super` in the output code.
 fn compile_capnprotos(out_dir: String) {
-    warn!("{}", out_dir);
-
     create_dir_all(out_dir.clone() + "/protocols").unwrap();
 
     visit_dirs(Path::new("src/protocols"), &|entry: &DirEntry| {

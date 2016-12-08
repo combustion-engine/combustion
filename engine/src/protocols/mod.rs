@@ -1,1 +1,1 @@
-pub mod model_capnp;
+pub mod model;
