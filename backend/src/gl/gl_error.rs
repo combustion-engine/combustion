@@ -1,8 +1,6 @@
 use super::bindings::types::*;
 use super::bindings::*;
 
-use super::GLObject;
-
 use std::error::Error;
 use std::io;
 use std::fmt::{Display, Formatter, Result as FmtResult};
