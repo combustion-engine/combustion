@@ -36,6 +36,14 @@ impl Stage {
         Ok(())
     }
 
+    pub fn set_wrap(&mut self, wrap: GLTextureWrap) -> GLResult<()> {
+        if let Some(mut gbuffer) = self.gbuffer.as_mut() {
+            try!(gbuffer.set_wrap(wrap));
+        }
+
+        Ok(())
+    }
+
     pub fn resize(&mut self, width: usize, height: usize) -> GLResult<()> {
         if let Some(mut gbuffer) = self.gbuffer.as_mut() {
             try!(gbuffer.resize(width, height));

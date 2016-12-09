@@ -94,6 +94,14 @@ impl Gbuffer {
         Ok(())
     }
 
+    pub fn set_wrap(&mut self, wrap: GLTextureWrap) -> GLResult<()> {
+        for(_, mut texture) in self.buffers.iter_mut() {
+            try!(texture.set_wrap(wrap));
+        }
+
+        Ok(())
+    }
+
     pub fn bind_textures(&self, shader: &GLShaderProgram, names: &[&str]) -> GLResult<()> {
         for ((i, texture), name) in self.buffers.iter().zip(names.iter()) {
             let mut loc = try!(shader.get_uniform(name));

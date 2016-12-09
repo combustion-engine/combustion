@@ -67,6 +67,7 @@ impl Pipeline {
 
         //TODO: Move this to whatever stage is right before the screen stage
         try!(lighting_stage.set_filter(GLTextureFilter::Linear));
+        try!(lighting_stage.set_wrap(GLTextureWrap::ClampToEdge));
 
         Ok(Pipeline {
             geometry_stage: geometry_stage,
