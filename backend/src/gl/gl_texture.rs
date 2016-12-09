@@ -345,9 +345,9 @@ impl GLTexture {
         if dim < self.kind.dimensions() {
             unsafe {
                 TexParameteri(self.kind as GLenum, match dim {
-                    1 => TEXTURE_WRAP_S,
-                    2 => TEXTURE_WRAP_T,
-                    3 => TEXTURE_WRAP_R,
+                    0 => TEXTURE_WRAP_S,
+                    1 => TEXTURE_WRAP_T,
+                    2 => TEXTURE_WRAP_R,
                     _ => unreachable!()
                 }, mode as GLint);
             }
