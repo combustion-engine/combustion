@@ -169,6 +169,9 @@ vec3 ContrastSaturationBrightness(vec3 color, float brt, float sat, float con) {
     return conColor;
 }
 
+vec4 ContrastSaturationBrightness(vec4 color, float brt, float sat, float con) {
+    return vec4(ContrastSaturationBrightness(color.rgb, brt, sat, con), color.a);
+}
 
 /*
 ** Float blending modes
