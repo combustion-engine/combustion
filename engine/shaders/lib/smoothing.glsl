@@ -27,8 +27,7 @@ float smooth_cos_clamped(float edge0, float edge1, float x) {
     return 1.0 - cos(clamp(scale(edge0, edge1, x), 0.0, 1.0) * FRAC_PI_2);
 }
 
-float smootherstep(float edge0, float edge1, float x)
-{
+float smootherstep(float edge0, float edge1, float x) {
     x = clamp(scale(edge0, edge1, x), 0.0, 1.0);
 
     return x * x * x * (x * (x * 6 - 15) + 10);
