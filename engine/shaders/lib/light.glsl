@@ -75,5 +75,35 @@ void test_lights() {
         10,                   //intensity
         false
     );
+
+    lights[3] = Light(
+        vec2(0, 100000),    //zdistance
+        vec3(0, 2, 0),      //position
+        vec3(0, -1, 0),      //direction
+        vec4(1, 1, 1, 1),   //color
+        vec4(1, 1, 1, 1),   //ambient color
+        SPOT_LIGHT,        //kind
+        50,                 //radius
+        radians(7.0),
+        radians(15.0),
+        1,
+        10,                   //intensity
+        false
+    );
+
+    lights[4] = Light(
+        vec2(0, 100000),    //zdistance
+        vec3(0, 6, 0),      //position
+        vec3(0, -1, 0),      //direction
+        vec4(1, 1, 1, 1),   //color
+        vec4(1, 1, 1, 1),   //ambient color
+        SPOT_LIGHT,        //kind
+        50,                 //radius
+        radians(7.0),
+        radians(15.0),
+        1,
+        10,                   //intensity
+        false
+    );
 }
 #endif //SHADER_LIB_LIGHT_GLSL_INCLUDED
