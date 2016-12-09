@@ -22,16 +22,23 @@ struct Light {
     bool disabled;              //Pretty obvious
 };
 
+#define DISABLED_LIGHT Light(vec2(0), vec3(0), vec3(0), vec4(0), vec4(0), DIRECTIONAL_LIGHT, 0, 0, 0, 0, 0, true)
+
 #define MAX_LIGHTS 16
 
-Light lights[MAX_LIGHTS];
-
-void test_lights() {
-    for(int i = 0; i < MAX_LIGHTS; i++) {
-        lights[i].disabled = true;
-    }
-
-    lights[0] = Light(
+Light lights[MAX_LIGHTS] = Light[MAX_LIGHTS](
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    DISABLED_LIGHT,
+    Light(
         vec2(0, 100000),    //zdistance
         vec3(0, 0, 10),      //position
         vec3(-1, -1, -1),      //direction
@@ -44,9 +51,8 @@ void test_lights() {
         1,
         100,                   //intensity
         false
-    );
-
-    lights[1] = Light(
+    ),
+    Light(
         vec2(0, 100000),    //zdistance
         vec3(5, 0, -5),      //position
         vec3(-1, -1, -1),      //direction
@@ -59,9 +65,8 @@ void test_lights() {
         1,
         100,                   //intensity
         false
-    );
-
-    lights[2] = Light(
+    ),
+    Light(
         vec2(0, 100000),    //zdistance
         vec3(0, 0, 10),      //position
         vec3(0, 0, -1),      //direction
@@ -74,9 +79,8 @@ void test_lights() {
         1,
         10,                   //intensity
         false
-    );
-
-    lights[3] = Light(
+    ),
+    Light(
         vec2(0, 100000),    //zdistance
         vec3(0, 2, 0),      //position
         vec3(0, -1, 0),      //direction
@@ -89,9 +93,8 @@ void test_lights() {
         1,
         10,                   //intensity
         false
-    );
-
-    lights[4] = Light(
+    ),
+    Light(
         vec2(0, 100000),    //zdistance
         vec3(0, 6, 0),      //position
         vec3(0, -1, 0),      //direction
@@ -104,6 +107,10 @@ void test_lights() {
         1,
         10,                   //intensity
         false
-    );
+    )
+);
+
+void test_lights() {
+
 }
 #endif //SHADER_LIB_LIGHT_GLSL_INCLUDED
