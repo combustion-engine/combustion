@@ -1,5 +1,6 @@
 #version 330 core
 #extension GL_ARB_gpu_shader5 : enable
+#pragma optionNV (unroll all)
 
 out vec4 color;
 
