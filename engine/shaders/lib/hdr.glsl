@@ -48,7 +48,15 @@ vec3 ACESFilm_tonemap(vec3 x) {
     return (x * (A * x + B)) / (x * (C * x + D) + E);
 }
 
+vec4 ACESFilm_tonemap(vec4 x) {
+    return vec4(ACESFilm_tonemap(x.rgb), x.a);
+}
+
 vec3 ACESFilm_tonemap_exposure(vec3 color, float exposure_bias) {
+    return ACESFilm_tonemap(color * exposure_bias);
+}
+
+vec4 ACESFilm_tonemap_exposure(vec4 color, float exposure_bias) {
     return ACESFilm_tonemap(color * exposure_bias);
 }
 
