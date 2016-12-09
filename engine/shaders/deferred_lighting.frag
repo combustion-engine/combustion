@@ -49,12 +49,14 @@ uniform mat4 projection;
 uniform vec2 resolution;
 
 uniform float gamma = 2.2;
+uniform float exposure = 1.0;
 uniform float depth_edge_threshold = 0.25;
 
 #include "lighting_phong.glsl"
 #include "lighting_pbr.glsl"
 
-#include "lib/sobel.glsl"
+#include "lib/convolution/sobel5.glsl"
+#include "lib/color.glsl"
 
 layout (location = 0) out vec4 gColor;
 
@@ -88,8 +90,6 @@ void main() {
     vec3 Position = PositionD.xyz;
     float Depth = PositionD.w;
 
-    float sg = sobel(1.0 / resolution, PositionDs, MUV);
-
     float smoothness = ColorS.w;
     float roughness = pow(1.0 - smoothness, 2.0);
     float metallic  = NormalM.w;
@@ -97,7 +97,7 @@ void main() {
     if(length(Normal) > EPSILON) {
         test_lights();
 
-        const float clearcoat = 1.0;
+        const float clearcoat = 0.0;
         const float retro_reflection = 1.0;
         const float metallic_absorption = 0.4;
         const float albedo = 1.0;
@@ -107,11 +107,14 @@ void main() {
 
         //gColor.rgb = calc_lighting_phong(Color, Position, Normal, view_position, albedo, metallic).rgb;
 
-        gColor.rgb = calc_lighting_pbr(Color, Position, Normal, view_position,
-            roughness, clearcoat, metallic, metallic_absorption, albedo, retro_reflection, ior, anisotropy, anisotropic_ratio).rgb;
+        vec4 HDR_Color = calc_lighting_pbr(Color, Position, Normal, view_position,
+            roughness, clearcoat, metallic, metallic_absorption, albedo, retro_reflection, ior, anisotropy, anisotropic_ratio);
+
+        //Map HDR into linear space
+        vec4 LDR_Color = ACESFilm_tonemap_exposure(HDR_Color, exposure);
 
         //Convert to gamma space
-        gColor.rgb = gamma_encode(gColor.rgb, gamma);
+        gColor.rgb = gamma_encode(LDR_Color.rgb, gamma);
     }
 
 #ifdef DEBUG
@@ -122,10 +125,13 @@ void main() {
     gColor.rgb += (0.0001 / abs(UV.y - 0.5));
 #endif
 
+    //Get the edges
+    float edge = sobel5(1.0 / resolution, PositionDs, MUV);
+
     //Encode color Luma for FXAA usage
     gColor.a = dot(gColor.rgb, vec3(0.299, 0.587, 0.114));
 
-    if(sg < depth_edge_threshold) {
+    if(edge < depth_edge_threshold) {
         //Invert Luma to tell the screen shader not to use FXAA on this texel
         gColor.a = -gColor.a;
     }

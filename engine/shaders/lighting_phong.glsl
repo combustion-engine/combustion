@@ -119,9 +119,6 @@ vec4 calc_lighting_phong(vec3 color,
     linear_color.rgb += (diffuse_color + specular_color).rgb * color.rgb;
     //linear_color.rgb += blended_specular_color;
 
-    //Map HDR into linear space
-    linear_color.rgb = ACESFilm_tonemap_exposure(linear_color.rgb, 2.0);
-
     return linear_color;
 }
 

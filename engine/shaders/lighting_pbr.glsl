@@ -180,9 +180,6 @@ vec4 calc_lighting_pbr(vec3 color,
     linear_color.rgb += BlendMultiply(color.rgb, diffuse_color.rgb) + blended_specular_color;
     //linear_color.rgb += specular_color.rgb;
 
-    //Map HDR into linear space
-    linear_color.rgb = ACESFilm_tonemap_exposure(linear_color.rgb, 2.0);
-
     return linear_color;
 }
 
