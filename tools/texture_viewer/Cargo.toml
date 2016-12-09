@@ -1,12 +1,11 @@
 [package]
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
-name = "texture_compressor"
+name = "texture_viewer"
 version = "0.1.0"
 
 [dependencies]
 clap = "2.19.1"
 glfw = "0.11.0"
-image = "0.10.4"
 
 [dependencies.combustion_backend]
 path = "../../backend"
@@ -21,5 +20,5 @@ path = "../../protocols"
 path = "../../deps/nice_glfw"
 
 [[bin]]
-name = "texture_compressor"
+name = "texture_viewer"
 path = "src/main.rs"

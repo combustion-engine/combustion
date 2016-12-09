@@ -1,2 +1,2 @@
 [workspace]
-members = ["common", "backend", "protocols", "engine", "tools/texture_compressor"]
+members = ["common", "backend", "protocols", "engine", "tools/texture_compressor", "tools/texture_viewer"]
