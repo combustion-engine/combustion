@@ -1,13 +1,13 @@
 #ifndef SHADER_LIB_SOBEL_GLSL_INCLUDED
 #define SHADER_LIB_SOBEL_GLSL_INCLUDED
 
-#include "utils.glsl"
+#include "../utils.glsl"
 
-float Sobel_T(sampler2D tex, float x, float y) {
+float sobel5_T(sampler2D tex, float x, float y) {
     return texture(tex, vec2(x, y), 0.0).w;
 }
 
-float sobel(vec2 rcp, sampler2D tex, vec2 uv) {
+float sobel5(vec2 rcp, sampler2D tex, vec2 uv) {
     const float sobel_h1[5] = float[5](1, 2,  0, -2,  -1);
     const float sobel_h2[5] = float[5](4, 8,  0, -8,  -4);
     const float sobel_h3[5] = float[5](6, 12, 0, -12, -6);
@@ -26,8 +26,8 @@ float sobel(vec2 rcp, sampler2D tex, vec2 uv) {
 
     for(int row = 0; row < 5; row++) {
         for(int col = 0; col < 5; col++) {
-            C[row * col] = Sobel_T(tex, uv.x + (rcp.x * M[col]),
-                                        uv.y + (rcp.y * M[row]));
+            C[row + col * 5] = sobel5_T(tex, uv.x + (rcp.x * M[col]),
+                                             uv.y + (rcp.y * M[row]));
         }
     }
 
