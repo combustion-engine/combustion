@@ -1,7 +1,7 @@
 [package]
 authors = ["novacrazy <novacrazy@gmail.com>"]
 exclude = ["*.png"]
-include = ["Cargo.toml", "src/**/*.rs"]
+include = ["Cargo.toml", "src/**/*.rs", "src/**/*.capnp"]
 license = "MIT"
 name    = "combustion_protocols"
 version = "0.1.0"
