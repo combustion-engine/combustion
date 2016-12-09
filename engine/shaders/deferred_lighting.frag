@@ -50,6 +50,10 @@ uniform vec2 resolution;
 
 uniform float gamma = 2.2;
 uniform float exposure = 1.0;
+uniform float brightness = 1.0;
+uniform float saturation = 1.0;
+uniform float contrast = 1.0;
+
 uniform float depth_edge_threshold = 0.25;
 
 #include "lighting_phong.glsl"
@@ -68,6 +72,7 @@ uniform sampler2D PositionDs;
 
 void main() {
     vec2 MUV = UV;
+    vec2 rcp = 1.0 / resolution;
 
 #ifdef DEBUG
     MUV *= 2.0;
@@ -113,20 +118,15 @@ void main() {
         //Map HDR into linear space
         vec4 LDR_Color = ACESFilm_tonemap_exposure(HDR_Color, exposure);
 
+        //Apply color transforms
+        LDR_Color = ContrastSaturationBrightness(LDR_Color, brightness, saturation, contrast);
+
         //Convert to gamma space
         gColor.rgb = gamma_encode(LDR_Color.rgb, gamma);
     }
 
-#ifdef DEBUG
-    }
-
-    //Add lines between quadrants
-    gColor.rgb += (0.0001 / abs(UV.x - 0.5));
-    gColor.rgb += (0.0001 / abs(UV.y - 0.5));
-#endif
-
     //Get the edges
-    float edge = sobel5(1.0 / resolution, PositionDs, MUV);
+    float edge = sobel5(rcp, PositionDs, MUV);
 
     //Encode color Luma for FXAA usage
     gColor.a = dot(gColor.rgb, vec3(0.299, 0.587, 0.114));
@@ -135,4 +135,14 @@ void main() {
         //Invert Luma to tell the screen shader not to use FXAA on this texel
         gColor.a = -gColor.a;
     }
+#ifdef DEBUG
+    else {
+        gColor.rgb = vec3(1.0);
+    }
+    }
+
+    //Add lines between quadrants
+    gColor.rgb += (rcp.x / abs(UV.x - 0.5));
+    gColor.rgb += (rcp.y / abs(UV.y - 0.5));
+#endif
 }
