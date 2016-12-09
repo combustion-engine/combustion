@@ -31,6 +31,7 @@ fn compile_capnprotos(out_dir: String) {
 
                 if let Err(err) = capnpc::CompilerCommand::new().src_prefix("src").file(entry.path()).run() {
                     error!("Failed to compile protocol: {}", err);
+                    panic!("Failed to compile protocol: {}", err);
                 } else {
                     info!("Attempting to replace absolute module paths with `super`");
 
