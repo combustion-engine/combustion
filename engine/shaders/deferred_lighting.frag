@@ -59,7 +59,8 @@ uniform float depth_edge_threshold = 0.25;
 #include "lighting_phong.glsl"
 #include "lighting_pbr.glsl"
 
-#include "lib/convolution/sobel5.glsl"
+#include "lib/convolution/sobel.glsl"
+
 #include "lib/color.glsl"
 
 layout (location = 0) out vec4 gColor;
@@ -99,13 +100,21 @@ void main() {
     float roughness = pow(1.0 - smoothness, 2.0);
     float metallic  = NormalM.w;
 
+    //Get the edges
+    float edge = sobel5w(rcp, PositionDs, MUV);
+
+    //Uncomment this to show edge detection
+    //gColor.rgb = vec3(edge);
+    //gColor.a = -1.0;
+    //return;
+
     if(length(Normal) > EPSILON) {
         test_lights();
 
-        const float clearcoat = 0.0;
+        const float clearcoat = 0.9;
         const float retro_reflection = 1.0;
         const float metallic_absorption = 0.4;
-        const float albedo = 1.0;
+        const float albedo = 0.8;
         const float ior = 1.0;
         const float anisotropy = 0.0;
         const float anisotropic_ratio = 2.0;
@@ -121,12 +130,12 @@ void main() {
         //Apply color transforms
         LDR_Color = ContrastSaturationBrightness(LDR_Color, brightness, saturation, contrast);
 
-        //Convert to gamma space
-        gColor.rgb = gamma_encode(LDR_Color.rgb, gamma);
-    }
+        //Convert to gamma space and clamp to 0-1
+        gColor.rgb = clamp(gamma_encode(LDR_Color.rgb, gamma), 0.0, 1.0);
 
-    //Get the edges
-    float edge = sobel5(rcp, PositionDs, MUV);
+    } else {
+        gColor.rgb = vec3(0.25);
+    }
 
     //Encode color Luma for FXAA usage
     gColor.a = dot(gColor.rgb, vec3(0.299, 0.587, 0.114));
