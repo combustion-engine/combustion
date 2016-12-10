@@ -9,6 +9,7 @@ use image::{self, DynamicImage, GenericImage};
 use capnp;
 
 use common::error::*;
+use common::utils::*;
 
 use backend::gl::*;
 use backend::gl::types::*;
@@ -22,13 +23,19 @@ pub enum RenderSignal {
     Stop,
     Refresh,
     Resize(i32, i32),
-    ChangeTexture(PathBuf)
+    ChangeTexture(PathBuf),
+    Zoom(f64),
+    Move(f64, f64)
 }
 
 pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>) -> GLResult<()> {
     let mut active_texture = try!(GLTexture::new(GLTextureKind::Texture2D));
 
-    try!(active_texture.set_filter(GLTextureFilter::Nearest, None));
+    try!(active_texture.set_filter(GLTextureFilter::Nearest, Some(GLTextureFilter::Nearest)));
+    try!(active_texture.set_wrap(GLTextureWrap::ClampToBorder));
+
+    let max_anisotropy = active_texture.get_max_anisotropy().expect_logged("Couldn't get max anisotropy value");
+    active_texture.set_anisotropy(max_anisotropy).expect_logged("Couldn't set max anisotropy");
 
     let mut screen = try!(ScreenQuad::new());
 
@@ -41,13 +48,14 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
         .link()?
         .finish();
 
-    let mut resolution: (u32, u32) = (600, 800);
+    let mut resolution: (u32, u32) = (800, 600);
     let mut texture_resolution: (u32, u32) = (0, 0);
+    let mut zoom: f64 = 1.0;
+    let mut pos: (f64, f64) = (0.0, 0.0);
 
     'render: loop {
         let mut viewport_size = None;
 
-        //Block for events then process when necessary
         for event in rx.try_iter() {
             match event {
                 RenderSignal::Stop => {
@@ -57,6 +65,13 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                 RenderSignal::Resize(width, height) => {
                     viewport_size = Some((width, height));
                 }
+                RenderSignal::Zoom(value) => {
+                    zoom = clamp(zoom - value, 0.1, 100.0);
+                }
+                RenderSignal::Move(x, y) => {
+                    pos.0 += x;
+                    pos.1 += y;
+                }
                 RenderSignal::ChangeTexture(path) => {
                     try!(active_texture.bind());
 
@@ -64,6 +79,8 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                         use self::protocols::texture;
                         use self::protocols::texture::protocol::{Format as TextureFormat, Compression};
                         use self::protocols::texture::protocol::texture as texture_protocol;
+
+                        info!("Buffering Combustion texture...");
 
                         let mut file = BufReader::new(File::open(path)?);
 
@@ -122,6 +139,12 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
 
                         check_errors!();
                     }
+
+                    info!("Generating mipmaps...");
+                    try!(active_texture.generate_mipmap());
+
+                    zoom = 1.0;
+                    pos = (0.0, 0.0);
                 }
             }
         }
@@ -138,20 +161,21 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
 
         try!(screen_shader.use_program());
 
-        info!("Rendering...");
-        try!(screen.draw());
-
         let mut res_uniform = try!(screen_shader.get_uniform("resolution"));
         let mut tex_res_uniform = try!(screen_shader.get_uniform("texture_resolution"));
+        let mut zoom_uniform = try!(screen_shader.get_uniform("zoom"));
+        let mut pos_uniform = try!(screen_shader.get_uniform("pos"));
 
         try!(res_uniform.float2(resolution.0 as f32, resolution.1 as f32));
         try!(tex_res_uniform.float2(texture_resolution.0 as f32, texture_resolution.1 as f32));
+        try!(zoom_uniform.float1(zoom as f32));
+        try!(pos_uniform.float2(pos.0 as f32, pos.1 as f32));
+
+        try!(screen.draw());
 
         context.swap_buffers();
 
-        info!("Parking...");
         ::std::thread::park();
-        info!("Resuming...");
     }
 
     Ok(())

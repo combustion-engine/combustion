@@ -107,6 +107,9 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
 
     info!("Listening for events...");
 
+    let mut left_mouse_pressed = false;
+    let mut last_cursor_pos = (0.0, 0.0);
+
     while !window.should_close() {
         glfw.wait_events();
 
@@ -130,6 +133,26 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
                 WindowEvent::FramebufferSize(width, height) |
                 WindowEvent::Size(width, height) if width > 0 && height > 0 => {
                     send_and_unpark!(RenderSignal::Resize(width, height)).unwrap();
+                }
+                WindowEvent::Scroll(_, v) => {
+                    send_and_unpark!(RenderSignal::Zoom(v)).unwrap();
+                }
+                WindowEvent::MouseButton(glfw::MouseButtonLeft, Action::Press, _) => {
+                    left_mouse_pressed = true;
+                    window.set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Hand)));
+                }
+                WindowEvent::MouseButton(glfw::MouseButtonLeft, Action::Release, _) => {
+                    left_mouse_pressed = false;
+                    window.set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Arrow)));
+                }
+                WindowEvent::CursorPos(x, y) => {
+                    let delta = (last_cursor_pos.0 - x, last_cursor_pos.1 - y);
+
+                    last_cursor_pos = (x, y);
+
+                    if left_mouse_pressed {
+                        send_and_unpark!(RenderSignal::Move(delta.0, delta.1)).unwrap();
+                    }
                 }
                 _ => {}
             }

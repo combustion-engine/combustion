@@ -10,17 +10,35 @@ uniform sampler2D screen;
 uniform vec2 resolution;
 uniform vec2 texture_resolution;
 
+uniform float zoom;
+uniform vec2 pos;
+
 void main() {
-    //vec2 rcp = 1.0 / resolution;
-    //vec2 trcp = 1.0 / texture_resolution;
+    vec2 MUV = UV;
 
-    //float aspect = resolution.y / resolution.x;
-    //float taspect = texture_resolution.y / texture_resolution.x;
+    MUV -= 0.5;
 
-    //if(aspect > taspect) {
-    //    float h_edge = resolution.y - texture_resolution.y;
-    //}
+    if(texture_resolution.x < resolution.x) {
+        MUV.x /= texture_resolution.x / resolution.x;
+    } else {
+        MUV.x *= resolution.x / texture_resolution.x;
+    }
 
-    color.rgb = texture(screen, UV).rgb;
+    if(texture_resolution.y < resolution.y) {
+        MUV.y /= texture_resolution.y / resolution.y;
+    } else {
+        MUV.y *= resolution.y / texture_resolution.y;
+    }
+
+    MUV.x += (pos.x / texture_resolution.x);
+    MUV.y -= (pos.y / texture_resolution.y);
+
+    MUV *= zoom;
+    MUV += 0.5;
+
+    MUV.y = 1.0 - MUV.y;
+
+    color.rgb = texture(screen, MUV, step(5.0, zoom) * (1.0 / zoom)).rgb;
+
     color.a = 1.0;
 }
