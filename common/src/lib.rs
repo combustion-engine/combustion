@@ -15,6 +15,7 @@ extern crate slog_stream;
 extern crate slog_scope;
 extern crate slog_atomic;
 
+extern crate time;
 extern crate chrono;
 
 pub mod macros;

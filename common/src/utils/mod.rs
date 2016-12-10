@@ -1,6 +1,8 @@
 use num_traits::Num;
 //use std::ops::{Deref, DerefMut};
 
+pub mod stopwatch;
+
 #[inline(always)]
 pub fn min<T: PartialOrd>(a: T, b: T) -> T {
     if a < b { a } else { b }
