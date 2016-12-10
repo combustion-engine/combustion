@@ -192,31 +192,26 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
 
                 let mut render_queue = world.write_resource::<RenderQueue>();
 
-                for (ref mut renderable, ref mut gpu_buffer, entity) in (renderables, gpu_buffers, entities).iter() {
-                    if renderable.dirty {
+                for (_, ref mut gpu_buffer, entity) in (renderables, gpu_buffers, entities).iter() {
+                    if gpu_buffer.dirty {
                         if let Some(mesh) = meshes.get(entity) {
                             if let Some(ref mesh) = sources.mesh(mesh.source, mesh.index)? {
                                 let mut buffer_lock = gpu_buffer.write();
                                 let buffer = try!(buffer_lock.get_mut());
 
                                 try!(buffer.buffer_from_mesh(mesh, gl::GLBufferUsage::StaticDraw));
+
                                 debug!("Buffered renderable to GPU!");
                             }
                         }
 
-                        renderable.dirty = false;
+                        gpu_buffer.dirty = false;
                     }
 
                     let (matrix, inverse) = if let Some(transform) = transforms.get(entity) {
-                        (
-                            transform.matrix,
-                            transform.inverse
-                        )
+                        (transform.matrix, transform.inverse)
                     } else {
-                        (
-                            Matrix4::new_identity(4),
-                            Some(Matrix4::new_identity(4))
-                        )
+                        (Matrix4::new_identity(4), Some(Matrix4::new_identity(4)))
                     };
 
                     render_queue.push(RenderItem {

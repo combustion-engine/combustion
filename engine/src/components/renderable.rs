@@ -4,13 +4,8 @@
 
 use specs;
 
-use ::backend::gl::gl_error::*;
-
-#[derive(Clone, Debug)]
-pub struct Component {
-    /// Specifies if the renderable should have its GPU data updated
-    pub dirty: bool,
-}
+#[derive(Clone, Copy)]
+pub struct Component;
 
 impl specs::Component for Component {
     type Storage = specs::VecStorage<Component>;
@@ -18,12 +13,10 @@ impl specs::Component for Component {
 
 impl Default for Component {
     #[inline(always)]
-    fn default() -> Component { Component::new() }
+    fn default() -> Component { Component }
 }
 
 impl Component {
     #[inline(always)]
-    pub fn new() -> Component {
-        Component { dirty: true }
-    }
+    pub fn new() -> Component { Component }
 }

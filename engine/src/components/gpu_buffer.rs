@@ -241,6 +241,7 @@ pub type LazyBufferSync = Arc<RwLock<LazyBuffer>>;
 
 pub struct Component {
     buffer: LazyBufferSync,
+    pub dirty: bool,
 }
 
 unsafe impl Sync for Component {}
@@ -249,7 +250,7 @@ unsafe impl Send for Component {}
 
 impl Clone for Component {
     fn clone(&self) -> Self {
-        Component { buffer: self.buffer.clone() }
+        Component { buffer: self.buffer.clone(), dirty: self.dirty }
     }
 }
 
@@ -264,7 +265,7 @@ impl Default for Component {
 
 impl Component {
     pub fn new() -> Component {
-        Component { buffer: LazyBufferSync::default() }
+        Component { buffer: LazyBufferSync::default(), dirty: true }
     }
 
     /// Acquire synchronized read access to the buffer
