@@ -6,7 +6,7 @@ use std::mem;
 use std::ptr;
 use std::path::Path;
 
-use image::{self, DynamicImage};
+use image::{self, DynamicImage, GenericImage};
 
 use super::gl_error::*;
 use super::gl_shader::*;
@@ -164,7 +164,9 @@ impl GLTexture {
         Ok(()) //TODO
     }
 
-    pub fn load_empty(&mut self, width: usize, height: usize, format: GLenum, internal_format: GLenum) -> GLResult<()> {
+    pub fn load_empty(&mut self, width: usize, height: usize,
+                      format: GLenum,
+                      internal_format: GLenum) -> GLResult<()> {
         try!(self.bind());
 
         let dims = self.kind.dimensions();
@@ -194,14 +196,18 @@ impl GLTexture {
     pub fn load_from_file<P: AsRef<Path>>(&mut self, path: P, face: Option<GLCubemapFace>) -> GLResult<()> {
         try!(self.check());
 
-        //Open the image and convert it to RGBA
-        let texture: image::RgbaImage = try!(image::open(path)).to_rgba();
+        let texture: DynamicImage = try!(image::open(path));
 
         try!(self.bind());
 
         let (width, height) = texture.dimensions();
 
-        let data = texture.into_vec();
+        let (format, iformat, data) = match texture {
+            DynamicImage::ImageLuma8(i) => (RED, R8, i.into_vec()),
+            DynamicImage::ImageLumaA8(i) => (RG, RG8, i.into_vec()),
+            DynamicImage::ImageRgb8(i) => (RGB, RGB8, i.into_vec()),
+            DynamicImage::ImageRgba8(i) => (RGBA, RGBA8, i.into_vec())
+        };
 
         let dims = self.kind.dimensions();
 
@@ -210,11 +216,11 @@ impl GLTexture {
             unsafe {
                 TexImage2D(self.kind as GLenum,
                            0,
-                           RGBA8 as GLint,
+                           iformat as GLint,
                            width as GLsizei,
                            height as GLsizei,
                            0,
-                           RGBA,
+                           format,
                            UNSIGNED_BYTE,
                            data.as_ptr() as *const _
                 );
@@ -228,11 +234,11 @@ impl GLTexture {
                     unsafe {
                         TexImage2D(face as GLenum,
                                    0,
-                                   RGBA8 as GLint,
+                                   iformat as GLint,
                                    width as GLsizei,
                                    height as GLsizei,
                                    0,
-                                   RGBA,
+                                   format,
                                    UNSIGNED_BYTE,
                                    data.as_ptr() as *const _
                         );
@@ -244,8 +250,8 @@ impl GLTexture {
             }
         }
 
-        self.format = Some(RGBA);
-        self.internal_format = Some(RGBA8);
+        self.format = Some(format);
+        self.internal_format = Some(iformat);
 
         check_errors!();
 
