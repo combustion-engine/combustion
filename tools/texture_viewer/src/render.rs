@@ -28,6 +28,37 @@ pub enum RenderSignal {
     Move(f64, f64)
 }
 
+#[cfg(debug_assertions)]
+fn load_screen_shader() -> GLResult<GLShaderProgram> {
+    let screen_vertex_shader = try!(GLShader::from_file("shaders/screen.vert", GLShaderVariant::VertexShader));
+    let screen_fragment_shader = try!(GLShader::from_file("shaders/screen.frag", GLShaderVariant::FragmentShader));
+
+    let screen_shader = GLShaderProgramBuilder::new()?
+        .attach_shader(screen_vertex_shader)?
+        .attach_shader(screen_fragment_shader)?
+        .link()?
+        .finish();
+
+    Ok(screen_shader)
+}
+
+#[cfg(not(debug_assertions))]
+fn load_screen_shader() -> GLResult<GLShaderProgram> {
+    const SCREEN_VERTEX_SHADER_SRC: &'static str = include_str!("../shaders/screen.vert");
+    const SCREEN_FRAGMENT_SHADER_SRC: &'static str = include_str!("../shaders/screen.frag");
+
+    let screen_vertex_shader = try!(GLShader::from_source(SCREEN_VERTEX_SHADER_SRC.to_string(), GLShaderVariant::VertexShader));
+    let screen_fragment_shader = try!(GLShader::from_source(SCREEN_FRAGMENT_SHADER_SRC.to_string(), GLShaderVariant::FragmentShader));
+
+    let screen_shader = GLShaderProgramBuilder::new()?
+        .attach_shader(screen_vertex_shader)?
+        .attach_shader(screen_fragment_shader)?
+        .link()?
+        .finish();
+
+    Ok(screen_shader)
+}
+
 pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>) -> GLResult<()> {
     let mut active_texture = try!(GLTexture::new(GLTextureKind::Texture2D));
 
@@ -37,16 +68,9 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
     let max_anisotropy = active_texture.get_max_anisotropy().expect_logged("Couldn't get max anisotropy value");
     active_texture.set_anisotropy(max_anisotropy).expect_logged("Couldn't set max anisotropy");
 
+    let screen_shader = try!(load_screen_shader());
+
     let mut screen = try!(ScreenQuad::new());
-
-    let screen_vertex_shader = try!(GLShader::from_file("shaders/screen.vert", GLShaderVariant::VertexShader));
-    let screen_fragment_shader = try!(GLShader::from_file("shaders/screen.frag", GLShaderVariant::FragmentShader));
-
-    let screen_shader = GLShaderProgramBuilder::new()?
-        .attach_shader(screen_vertex_shader)?
-        .attach_shader(screen_fragment_shader)?
-        .link()?
-        .finish();
 
     let mut resolution: (u32, u32) = (800, 600);
     let mut texture_resolution: (u32, u32) = (0, 0);
@@ -85,7 +109,7 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                         let mut file = BufReader::new(File::open(path)?);
 
                         let texture_message = capnp::serialize_packed::read_message(&mut file, capnp::message::ReaderOptions {
-                            traversal_limit_in_words : 64 * 1024 * 1024, nesting_limit : 64
+                            traversal_limit_in_words: u64::max_value(), nesting_limit: 64
                         }).unwrap();
 
                         let texture = texture_message.get_root::<texture_protocol::Reader>().unwrap();
@@ -114,7 +138,6 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                         texture_resolution = (width, height);
 
                         check_errors!();
-
                     } else {
                         info!("Buffering normal image...");
 
