@@ -1,5 +1,3 @@
-use capnp::serialize_packed;
-
 pub const EXTENSION: &'static str = "cmodel";
 
 pub mod protocol {
