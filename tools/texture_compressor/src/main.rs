@@ -2,22 +2,28 @@ extern crate glfw;
 extern crate nice_glfw;
 extern crate image;
 extern crate clap;
+extern crate capnp;
+extern crate capnpc;
 
 #[macro_use]
 extern crate combustion_common as common;
 #[macro_use]
 extern crate combustion_backend as backend;
-extern crate combustion_protocols as protocols;
+extern crate combustion_protocols;
+
+use combustion_protocols::protocols;
 
 use common::error::*;
 
 use backend::gl::*;
 use backend::gl::bindings as glb;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::fs::File;
 
 use clap::{App, Arg};
 use glfw::WindowHint;
+use image::GenericImage;
 
 fn init() {
     common::log::init_global_logger("logs").expect("Could not initialize logging system!");
@@ -44,10 +50,45 @@ fn init() {
     backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
 }
 
-fn compress_texture<P: AsRef<Path>>(path: P, dir: &Path) -> GLResult<()> {
+fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path) -> GLResult<()> {
+    use image::DynamicImage;
+    use protocols::texture;
+    use protocols::texture::protocol::{Format as TextureFormat, Compression};
+    use protocols::texture::protocol::texture as texture_protocol;
+
+    let image: DynamicImage = try!(image::open(path.clone()));
+
+    let dimensions = image.dimensions();
+
+    //Get the format and raw pixel data
+    let (format, bytes) = match image {
+        DynamicImage::ImageRgb8(i) => (TextureFormat::Rgb, i.into_raw()),
+        DynamicImage::ImageRgba8(i) => (TextureFormat::Rgba, i.into_raw()),
+        DynamicImage::ImageLuma8(i) => (TextureFormat::Luma, i.into_raw()),
+        DynamicImage::ImageLumaA8(i) => (TextureFormat::LumaAlpha, i.into_raw())
+    };
+
+    let mut texture_message = capnp::message::Builder::new_default();
+
+    {
+        let mut texture_builder = texture_message.init_root::<texture_protocol::Builder>();
+
+        texture_builder.set_width(dimensions.0);
+        texture_builder.set_height(dimensions.1);
+        texture_builder.set_format(format);
+        texture_builder.set_compression(Compression::None);
+        texture_builder.set_data(&bytes);
+    }
+
     let stem = path.as_ref().file_stem().unwrap();
 
+    let mut out_path = PathBuf::from(dir).join(stem);
 
+    out_path.set_extension(texture::EXTENSION);
+
+    let mut out = try!(File::create(out_path.as_path()));
+
+    try!(capnp::serialize_packed::write_message(&mut out, &texture_message));
 
     Ok(())
 }
@@ -58,9 +99,7 @@ fn main() {
         .author("Aaron Trent <novacrazy@gmail.com>")
         .about("Converts image files into compressed textures")
         .arg(Arg::with_name("files").multiple(true).required(true).help("Images to compress").validator(|ref path| -> Result<(), String> {
-            if Path::new(path).extension().is_some() {
-                Ok(())
-            } else {
+            if Path::new(path).extension().is_some() { Ok(()) } else {
                 Err("the images must have file extensions".to_string())
             }
         }))

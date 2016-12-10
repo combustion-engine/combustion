@@ -3,7 +3,13 @@ authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "texture_compressor"
 version = "0.1.0"
 
+[[bin]]
+name = "texture_compressor"
+path = "src/main.rs"
+
 [dependencies]
+capnp = "0.7.5"
+capnpc = "0.7.5"
 clap = "2.19.1"
 glfw = "0.11.0"
 image = "0.10.4"
@@ -19,7 +25,3 @@ path = "../../protocols"
 
 [dependencies.nice_glfw]
 path = "../../deps/nice_glfw"
-
-[[bin]]
-name = "texture_compressor"
-path = "src/main.rs"
