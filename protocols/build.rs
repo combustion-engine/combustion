@@ -66,9 +66,10 @@ fn compile_capnprotos(out_dir: String) {
                     let mut out_file: File = File::create(out_path.clone()).unwrap();
 
                     trace!("Writing modified file contents...");
-                    mod_name = format!("::{}", mod_name);
 
-                    out_file.write_all(file_contents.replace(mod_name.as_str(), "super").as_bytes()).unwrap();
+                    //Plain `super::` won't work because some stuff isn't placed hierarchically, so we need to specify the real absolute path
+                    out_file.write_all(file_contents.replace(format!("::{}", mod_name).as_str(),
+                                                             format!("::protocols::{}::protocol", mod_name.replace("_capnp", "")).as_str()).as_bytes()).unwrap();
 
                     info!("Success!");
                 }
