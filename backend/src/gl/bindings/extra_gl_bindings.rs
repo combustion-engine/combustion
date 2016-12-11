@@ -16,7 +16,6 @@ use std::os::raw;
 
 pub const EXT_texture_filter_anisotropic: &'static str = "GL_EXT_texture_filter_anisotropic";
 pub const EXT_texture_compression_s3tc: &'static str = "GL_EXT_texture_compression_s3tc";
-pub const ARB_texture_compression_bptc: &'static str = "GL_ARB_texture_compression_bptc";
 pub const KHR_texture_compression_astc_hdr: &'static str = "GL_KHR_texture_compression_astc_hdr";
 pub const KHR_texture_compression_astc_ldr: &'static str = "GL_KHR_texture_compression_astc_ldr";
 
@@ -28,10 +27,10 @@ pub const COMPRESSED_RGBA_S3TC_DXT1_EXT: types::GLenum = 0x83F1;
 pub const COMPRESSED_RGBA_S3TC_DXT3_EXT: types::GLenum = 0x83F2;
 pub const COMPRESSED_RGBA_S3TC_DXT5_EXT: types::GLenum = 0x83F3;
 
-pub const COMPRESSED_RGBA_BPTC_UNORM_ARB: types::GLenum = 0x8E8C;
-pub const COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB: types::GLenum = 0x8E8D;
-pub const COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB: types::GLenum = 0x8E8E;
-pub const COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB: types::GLenum = 0x8E8F;
+pub const COMPRESSED_SRGB_S3TC_DXT1_EXT: types::GLenum = 0x8C4C;
+pub const COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT: types::GLenum = 0x8C4D;
+pub const COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT: types::GLenum = 0x8C4E;
+pub const COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: types::GLenum = 0x8C4F;
 
 pub const COMPRESSED_RGBA_ASTC_4x4_KHR: types::GLenum = 0x93B0;
 pub const COMPRESSED_RGBA_ASTC_5x4_KHR: types::GLenum = 0x93B1;
