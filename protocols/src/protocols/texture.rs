@@ -269,7 +269,7 @@ impl GenericFormat {
     }
 
     /// Create a new uncompressed `SpecificFormat` from `self`
-    fn none(&self) -> SpecificFormat {
+    pub fn none(&self) -> SpecificFormat {
         use self::protocol::*;
 
         SpecificFormat {
@@ -279,7 +279,7 @@ impl GenericFormat {
     }
 
     /// Create a new RGTC `SpecificFormat` from the properties provided in `self`
-    fn rgtc(&self) -> SpecificFormat {
+    pub fn rgtc(&self) -> SpecificFormat {
         use self::protocol::*;
 
         let rgtc = match self.channels {
@@ -299,7 +299,7 @@ impl GenericFormat {
     }
 
     /// Create a new S3TC `SpecificFormat` from the properties provided in `self`
-    fn s3tc(&self) -> SpecificFormat {
+    pub fn s3tc(&self) -> SpecificFormat {
         use self::protocol::*;
 
         assert!([1, 3, 5].contains(&self.version));
@@ -320,7 +320,7 @@ impl GenericFormat {
     }
 
     /// Create a new BPTC `SpecificFormat` from the properties provided in `self`
-    fn bptc(&self) -> SpecificFormat {
+    pub fn bptc(&self) -> SpecificFormat {
         use self::protocol::*;
 
         let bptc = if self.float {
@@ -336,7 +336,7 @@ impl GenericFormat {
     }
 
     /// Create a new ASTC `SpecificFormat` from the properties provided in `self`
-    fn astc(&self) -> SpecificFormat {
+    pub fn astc(&self) -> SpecificFormat {
         use self::protocol::*;
 
         let blocksize = self.blocksize.expect_logged("blocksize is not present");
