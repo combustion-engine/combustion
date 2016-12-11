@@ -2,6 +2,7 @@ use num_traits::Num;
 //use std::ops::{Deref, DerefMut};
 
 pub mod stopwatch;
+pub mod human_readable;
 
 #[inline(always)]
 pub fn min<T: PartialOrd>(a: T, b: T) -> T {
