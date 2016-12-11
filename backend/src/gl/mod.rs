@@ -15,7 +15,7 @@ pub trait GLObject {
     #[inline(always)]
     fn check(&self) -> GLResult<()> {
         if self.is_valid() { Ok(()) } else {
-            debug_errln!("Invalid GLObject");
+            error!("Invalid GLObject");
             Err(GLError::InvalidValue)
         }
     }

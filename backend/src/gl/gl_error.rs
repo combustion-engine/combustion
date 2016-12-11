@@ -43,12 +43,12 @@ static mut CHECK_DISABLED: AtomicBool = ATOMIC_BOOL_INIT;
 #[macro_export]
 macro_rules! check_errors {
     () => {if let Err(err) = GLError::check() {
-        debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
+        error!("GLError ({:?})", err);
         return Err(err.into());
     }};
 
     ($ret:expr) => { if let Err(err) = GLError::check() {
-        debug_errln!("GLError ({:?}): {}:{}", err, file!(), line!());
+        error!("GLError ({:?})", err);
         return Err(err.into());
    } else {
         $ret

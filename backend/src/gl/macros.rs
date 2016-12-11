@@ -17,7 +17,7 @@ macro_rules! impl_simple_globject {
             #[inline(always)]
             fn check(&self) -> GLResult<()> {
                 if self.is_valid() { Ok(()) } else {
-                    $(debug_errln!("Invalid {}", $name_str);)*
+                    $(error!("Invalid {}", $name_str);)*
                     Err(GLError::InvalidValue)
                 }
             }

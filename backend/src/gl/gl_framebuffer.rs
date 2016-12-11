@@ -30,7 +30,7 @@ impl GLObject for GLFramebuffer {
     #[inline(always)]
     fn check(&self) -> GLResult<()> {
         if self.is_valid() { Ok(()) } else {
-            debug_errln!("Invalid GLFramebuffer");
+            error!("Invalid GLFramebuffer");
             Err(GLError::InvalidValue)
         }
     }
