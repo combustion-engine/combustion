@@ -29,24 +29,45 @@ use image::{GenericImage, DynamicImage};
 
 use protocols::texture;
 use protocols::texture::gl::*;
+use protocols::texture::protocol::texture as texture_protocol;
+
+struct RawImage {
+    dimensions: (u32, u32),
+    data: Vec<u8>,
+    channels: texture::Channels
+}
+
+fn read_texture<P: AsRef<Path> + Clone>(path: P) -> GLResult<RawImage> {
+    let path = path.as_ref();
+
+    if path.extension().unwrap() == texture::EXTENSION {
+        //TODO: Load up and decompress Combustion texture
+        unimplemented!();
+    } else {
+        let image: DynamicImage = try!(image::open(path));
+
+        let dimensions = image.dimensions();
+
+        let (channels, data) = match image {
+            DynamicImage::ImageLuma8(i) => (texture::Channels::R, i.into_raw()),
+            DynamicImage::ImageLumaA8(i) => (texture::Channels::Rg, i.into_raw()),
+            DynamicImage::ImageRgb8(i) => (texture::Channels::Rgb, i.into_raw()),
+            DynamicImage::ImageRgba8(i) => (texture::Channels::Rgba, i.into_raw()),
+        };
+
+        Ok(RawImage {
+            dimensions: dimensions,
+            data: data,
+            channels: channels
+        })
+    }
+}
 
 fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap::ArgMatches) -> GLResult<()> {
-    use protocols::texture;
-    use protocols::texture::protocol::texture as texture_protocol;
-
-    let image: DynamicImage = try!(image::open(path.clone()));
-
-    let dimensions = image.dimensions();
-
-    let (channels, data) = match image {
-        DynamicImage::ImageLuma8(i) => (texture::Channels::R, i.into_raw()),
-        DynamicImage::ImageLumaA8(i) => (texture::Channels::Rg, i.into_raw()),
-        DynamicImage::ImageRgb8(i) => (texture::Channels::Rgb, i.into_raw()),
-        DynamicImage::ImageRgba8(i) => (texture::Channels::Rgba, i.into_raw()),
-    };
+    let raw = try!(read_texture(path.clone()));
 
     let mut format = texture::GenericFormat {
-        channels: channels,
+        channels: raw.channels,
         srgb: matches.is_present("srgb"),
         float: matches.is_present("float"),
         signed: matches.is_present("signed"),
@@ -54,21 +75,21 @@ fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap:
         version: 0
     };
 
-    let original_length = data.len();
+    let original_length = raw.data.len();
 
     let mut texture_message = capnp::message::Builder::new_default();
 
     {
         let mut texture_builder = texture_message.init_root::<texture_protocol::Builder>();
 
-        texture_builder.set_width(dimensions.0);
-        texture_builder.set_height(dimensions.1);
+        texture_builder.set_width(raw.dimensions.0);
+        texture_builder.set_height(raw.dimensions.1);
 
         //////////////////////
 
         let (compressed_data, specific_format) = if matches.is_present("none") {
             //Do absolutely nothing for none
-            (data, format.none())
+            (raw.data, format.none())
         } else {
             format.signed = matches.is_present("signed");
             format.srgb = matches.is_present("srgb");
@@ -106,8 +127,8 @@ fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap:
             // Buffer the uncompressed texture to the GPU, letting OpenGL take care of the compression for us
             unsafe {
                 glb::TexImage2D(glb::TEXTURE_2D, 0, internal_format,
-                                dimensions.0 as GLsizei, dimensions.1 as GLsizei, 0,
-                                generic_format, glb::UNSIGNED_BYTE, data.as_ptr() as *const _);
+                                raw.dimensions.0 as GLsizei, raw.dimensions.1 as GLsizei, 0,
+                                generic_format, glb::UNSIGNED_BYTE, raw.data.as_ptr() as *const _);
             }
 
             check_errors!();
