@@ -1,11 +1,11 @@
 [package]
 authors = ["novacrazy <novacrazy@gmail.com>"]
+build = "build.rs"
 exclude = ["*.png"]
 include = ["Cargo.toml", "src/**/*.rs", "src/**/*.capnp"]
 license = "MIT"
-name    = "combustion_protocols"
+name = "combustion_protocols"
 version = "0.1.0"
-build   = "build.rs"
 
 [build-dependencies]
 capnpc = "0.7.5"
@@ -16,6 +16,11 @@ path = "../common"
 [dependencies]
 capnp = "0.7.5"
 capnpc = "0.7.5"
+phf = "0.7.20"
+phf_macros = "0.7.20"
 
 [dependencies.combustion_common]
 path = "../common/"
+
+[dependencies.combustion_backend]
+path = "../backend"
