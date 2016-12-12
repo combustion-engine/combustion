@@ -4,6 +4,7 @@ extern crate image;
 extern crate clap;
 extern crate capnp;
 extern crate capnpc;
+extern crate glob;
 
 #[macro_use]
 extern crate combustion_common as common;
@@ -64,6 +65,8 @@ fn read_texture<P: AsRef<Path> + Clone>(path: P) -> GLResult<RawImage> {
 }
 
 fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap::ArgMatches) -> GLResult<()> {
+    info!("Loading {:?}", path.as_ref());
+
     let raw = try!(read_texture(path.clone()));
 
     let mut format = texture::GenericFormat {
@@ -116,19 +119,21 @@ fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap:
                 format.none()
             };
 
-            let generic_format = specific_format.generic();
-            let mut internal_format = if matches.is_present("auto") { specific_format.auto() } else { specific_format.specific() } as GLsizei;
+            let mut internal_format = if matches.is_present("auto") {
+                format.auto()
+            } else {
+                specific_format.specific()
+            } as GLsizei;
 
             //////////////////////
 
-            // Generate a new plain 2D texture
-            let _ = GLTexture::new(GLTextureKind::Texture2D).unwrap();
+            info!("Compressing {:?}...", path.as_ref());
 
             // Buffer the uncompressed texture to the GPU, letting OpenGL take care of the compression for us
             unsafe {
                 glb::TexImage2D(glb::TEXTURE_2D, 0, internal_format,
                                 raw.dimensions.0 as GLsizei, raw.dimensions.1 as GLsizei, 0,
-                                generic_format, glb::UNSIGNED_BYTE, raw.data.as_ptr() as *const _);
+                                format.generic(), glb::UNSIGNED_BYTE, raw.data.as_ptr() as *const _);
             }
 
             check_errors!();
@@ -184,6 +189,8 @@ fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap:
     let mut out = try!(File::create(out_path.as_path()));
 
     try!(capnp::serialize_packed::write_message(&mut out, &texture_message));
+
+    info!("Saved compressed texture to {:?}", out_path);
 
     Ok(())
 }
@@ -261,16 +268,35 @@ fn main() {
         //Debug message: (131202): Texture state performance warning: emulating compressed format not supported in hardware with decompressed images
         backend::gl::gl_debug::DEBUG_IGNORED.write().unwrap().push(131202);
 
+        // Generate a new plain 2D texture to reuse for all compressions
+        let _ = GLTexture::new(GLTextureKind::Texture2D).unwrap();
+
         let out_dir = matches.value_of("out_dir").map(|d| Path::new(d));
 
-        for file in files {
-            let dir = if let Some(out_dir) = out_dir { out_dir } else {
-                Path::new(file).parent().unwrap_or(Path::new("."))
-            };
+        let mut count = 0;
 
-            info!("Compressing {}", file);
+        for entry in files.flat_map(|entry| glob::glob(entry).unwrap()) {
+            match entry {
+                Ok(ref file) if file.exists() => {
+                    let dir = if let Some(out_dir) = out_dir { out_dir } else {
+                        file.parent().unwrap_or(Path::new("."))
+                    };
 
-            compress_texture(file, dir, &matches).expect_logged("Could not process file");
+                    compress_texture(file.clone(), dir, &matches).expect_logged("Could not process file");
+
+                    count += 1;
+                }
+                Ok(ref file) => {
+                    error!("Could not find file: {:?}", file);
+                }
+                Err(err) => {
+                    error!("{}", err)
+                }
+            }
+        }
+
+        if count == 0 {
+            error!("Could not find any input files matching the given paths or globs");
         }
     }
 }

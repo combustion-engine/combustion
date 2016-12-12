@@ -12,6 +12,7 @@ capnp = "0.7.5"
 capnpc = "0.7.5"
 clap = "2.19.1"
 glfw = "0.11.0"
+glob = "0.2.11"
 image = "0.10.4"
 
 [dependencies.combustion_backend]
