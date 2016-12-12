@@ -33,6 +33,31 @@ impl From<Channels> for protocol::Raw {
     }
 }
 
+impl From<protocol::Raw> for Channels {
+    #[inline]
+    fn from(raw: protocol::Raw) -> Channels {
+        use self::protocol::*;
+
+        match raw {
+            Raw::R => Channels::R,
+            Raw::Rg => Channels::Rg,
+            Raw::Rgb => Channels::Rgb,
+            Raw::Rgba => Channels::Rgba
+        }
+    }
+}
+
+impl ::std::fmt::Debug for Channels {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{}", match *self {
+            Channels::R => "Red",
+            Channels::Rg => "Red-green",
+            Channels::Rgb => "Rgb",
+            Channels::Rgba => "Rgba",
+        })
+    }
+}
+
 /// Represents a non-sRGB compression format in symbolic form
 #[derive(Clone)]
 pub enum Which {
@@ -105,33 +130,26 @@ impl Which {
         use self::protocol::*;
 
         match *self {
-            Which::None(ref uncompressed) => {
-                match uncompressed {
-                    &Raw::R => Channels::R,
-                    &Raw::Rg => Channels::Rg,
-                    &Raw::Rgb => Channels::Rgb,
-                    &Raw::Rgba => Channels::Rgba,
-                }
-            }
+            Which::None(ref raw) => raw.clone().into(),
             Which::Rgtc(ref rgtc) => {
                 match rgtc {
                     &Rgtc::Red | &Rgtc::RedSigned => Channels::R,
                     &Rgtc::Rg | &Rgtc::RgSigned => Channels::Rg,
                 }
-            }
+            },
             Which::Bptc(ref bptc) => {
                 match bptc {
                     &Bptc::Rgba => Channels::Rgba,
                     _ => Channels::Rgb,
                 }
-            }
+            },
             Which::S3tc(ref s3tc) => {
                 match s3tc {
                     &S3tc::Rgb1 => Channels::Rgb,
                     _ => Channels::Rgba
                 }
-            }
-            Which::Astc(_) => Channels::Rgba
+            },
+            Which::Astc(_) => Channels::Rgba,
         }
     }
 
@@ -145,14 +163,14 @@ impl Which {
                     &Rgtc::RedSigned | &Rgtc::RgSigned => true,
                     _ => false
                 }
-            }
+            },
             Which::Bptc(ref bptc) => {
                 match bptc {
                     &Bptc::RgbFloatSigned => true,
                     _ => false
                 }
-            }
-            _ => false
+            },
+            _ => false,
         }
     }
 
@@ -164,10 +182,10 @@ impl Which {
             Which::Bptc(ref bptc) => {
                 match bptc {
                     &Bptc::RgbFloatSigned | &Bptc::RgbFloatUnsigned => true,
-                    _ => false
+                    _ => false,
                 }
-            }
-            _ => false
+            },
+            _ => false,
         }
     }
 }
@@ -197,7 +215,7 @@ impl Default for GenericFormat {
             blocksize: None,
             signed: false,
             float: false,
-            version: 5 //OpenGL seems to prefer DXT5 on my hardware, so it's a good default
+            version: 5, //OpenGL seems to prefer DXT5 on my hardware, so it's a good default
         }
     }
 }
@@ -221,11 +239,9 @@ impl GenericFormat {
 
     /// Create a new uncompressed `SpecificFormat` from `self`
     pub fn none(&self) -> SpecificFormat {
-        use self::protocol::*;
-
         SpecificFormat {
             which: Which::None(self.channels.into()),
-            srgb: self.srgb
+            srgb: self.srgb,
         }
     }
 
@@ -236,16 +252,16 @@ impl GenericFormat {
         let rgtc = match self.channels {
             Channels::R => {
                 if self.signed { Rgtc::RedSigned } else { Rgtc::Red }
-            }
+            },
             Channels::Rg => {
                 if self.signed { Rgtc::RgSigned } else { Rgtc::Rg }
-            }
-            _ => error_panic!("Invalid image format for RGTC texture compression")
+            },
+            _ => error_panic!("Invalid image format for RGTC texture compression"),
         };
 
         SpecificFormat {
             which: Which::Rgtc(rgtc),
-            srgb: false //this compression method doesn't support sRGB
+            srgb: false, //this compression method doesn't support sRGB
         }
     }
 
@@ -261,12 +277,12 @@ impl GenericFormat {
             }
             3 => S3tc::Rgba3,
             5 => S3tc::Rgba5,
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
         SpecificFormat {
             which: Which::S3tc(s3tc),
-            srgb: self.srgb
+            srgb: self.srgb,
         }
     }
 
@@ -282,19 +298,17 @@ impl GenericFormat {
 
         SpecificFormat {
             which: Which::Bptc(bptc),
-            srgb: self.srgb
+            srgb: self.srgb,
         }
     }
 
     /// Create a new ASTC `SpecificFormat` from the properties provided in `self`
     pub fn astc(&self) -> SpecificFormat {
-        use self::protocol::*;
-
         let blocksize = self.blocksize.expect_logged("blocksize is not present");
 
         SpecificFormat {
             which: Which::Astc(blocksize),
-            srgb: self.srgb
+            srgb: self.srgb,
         }
     }
 }
@@ -304,7 +318,7 @@ impl GenericFormat {
 #[derive(Clone)]
 pub struct SpecificFormat {
     pub which: Which,
-    pub srgb: bool
+    pub srgb: bool,
 }
 
 impl SpecificFormat {
@@ -358,7 +372,6 @@ impl SpecificFormat {
 
     /// Read in specific format from Cap'N Proto texture structure
     pub fn read_texture<'a>(reader: &self::protocol::texture::Reader<'a>) -> Result<SpecificFormat, capnp::NotInSchema> {
-        use self::protocol::*;
         use self::protocol::texture::compression::Which as PWhich;
 
         let which = {

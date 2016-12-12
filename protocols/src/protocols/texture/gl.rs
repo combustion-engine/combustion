@@ -3,8 +3,8 @@
 use backend::gl::types::*;
 use backend::gl::bindings as glb;
 
-use super::protocol::{BlockSize, Bptc, Rgtc, S3tc, Raw};
-use super::{Channels, GenericFormat, Which, SpecificFormat};
+use super::protocol::{BlockSize, Bptc, Rgtc, S3tc};
+use super::{Channels, Which, GenericFormat, SpecificFormat};
 
 /// OpenGL extension to `SpecificFormat` to convert raw `GLenum` texture formats into the symbolic `SpecificFormat`
 pub trait GLSpecificFormatExt {
@@ -70,26 +70,22 @@ impl GLSpecificFormatExt for SpecificFormat {
 
         SpecificFormat {
             which: which,
-            srgb: srgb
+            srgb: srgb,
         }
     }
 }
 
-/// OpenGL extension to `SpecificFormat` to create a `GLenum` value for passing to `glTexImage*` functions
-pub trait GLCompressedFormats {
+pub trait GLCompressedGenericFormats {
     /// Get a generic format like `RED`, `RG`, `RGB`, `RGBA`
     fn generic(&self) -> GLuint;
 
     /// Get a compressed generic format equivalent to the compressed version of `generic`
     fn auto(&self) -> GLuint;
-
-    /// Get specific internal texture format enum for the given symbolic format
-    fn specific(&self) -> GLuint;
 }
 
-impl GLCompressedFormats for SpecificFormat {
+impl GLCompressedGenericFormats for GenericFormat {
     fn generic(&self) -> GLuint {
-        match self.which.channels() {
+        match self.channels {
             Channels::R => glb::RED,
             Channels::Rg => glb::RG,
             Channels::Rgb => glb::RGB,
@@ -98,7 +94,7 @@ impl GLCompressedFormats for SpecificFormat {
     }
 
     fn auto(&self) -> GLuint {
-        match self.which.channels() {
+        match self.channels {
             Channels::R => glb::COMPRESSED_RED,
             Channels::Rg => glb::COMPRESSED_RG,
             Channels::Rgb => {
@@ -109,7 +105,15 @@ impl GLCompressedFormats for SpecificFormat {
             },
         }
     }
+}
 
+/// OpenGL extension to `SpecificFormat` to create a `GLenum` value for passing to `glTexImage*` functions
+pub trait GLCompressedSpecificFormats {
+    /// Get specific internal texture format enum for the given symbolic format
+    fn specific(&self) -> GLuint;
+}
+
+impl GLCompressedSpecificFormats for SpecificFormat {
     fn specific(&self) -> GLuint {
         use super::protocol::*;
 
