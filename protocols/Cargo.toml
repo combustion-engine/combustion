@@ -16,11 +16,16 @@ path = "../common"
 [dependencies]
 capnp = "0.7.5"
 capnpc = "0.7.5"
+lz4 = "1.20.0"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 
-[dependencies.combustion_common]
-path = "../common/"
+[dependencies.assimp]
+features = ["default", "compat"]
+path = "../deps/assimp-rs"
 
 [dependencies.combustion_backend]
 path = "../backend"
+
+[dependencies.combustion_common]
+path = "../common/"
