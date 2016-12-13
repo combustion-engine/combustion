@@ -15,10 +15,8 @@ extern crate combustion_protocols;
 
 use common::error::*;
 
-use backend::gl::bindings as glb;
-
 use std::sync::mpsc;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::thread::Builder;
 
 use clap::{App, Arg};
@@ -70,6 +68,8 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
 
     //Enable debugging of OpenGL messages
     backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
+
+    backend::gl::gl_debug::DEBUG_IGNORED.write().unwrap().extend_from_slice(&[131154, 131202]);
 
     //Create channel for forwarding events to the render thread
     let (tx, rx) = mpsc::channel();
