@@ -1,3 +1,9 @@
+//! Combustion backend
+//!
+//! This crate contains most graphics API specific code.
+//!
+//! Though most of it just focuses on OpenGL, support for Vulkan and DX11 are planned... eventually.
+
 #![allow(unused_imports, unknown_lints)]
 #![feature(proc_macro)]
 
