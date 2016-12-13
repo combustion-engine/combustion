@@ -50,10 +50,17 @@ enum Raw {
     rgba        @3;
 }
 
+enum Kind {
+    texture1D @0;
+    texture2D @1;
+    texture3D @2;
+    cubemap   @3;
+}
+
 struct Texture {
     # Dimensions of the texture
-    width   @0: UInt32;
-    height  @1: UInt32;
+    width   @0: UInt32 = 0;
+    height  @1: UInt32 = 0;
     # Compression method
     compression: union {
         none @2: Raw;       # Uncompressed data in the given format
@@ -62,6 +69,8 @@ struct Texture {
         astc @5: BlockSize; # Compressed using ASTC
         s3tc @6: S3tc;      # Compressed using S3TC/DXT
     }
-    data @7: Data;  # Binary texture data
-    srgb @8: Bool;  # sRGB support
+    data  @7: Data;                     # Binary texture data
+    srgb  @8: Bool;                     # sRGB support
+    depth @9: UInt32 = 0;               # Depth for 3D textures
+    kind  @10: Kind = texture2D;        # 1D, 2D, 3D, Cubemap, etc
 }
