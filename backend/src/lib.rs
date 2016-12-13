@@ -1,4 +1,5 @@
 #![allow(unused_imports, unknown_lints)]
+#![feature(proc_macro)]
 
 #[macro_use]
 extern crate enum_primitive;
@@ -11,11 +12,16 @@ extern crate image;
 extern crate palette;
 extern crate regex;
 extern crate vec_map;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+
 #[macro_use]
 extern crate combustion_common;
 
 pub mod gl;
 pub mod vulkan;
 pub mod dx11;
+pub mod generic;
 
 pub mod command;
