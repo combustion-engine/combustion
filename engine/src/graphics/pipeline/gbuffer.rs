@@ -75,7 +75,7 @@ impl Gbuffer {
                 depth_stencil_buffer: depth_stencil_buffer
             })
         } else {
-            errln!("Incomplete framebuffer from Gbuffer creation");
+            error!("Incomplete framebuffer from Gbuffer creation");
 
             Err(GLError::IncompleteFramebuffer)
         }
