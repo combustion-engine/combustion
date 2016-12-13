@@ -1,2 +1,8 @@
 [workspace]
-members = ["common", "backend", "protocols", "engine", "tools/texture_compressor", "tools/texture_viewer"]
+members = [
+	"common", "backend", "protocols", "engine", 
+	"tools/texture_compressor", "tools/texture_viewer", 
+	"deps/tinyfiledialogs", "deps/lz4-rs", "deps/assimp-sys", "deps/assimp-rs", "deps/lazy", 
+	"deps/specs", "deps/luajit-sys", "deps/luajit-rs", "deps/nice_glfw", "deps/squirrel-sys", "deps/squirrel-rs",
+	"deps/nalgebra"
+]
