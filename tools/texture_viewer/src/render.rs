@@ -1,6 +1,5 @@
 use std::sync::mpsc;
-use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::path::PathBuf;
 use std::fs::File;
 use std::io::BufReader;
 
@@ -16,6 +15,11 @@ use backend::gl::types::*;
 use backend::gl::bindings as glb;
 
 use combustion_protocols::protocols;
+
+use self::protocols::texture;
+use self::protocols::texture::protocol::{Kind};
+use self::protocols::texture::protocol::texture as texture_protocol;
+use self::protocols::texture::gl::*;
 
 use screen::ScreenQuad;
 
@@ -100,38 +104,57 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                     try!(active_texture.bind());
 
                     if path.extension().unwrap() == protocols::texture::EXTENSION {
-                        use self::protocols::texture;
-                        use self::protocols::texture::protocol::{Format as TextureFormat, Compression};
-                        use self::protocols::texture::protocol::texture as texture_protocol;
+                        info!("Loading Combustion texture...");
 
-                        info!("Buffering Combustion texture...");
+                        let mut source = BufReader::new(File::open(path)?);
 
-                        let mut file = BufReader::new(File::open(path)?);
-
-                        let texture_message = capnp::serialize_packed::read_message(&mut file, capnp::message::ReaderOptions {
+                        let texture_message = capnp::serialize_packed::read_message(&mut source, capnp::message::ReaderOptions {
                             traversal_limit_in_words: u64::max_value(), nesting_limit: 64
-                        }).unwrap();
+                        }).expect_logged("Could not open Texture protocol");
 
-                        let texture = texture_message.get_root::<texture_protocol::Reader>().unwrap();
+                        let texture = texture_message.get_root::<texture_protocol::Reader>()
+                                                     .expect_logged("No texture protocol root found");
 
                         let width = texture.get_width();
                         let height = texture.get_height();
-                        let format = texture.get_format().unwrap();
-                        let compression = texture.get_compression().unwrap();
-                        let data = texture.get_data().unwrap();
 
-                        let (format, iformat) = match format {
-                            TextureFormat::Rgb => (glb::RGB, glb::RGB8),
-                            TextureFormat::Rgba => (glb::RGBA, glb::RGBA8),
-                            TextureFormat::Luma => (glb::RED, glb::R8),
-                            TextureFormat::LumaAlpha => (glb::RG, glb::RG8)
-                        };
+                        //TODO: Support more kinds
+                        //let depth = texture.get_depth();
 
-                        unsafe {
-                            glb::TexImage2D(glb::TEXTURE_2D, 0, iformat as GLint,
-                                            width as GLsizei, height as GLsizei, 0,
-                                            format, glb::UNSIGNED_BYTE, data.as_ptr() as *const _);
+                        let kind = texture.get_kind()
+                                          .expect_logged("Couldn't find Kind value. This could be caused by using an older texture format.");
+
+                        //TODO: Support more kinds
+                        assert!(kind == Kind::Texture2D);
+
+                        let specific_format = texture::SpecificFormat::read_texture(&texture)
+                            .expect_logged("Error retrieving texture information");
+
+                        let data = texture.get_data()
+                                          .expect_logged("No texture data found");
+
+                        info!("Combustion texture loaded.");
+
+                        let generic_format = specific_format.to_generic();
+
+                        info!("Buffering Combustion texture...");
+
+                        if specific_format.is_compressed() {
+                            unsafe {
+                                glb::CompressedTexImage2D(glb::TEXTURE_2D, 0, specific_format.specific(),
+                                                          width as GLsizei, height as GLsizei,
+                                                          0, data.len() as GLsizei, data.as_ptr() as *const _);
+                            }
+
+                        } else {
+                            unsafe {
+                                glb::TexImage2D(glb::TEXTURE_2D, 0, specific_format.specific() as GLint,
+                                                width as GLsizei, height as GLsizei, 0,
+                                                generic_format.generic(), glb::UNSIGNED_BYTE, data.as_ptr() as *const _);
+                            }
                         }
+
+                        check_errors!();
 
                         try!(active_texture.generate_mipmap());
 
@@ -139,7 +162,7 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
 
                         check_errors!();
                     } else {
-                        info!("Buffering normal image...");
+                        info!("Loading normal image...");
 
                         let image = try!(image::open(path));
 
@@ -152,15 +175,17 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
                             DynamicImage::ImageRgba8(i) => (glb::RGBA, glb::RGBA8, i.into_vec())
                         };
 
+                        info!("Buffering normal image...");
+
                         unsafe {
                             glb::TexImage2D(glb::TEXTURE_2D, 0, iformat as GLint,
                                             width as GLsizei, height as GLsizei, 0,
                                             format, glb::UNSIGNED_BYTE, data.as_ptr() as *const _);
                         }
 
-                        texture_resolution = (width, height);
-
                         check_errors!();
+
+                        texture_resolution = (width, height);
                     }
 
                     info!("Generating mipmaps...");
@@ -168,6 +193,8 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
 
                     zoom = 1.0;
                     pos = (0.0, 0.0);
+
+                    info!("Done!");
                 }
             }
         }
