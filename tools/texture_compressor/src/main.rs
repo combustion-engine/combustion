@@ -21,6 +21,7 @@ use backend::gl::*;
 use backend::gl::types::*;
 use backend::gl::bindings as glb;
 
+use std::io::BufReader;
 use std::path::{Path, PathBuf};
 use std::fs::File;
 
@@ -29,23 +30,105 @@ use glfw::WindowHint;
 use image::{GenericImage, DynamicImage};
 
 use protocols::texture;
-use protocols::texture::gl::*;
+use protocols::texture::protocol::{Kind};
 use protocols::texture::protocol::texture as texture_protocol;
+use protocols::texture::gl::*;
 
-struct RawImage {
-    dimensions: (u32, u32),
-    data: Vec<u8>,
-    channels: texture::Channels
+pub struct RawImage {
+    pub dimensions: (u32, u32),
+    pub data: Vec<u8>,
+    pub channels: texture::Channels,
+    pub out_path: PathBuf
 }
 
-fn read_texture<P: AsRef<Path> + Clone>(path: P) -> GLResult<RawImage> {
+pub fn read_texture<P: AsRef<Path> + Clone>(path: P) -> GLResult<RawImage> {
     let path = path.as_ref();
 
     if path.extension().unwrap() == texture::EXTENSION {
-        //TODO: Load up and decompress Combustion texture
-        unimplemented!();
+        //let mut out_path = path.to_path_buf();
+
+        //TODO: Duplicate filenames need numbering, where the new number is ALWAYS greater than the previous one,
+        //TODO: So start the number at the previous number if it exists
+        /*
+        let filename = path.file_stem().unwrap().to_string_lossy();
+        let mut counter = 1;
+        loop {
+            out_path.set_file_name(format!("{}{}", filename, counter));
+            if !out_path.exists() {break;}
+            counter += 1;
+        }*/
+
+        let mut source = BufReader::new(File::open(path)?);
+
+        let texture_message = capnp::serialize_packed::read_message(&mut source, capnp::message::ReaderOptions {
+            traversal_limit_in_words: u64::max_value(), nesting_limit: 64
+        }).expect_logged("Could not open Texture protocol");
+
+        let texture = texture_message.get_root::<texture_protocol::Reader>()
+                                         .expect_logged("No texture protocol root found");
+
+        let width = texture.get_width();
+        let height = texture.get_height();
+
+        //TODO: Support more kinds
+        //let depth = texture.get_depth();
+
+        let kind = texture.get_kind()
+                          .expect_logged("Couldn't find Kind value. This could be caused by using an older texture format.");
+
+        //TODO: Support more kinds
+        assert!(kind == Kind::Texture2D);
+
+        let specific_format = texture::SpecificFormat::read_texture(&texture)
+            .expect_logged("Error retrieving texture information");
+
+        let data = texture.get_data()
+                          .expect_logged("No texture data found");
+
+        let generic_format = specific_format.to_generic();
+
+        if specific_format.is_compressed() {
+            info!("{:?} is compressed with {:?}", path, specific_format);
+            info!("Decompressing...");
+
+            unsafe {
+                glb::CompressedTexImage2D(glb::TEXTURE_2D, 0, specific_format.specific(),
+                                          width as GLsizei, height as GLsizei,
+                                          0, data.len() as GLsizei, data.as_ptr() as *const _);
+            }
+
+            check_errors!();
+
+            let len = width as usize * height as usize * generic_format.num_channels();
+
+            let mut buffer: Vec<u8> = Vec::with_capacity(len);
+
+            unsafe {
+                buffer.set_len(len);
+
+                glb::GetTexImage(glb::TEXTURE_2D, 0, generic_format.generic(), glb::UNSIGNED_BYTE, buffer.as_mut_ptr() as *mut _);
+            }
+
+            check_errors!();
+
+            info!("Texture decompressed to {}", utils::human_readable::convert(len as f64));
+
+            Ok(RawImage {
+                dimensions: (width, height),
+                data: buffer,
+                channels: generic_format.channels,
+                out_path: path.to_path_buf()
+            })
+        } else {
+            Ok(RawImage {
+                dimensions: (width, height),
+                data: data.into(),
+                channels: generic_format.channels,
+                out_path: path.to_path_buf()
+            })
+        }
     } else {
-        let image: DynamicImage = try!(image::open(path));
+        let image: DynamicImage = try!(image::open(path.clone()));
 
         let dimensions = image.dimensions();
 
@@ -59,12 +142,13 @@ fn read_texture<P: AsRef<Path> + Clone>(path: P) -> GLResult<RawImage> {
         Ok(RawImage {
             dimensions: dimensions,
             data: data,
-            channels: channels
+            channels: channels,
+            out_path: path.to_path_buf()
         })
     }
 }
 
-fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap::ArgMatches) -> GLResult<()> {
+pub fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap::ArgMatches) -> GLResult<()> {
     info!("Loading {:?}", path.as_ref());
 
     let raw = try!(read_texture(path.clone()));
@@ -175,12 +259,16 @@ fn compress_texture<P: AsRef<Path> + Clone>(path: P, dir: &Path, matches: &clap:
               utils::human_readable::convert(diff)
         );
 
+        texture_builder.set_kind(Kind::Texture2D);
+
         specific_format.write_texture(&mut texture_builder);
 
         texture_builder.set_data(&compressed_data);
     }
 
-    let stem = path.as_ref().file_stem().unwrap();
+    let path = raw.out_path;
+
+    let stem = path.file_stem().unwrap();
 
     let mut out_path = PathBuf::from(dir).join(stem);
 
