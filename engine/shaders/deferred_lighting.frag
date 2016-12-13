@@ -15,7 +15,7 @@ uniform float brightness = 1.0;
 uniform float saturation = 1.0;
 uniform float contrast = 1.0;
 
-uniform float depth_edge_threshold = 0.25;
+uniform float depth_edge_threshold = 0.65;
 
 #include "lighting_phong.glsl"
 #include "lighting_pbr.glsl"
@@ -40,11 +40,11 @@ void main() {
     MUV *= 2.0;
 
     if(UV.x > 0.5 && UV.y > 0.5) {
-        gColor.rgb = texture(ColorSs, MUV).rgb;
+        gColor.rgb = texture(ColorSs, MUV - 1.0).rgb;
     } else if(UV.x > 0.5 && UV.y < 0.5) {
-        gColor.rgb = texture(NormalMs, MUV).rgb;
+        gColor.rgb = texture(NormalMs, vec2(MUV.x - 1.0, MUV.y)).rgb;
     } else if(UV.x < 0.5 && UV.y > 0.5) {
-        gColor.rgb = texture(PositionDs, MUV).rgb;
+        gColor.rgb = texture(PositionDs, vec2(MUV.x, MUV.y - 1.0)).rgb;
     } else {
 #endif
 
@@ -65,7 +65,7 @@ void main() {
     float edge = sobel5w(rcp, PositionDs, MUV);
 
     //Uncomment this to show edge detection
-    //gColor.rgb = vec3(edge);
+    //if(edge >= depth_edge_threshold) { gColor.rgb = vec3(1.0); } else { gColor.rgb = vec3(0.0); }
     //gColor.a = -1.0;
     //return;
 

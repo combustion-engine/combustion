@@ -60,10 +60,12 @@ impl Pipeline {
             .link()?
             .finish();
 
-        let geometry_stage = try!(Stage::new(width, height, Some(&GEOMETRY_STAGE_COMPONENTS)));
+        let mut geometry_stage = try!(Stage::new(width, height, Some(&GEOMETRY_STAGE_COMPONENTS)));
         let mut lighting_stage = try!(Stage::new(width, height, Some(&LIGHTING_STAGE_COMPONENTS)));
         //TODO: Add transparency stage
         let final_stage = try!(Stage::new(width, height, None));
+
+        try!(geometry_stage.set_wrap(GLTextureWrap::ClampToEdge));
 
         //TODO: Move this to whatever stage is right before the screen stage
         try!(lighting_stage.set_filter(GLTextureFilter::Linear));
