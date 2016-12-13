@@ -28,46 +28,59 @@ pub fn load(mut scene: &mut Scene) -> AppResult<()> {
             .find_instances(true)
             .calc_tangent_space(true)
             .gen_smooth_normals(true)
-            .improve_cache_locality(true);
+            .improve_cache_locality(true)
+            .build();
 
-        let buddha = try!(assimp::Scene::import("./models/twilight.obj", Some(effects.build())));
-
+        let buddha = try!(assimp::Scene::import("./models/buddha_uv.fbx", Some(effects.clone())));
         let buddha_source = try!(sources.add(Arc::new(buddha), "Twilight".into()));
-
         info!("Twilight model stored at index: {}", buddha_source);
 
-        let buffer = GPU_Buffer::new();
+        let cube = try!(assimp::Scene::import("./models/cube.fbx", Some(effects.clone())));
+        let cube_source = try!(sources.add(Arc::new(cube), "Cube".into()));
+        info!("Cube model stored at index: {}", cube_source);
+
+        let buddha_buffer = GPU_Buffer::new();
+        let cube_buffer = GPU_Buffer::new();
 
         world.create_now()
              .with(Transform::new())
              .with(Position(Point3::new(0.0, -0.25, 0.0)))
              .with(Rotation::none())
-             .with(Scale::uniform(1.0 / 18.0))
+             //.with(Scale::uniform(1.0 / 18.0))
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))
-             .with(buffer.clone())
+             .with(buddha_buffer.clone())
              .build();
 
         world.create_now()
              .with(Transform::new())
              .with(Position(Point3::new(-0.5, -0.25, 0.0)))
              .with(Rotation::none())
-             .with(Scale::uniform(1.0 / 18.0))
+             //.with(Scale::uniform(1.0 / 18.0))
              .with(Turntable { rate: 2.0 })
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))
-             .with(buffer.clone())
+             .with(buddha_buffer.clone())
              .build();
 
         world.create_now()
              .with(Transform::new())
              .with(Position(Point3::new(0.5, -0.25, 0.0)))
              .with(Rotation::none())
-             .with(Scale::uniform(1.0 / 18.0))
+             //.with(Scale::uniform(1.0 / 18.0))
              .with(Turntable { rate: -2.0 })
              .with(Renderable::new())
              .with(Mesh::new(buddha_source, 0))
-             .with(buffer.clone())
+             .with(buddha_buffer.clone())
+             .build();
+
+        world.create_now()
+             .with(Transform::new())
+             .with(Position::new(0.0, 0.0, 0.0))
+             .with(Scale::uniform(1.0))
+             .with(Renderable::new())
+             .with(Mesh::new(cube_source, 0))
+             .with(cube_buffer.clone())
              .build();
 
         Ok(())
