@@ -19,6 +19,17 @@ pub enum Channels {
     Rgba,
 }
 
+impl Channels {
+    pub fn num_channels(&self) -> usize {
+        match *self {
+            Channels::R => 1,
+            Channels::Rg => 2,
+            Channels::Rgb => 3,
+            Channels::Rgba => 4
+        }
+    }
+}
+
 impl From<Channels> for protocol::Raw {
     #[inline]
     fn from(channels: Channels) -> protocol::Raw {
@@ -81,7 +92,7 @@ impl ::std::fmt::Debug for Which {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         use self::protocol::*;
 
-        write!(f, "{} compression", match *self {
+        write!(f, "{}", match *self {
             Which::None(ref uncompressed) => {
                 match uncompressed {
                     &Raw::R => "Luma (Red) No",
@@ -120,7 +131,7 @@ impl ::std::fmt::Debug for Which {
             write!(f, " {}", blocksize.to_str())?;
         }
 
-        Ok(())
+        write!(f, " compression")
     }
 }
 
@@ -237,6 +248,11 @@ impl GenericFormat {
         }
     }
 
+    #[inline(always)]
+    pub fn num_channels(&self) -> usize {
+        self.channels.num_channels()
+    }
+
     /// Create a new uncompressed `SpecificFormat` from `self`
     pub fn none(&self) -> SpecificFormat {
         SpecificFormat {
@@ -351,6 +367,13 @@ impl SpecificFormat {
     /// Convert specific formats into generic properties
     pub fn to_generic(&self) -> GenericFormat {
         self.clone().into_generic()
+    }
+
+    pub fn is_compressed(&self) -> bool {
+        match self.which {
+            Which::None(_) => false,
+            _ => true,
+        }
     }
 
     /// Write specific format to Cap'N Proto texture structure
