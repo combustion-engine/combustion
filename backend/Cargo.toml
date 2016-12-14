@@ -20,6 +20,18 @@ vec_map = "0.6.0"
 [dependencies.combustion_common]
 path = "../common/"
 
+[dependencies.d3d11-sys]
+optional = true
+version = "0.2.0"
+
+[dependencies.d3d12-sys]
+optional = true
+version = "0.2.0"
+
+[dependencies.d3dcompiler-sys]
+optional = true
+version = "0.2.0"
+
 [dependencies.gdi32-sys]
 optional = true
 version = "0.2.0"
@@ -52,6 +64,7 @@ version = "0.2.8"
 [features]
 all = ["gl", "vulkan", "dx11"]
 default = ["gl"]
-dx11 = ["winapi", "gdi32-sys", "kernel32-sys", "user32-sys"]
+dx11 = ["winapi", "gdi32-sys", "kernel32-sys", "user32-sys", "d3d11-sys", "d3dcompiler-sys"]
+dx12 = ["dx11", "d3d12-sys"]
 gl = []
 vulkan = ["vk-sys"]
