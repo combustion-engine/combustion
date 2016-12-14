@@ -20,6 +20,14 @@ vec_map = "0.6.0"
 [dependencies.combustion_common]
 path = "../common/"
 
+[dependencies.gdi32-sys]
+optional = true
+version = "0.2.0"
+
+[dependencies.kernel32-sys]
+optional = true
+version = "0.2.2"
+
 [dependencies.lazy]
 path = "../deps/lazy"
 
@@ -28,3 +36,22 @@ path = "../deps/nalgebra"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
+
+[dependencies.user32-sys]
+optional = true
+version = "0.2.0"
+
+[dependencies.vk-sys]
+optional = true
+version = "0.2.1"
+
+[dependencies.winapi]
+optional = true
+version = "0.2.8"
+
+[features]
+all = ["gl", "vulkan", "dx11"]
+default = ["gl"]
+dx11 = ["winapi", "gdi32-sys", "kernel32-sys", "user32-sys"]
+gl = []
+vulkan = ["vk-sys"]
