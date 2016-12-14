@@ -15,6 +15,8 @@ extern crate slog_stream;
 extern crate slog_scope;
 extern crate slog_atomic;
 
+extern crate tinyfiledialogs;
+
 extern crate time;
 extern crate chrono;
 
