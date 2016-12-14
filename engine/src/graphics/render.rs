@@ -3,10 +3,13 @@ use std::mem;
 use std::ptr;
 use std::sync::mpsc;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::ops::Deref;
 use std::time::Duration as StdDuration;
 use time::{Duration, PreciseTime};
+use std::fs::File;
+use std::io::BufReader;
 use nalgebra::*;
 use lazy;
 
@@ -78,7 +81,7 @@ impl<'a> RenderLoopState {
     }
 }
 
-pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>) -> AppResult<()> {
+pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, rx: &mpsc::Receiver<RenderSignal>) -> AppResult<()> {
     info!("Targeting {}Hz", state.refresh_rate);
 
     let mut scene = try!(Scene::new());
@@ -104,20 +107,74 @@ pub fn start(mut state: &mut RenderLoopState, mut context: glfw::RenderContext, 
     info!("Loading textures...");
 
     let texture = {
+        use capnp;
+        use combustion_protocols::protocols::texture;
+        use combustion_protocols::protocols::texture::protocol::{Kind};
+        use combustion_protocols::protocols::texture::protocol::texture as texture_protocol;
+        use combustion_protocols::protocols::texture::gl::*;
+
         use ::backend::gl::*;
+        use ::backend::gl::bindings as glb;
 
-        let mut texture = GLTexture::new(GLTextureKind::Texture2D).unwrap();
+        let mut active_texture = GLTexture::new(GLTextureKind::Texture2D).unwrap();
 
-        texture.load_from_file("models/uv_test_8K.png", None).expect_logged("Couldn't load texture");
+        let mut source = BufReader::new(File::open("models/uv_test_8K.ctex")?);
 
-        texture.set_filter(GLTextureFilter::Linear, Some(GLTextureFilter::Linear)).expect_logged("Couldn't set texture filtering");
+        let texture_message = capnp::serialize_packed::read_message(&mut source, capnp::message::ReaderOptions {
+            traversal_limit_in_words: u64::max_value(), nesting_limit: 64
+        }).expect_logged("Could not open Texture protocol");
 
-        let max_anisotropy = texture.get_max_anisotropy().expect_logged("Couldn't get max anisotropy value");
-        texture.set_anisotropy(max_anisotropy).expect_logged("Couldn't set max anisotropy");
+        let texture = texture_message.get_root::<texture_protocol::Reader>()
+                                     .expect_logged("No texture protocol root found");
 
-        texture.generate_mipmap().expect_logged("Couldn't generate mipmaps");
+        let width = texture.get_width();
+        let height = texture.get_height();
 
-        texture
+        //TODO: Support more kinds
+        //let depth = texture.get_depth();
+
+        let kind = texture.get_kind()
+                          .expect_logged("Couldn't find Kind value. This could be caused by using an older texture format.");
+
+        //TODO: Support more kinds
+        assert!(kind == Kind::Texture2D);
+
+        let specific_format = texture::SpecificFormat::read_texture(&texture)
+            .expect_logged("Error retrieving texture information");
+
+        let data = texture.get_data()
+                          .expect_logged("No texture data found");
+
+        info!("Combustion texture loaded.");
+
+        let generic_format = specific_format.to_generic();
+
+        info!("Buffering Combustion texture...");
+
+        if specific_format.is_compressed() {
+            unsafe {
+                glb::CompressedTexImage2D(glb::TEXTURE_2D, 0, specific_format.specific(),
+                                          width as GLsizei, height as GLsizei,
+                                          0, data.len() as GLsizei, data.as_ptr() as *const _);
+            }
+        } else {
+            unsafe {
+                glb::TexImage2D(glb::TEXTURE_2D, 0, specific_format.specific() as GLint,
+                                width as GLsizei, height as GLsizei, 0,
+                                generic_format.generic(), glb::UNSIGNED_BYTE, data.as_ptr() as *const _);
+            }
+        }
+
+        check_errors!();
+
+        active_texture.set_filter(GLTextureFilter::Linear, Some(GLTextureFilter::Linear)).expect_logged("Couldn't set texture filtering");
+
+        let max_anisotropy = active_texture.get_max_anisotropy().expect_logged("Couldn't get max anisotropy value");
+        active_texture.set_anisotropy(max_anisotropy).expect_logged("Couldn't set max anisotropy");
+
+        active_texture.generate_mipmap().expect_logged("Couldn't generate mipmaps");
+
+        active_texture
     };
 
     //////////////////
