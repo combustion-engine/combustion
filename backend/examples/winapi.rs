@@ -45,6 +45,7 @@ unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: UINT, wparam: WPARAM, lparam
 fn main() {
     unsafe {
         let h_instance = GetModuleHandleA(0 as LPCSTR);
+
         let wcex = WNDCLASSEXW {
             cbSize: size_of::<WNDCLASSEXW>() as u32,
             style: CS_VREDRAW | CS_HREDRAW,
@@ -59,6 +60,7 @@ fn main() {
             lpszClassName: SZ_CLASS.as_ptr() as *const u16,
             hIconSm: 0 as HICON,
         };
+
         match RegisterClassExW(&wcex) {
             0 => {
                 MessageBoxA(
@@ -68,7 +70,7 @@ fn main() {
                     0 as UINT
                 );
             },
-            _atom => {
+            _ => {
                 let window = CreateWindowExW(
                     0,
                     SZ_CLASS.as_ptr() as *const u16,
@@ -79,6 +81,7 @@ fn main() {
                     h_instance,
                     0 as LPVOID
                 );
+
                 if window.is_null() {
                     MessageBoxA(
                         0 as HWND,
