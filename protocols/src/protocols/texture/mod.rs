@@ -377,7 +377,7 @@ impl SpecificFormat {
     }
 
     /// Write specific format to Cap'N Proto texture structure
-    pub fn write_texture<'a>(&self, mut builder: &mut self::protocol::texture::Builder<'a>) {
+    pub fn write_texture<'a>(&self, mut builder: &'a mut self::protocol::texture::Builder<'a>) {
         {
             let mut compression = builder.borrow().get_compression();
 
@@ -394,7 +394,7 @@ impl SpecificFormat {
     }
 
     /// Read in specific format from Cap'N Proto texture structure
-    pub fn read_texture<'a>(reader: &self::protocol::texture::Reader<'a>) -> Result<SpecificFormat, capnp::NotInSchema> {
+    pub fn read_texture<'a>(reader: &'a self::protocol::texture::Reader<'a>) -> Result<SpecificFormat, capnp::NotInSchema> {
         use self::protocol::texture::compression::Which as PWhich;
 
         let which = {
