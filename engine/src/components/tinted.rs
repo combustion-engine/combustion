@@ -1,12 +1,12 @@
 //! Object tint component
 
 use specs;
-use ::backend::gl::GLColor;
+use ::backend::generic::color::Color;
 
 #[derive(Clone, Debug)]
 pub struct Component {
     /// Color to be layered over the object to tint it
-    pub color: GLColor
+    pub color: Color
 }
 
 impl specs::Component for Component {

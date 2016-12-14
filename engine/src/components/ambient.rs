@@ -1,11 +1,11 @@
 //! Ambient lighting component
 
 use specs;
-use ::backend::gl::GLColor;
+use ::backend::generic::color::Color;
 
 #[derive(Clone, Debug)]
 pub struct Component {
-    pub color: GLColor
+    pub color: Color
 }
 
 impl specs::Component for Component {
