@@ -4,7 +4,6 @@ use super::GLObject;
 
 use std::mem;
 use std::ptr;
-use std::sync::Arc;
 use std::os::raw::c_void;
 
 use super::gl_error::*;
@@ -42,11 +41,12 @@ pub enum GLBufferUsage {
 }
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct GLBuffer(GLuint, GLBufferTarget);
+pub struct GLBuffer(GLuint, GLBufferTarget, usize);
 
 impl_simple_globject!(GLBuffer, IsBuffer, "GLBuffer");
 
 impl GLBuffer {
+    /// Create a new empty OpenGL Buffer and bind it
     pub fn new(target: GLBufferTarget) -> GLResult<GLBuffer> {
         let mut buffer = 0;
 
@@ -58,9 +58,10 @@ impl GLBuffer {
 
         check_errors!();
 
-        Ok(GLBuffer(buffer, target))
+        Ok(GLBuffer(buffer, target, 0))
     }
 
+    /// Returns the buffer target.
     #[inline]
     pub fn target(&self) -> GLBufferTarget { self.1 }
 
@@ -74,39 +75,30 @@ impl GLBuffer {
         Ok(())
     }
 
+    /// Returns the last number of bytes buffered
+    #[inline(always)]
+    pub fn num_bytes(&self) -> usize { self.2 }
+
+    /// Returns the last number of elements `T` buffered
+    ///
+    /// It's up to you to keep track of type `T`, as `GLBuffer` really only stores the number of bytes, not elements, buffered.
+    #[inline(always)]
+    pub fn num_elements<T>(&self) -> usize { self.2 / mem::size_of::<T>() }
+
+    /// Buffer a `Vec<T>` of elements `T` to the `GLBuffer`
+    #[inline]
     pub fn buffer_elements<T>(&mut self, data: &Vec<T>, usage: GLBufferUsage) -> GLResult<()> {
-        try!(self.bind());
-
-        unsafe {
-            BufferData(self.1 as GLenum,
-                       (data.len() * mem::size_of::<T>()) as GLsizeiptr,
-                       data.as_ptr() as *const c_void,
-                       usage as GLenum
-            );
-        }
-
-        check_errors!();
-
-        Ok(())
+        unsafe { self.buffer_raw(data.as_ptr() as *const c_void, data.len() * mem::size_of::<T>(), usage) }
     }
 
+    /// Buffer a slice of `T` to the `GLBuffer`
+    #[inline]
     pub fn buffer_slice<T>(&mut self, data: &[T], usage: GLBufferUsage) -> GLResult<()> {
-        try!(self.bind());
-
-        unsafe {
-            BufferData(self.1 as GLenum,
-                       (data.len() * mem::size_of::<T>()) as GLsizeiptr,
-                       data.as_ptr() as *const c_void,
-                       usage as GLenum
-            );
-        }
-
-        check_errors!();
-
-        Ok(())
+        unsafe { self.buffer_raw(data.as_ptr() as *const c_void, data.len() * mem::size_of::<T>(), usage) }
     }
 
-    pub unsafe fn buffer_raw(&mut self, size: usize, data: *const c_void, usage: GLBufferUsage) -> GLResult<()> {
+    /// Buffer raw data to the `GLBuffer`
+    pub unsafe fn buffer_raw(&mut self, data: *const c_void, size: usize, usage: GLBufferUsage) -> GLResult<()> {
         if data.is_null() || size == 0 {
             Err(GLError::InvalidValue)
         } else {
@@ -115,6 +107,8 @@ impl GLBuffer {
             BufferData(self.1 as GLenum, size as GLsizeiptr, data, usage as GLenum);
 
             check_errors!();
+
+            self.2 = size;
 
             Ok(())
         }
