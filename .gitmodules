@@ -1,0 +1,6 @@
+[submodule "geometry/lib/libigl"]
+	path = geometry/lib/libigl
+	url = https://github.com/libigl/libigl/
+[submodule "geometry/lib/eigen"]
+	path = geometry/lib/eigen
+	url = https://github.com/RLovelett/eigen/

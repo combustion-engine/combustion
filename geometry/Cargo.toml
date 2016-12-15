@@ -1,0 +1,11 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+build = "build.rs"
+name = "geometry"
+version = "0.1.0"
+
+[build-dependencies]
+gcc = "0.3.40"
+
+[dependencies]
+libc = "0.2.18"

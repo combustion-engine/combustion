@@ -9,3 +9,9 @@ engine/models/
 *.exe
 *.dll
 deps
+*.png
+*.jpg
+*.cap
+*.zip
+*.js
+*.ctex
