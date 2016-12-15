@@ -54,9 +54,6 @@ path = "../deps/lazy"
 [dependencies.nalgebra]
 path = "../deps/nalgebra"
 
-[dependencies.nice_glfw]
-path = "../deps/nice_glfw"
-
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
 
