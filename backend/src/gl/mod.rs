@@ -35,6 +35,8 @@ pub mod gl_texture;
 pub mod gl_renderbuffer;
 pub mod gl_framebuffer;
 
+pub mod gl_requires;
+
 pub use self::gl_debug::*;
 pub use self::gl_vertexarray::*;
 pub use self::gl_buffer::*;
@@ -44,3 +46,4 @@ pub use self::gl_shader_program::*;
 pub use self::gl_texture::*;
 pub use self::gl_renderbuffer::*;
 pub use self::gl_framebuffer::*;
+pub use self::gl_requires::*;
