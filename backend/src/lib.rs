@@ -24,10 +24,12 @@ extern crate vec_map;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate glfw;
 
 #[macro_use]
 extern crate combustion_common;
 
+pub mod window;
 pub mod generic;
 
 #[cfg(feature = "gl")]
