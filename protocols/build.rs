@@ -2,11 +2,9 @@
 extern crate combustion_common as common;
 extern crate capnpc;
 
-use std::iter::FromIterator;
-use std::io::prelude::*;
 use std::env;
 use std::fs::*;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Recursively visit directories
 fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) {
@@ -21,64 +19,22 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) {
 }
 
 /// Visit directories, find .capnp files, compile them, then replace absolute module references with `super` in the output code.
-fn compile_capnprotos(out_dir: String) {
-    create_dir_all(out_dir.clone() + "/protocols").unwrap();
-
-    visit_dirs(Path::new("src/protocols"), &|entry: &DirEntry| {
+fn compile_capnprotos(_out_dir: String) {
+    visit_dirs(Path::new("protocols"), &|entry: &DirEntry| {
         if let Some(ext) = entry.path().as_path().extension() {
             if ext == "capnp" {
-                info!("Attempting to compile: {:?} to {}", entry.path(), out_dir);
+                info!("Attempting to compile: {:?}", entry.path());
 
-                if let Err(err) = capnpc::CompilerCommand::new().src_prefix("src").file(entry.path()).run() {
+                if let Err(err) = capnpc::CompilerCommand::new().file(entry.path()).include("protocols").run() {
                     error!("Failed to compile protocol: {}", err);
                     panic!("Failed to compile protocol: {}", err);
                 } else {
-                    info!("Attempting to replace absolute module paths with `super`");
-
-                    trace!("Generating out path");
-
-                    let mut out_path = PathBuf::from_iter(entry.path().iter().skip(1));
-
-                    let mut mod_name = out_path.file_name().unwrap().to_str().unwrap().to_string();
-
-                    mod_name = mod_name.replace(".", "_");
-
-                    trace!("Mod name: {}", mod_name);
-
-                    out_path.set_file_name(mod_name.clone() + ".rs");
-
-                    out_path = PathBuf::from(out_dir.clone()).join(out_path);
-
-                    trace!("Opening output file {:?}...", out_path);
-
-                    let mut out_file: File = File::open(out_path.clone()).unwrap();
-
-                    let mut file_contents = String::new();
-
-                    trace!("Reading output contents");
-                    out_file.read_to_string(&mut file_contents).unwrap();
-
-                    //Close file
-                    trace!("Closing output file");
-                    ::std::mem::drop(out_file);
-
-                    trace!("Opening final output file {:?}...", out_path);
-                    let mut out_file: File = File::create(out_path.clone()).unwrap();
-
-                    trace!("Writing modified file contents...");
-
-                    //Plain `super::` won't work because some stuff isn't placed hierarchically, so we need to specify the real absolute path
-                    out_file.write_all(file_contents.replace(format!("::{}", mod_name).as_str(),
-                                                             format!("::protocols::{}::protocol", mod_name.replace("_capnp", "")).as_str()).as_bytes()).unwrap();
-
                     info!("Success!");
                 }
             }
+
         }
     });
-
-    info!("Cleaning up residual Cap'N Proto protocols directory");
-    remove_dir_all("protocols").unwrap();
 }
 
 fn main() {

@@ -1,5 +1,6 @@
 #![feature(plugin, proc_macro, conservative_impl_trait)]
 #![plugin(phf_macros)]
+#![allow(dead_code)]
 
 extern crate capnp;
 extern crate capnpc;
@@ -12,6 +13,7 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
+extern crate assimp;
 extern crate nalgebra;
 
 #[macro_use]
@@ -20,4 +22,7 @@ extern crate combustion_common as common;
 #[macro_use]
 extern crate combustion_backend as backend;
 
-pub mod protocols;
+pub mod model;
+pub mod scene;
+pub mod texture;
+pub mod math;

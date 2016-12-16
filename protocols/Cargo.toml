@@ -2,26 +2,28 @@
 authors = ["novacrazy <novacrazy@gmail.com>"]
 build = "build.rs"
 exclude = ["*.png"]
-include = ["Cargo.toml", "src/**/*.rs", "src/**/*.capnp"]
+include = ["Cargo.toml", "src/**/*.rs", "protocols/**/*.capnp"]
 license = "MIT"
 name = "combustion_protocols"
 version = "0.1.0"
 
-[build-dependencies]
-capnpc = "0.7.5"
+[build-dependencies.capnpc]
+path = "../deps/capnpc-rust"
 
 [build-dependencies.combustion_common]
 path = "../common"
 
 [dependencies]
 capnp = "0.7.5"
-capnpc = "0.7.5"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 serde = "0.8.19"
 serde_derive = "0.8.19"
 serde_json = "0.8.4"
 nalgebra = {path = "../deps/nalgebra"}
+
+[dependencies.capnpc]
+path = "../deps/capnpc-rust"
 
 [dependencies.assimp]
 features = ["default", "compat"]

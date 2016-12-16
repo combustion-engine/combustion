@@ -54,7 +54,6 @@ enum Kind {
     texture1D @0;
     texture2D @1;
     texture3D @2;
-    cubemap   @3;
 }
 
 struct Texture {
@@ -72,5 +71,16 @@ struct Texture {
     data  @7: Data;                     # Binary texture data
     srgb  @8: Bool;                     # sRGB support
     depth @9: UInt32 = 0;               # Depth for 3D textures
-    kind  @10: Kind = texture2D;        # 1D, 2D, 3D, Cubemap, etc
+    kind  @10: Kind = texture2D;        # 1D, 2D, 3D, etc
+    # All Mipmaps are assumed to be the same format as the original texture. Level is given by the list index plus one
+    mipmaps @11: List(Data);            # Mipmaps.
+}
+
+struct Cubemap {
+    right   @0: Texture; # Positive X
+    left    @1: Texture; # Negative X
+    top     @2: Texture; # Positive Y
+    bottom  @3: Texture; # Negative Y
+    back    @4: Texture; # Positive Z
+    front   @5: Texture; # Negative Z
 }
