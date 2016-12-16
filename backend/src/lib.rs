@@ -41,4 +41,7 @@ pub mod vulkan;
 #[cfg(all(feature = "dx11", target_os = "windows"))]
 pub mod dx11;
 
+#[cfg(target_os = "windows")]
+pub mod win32;
+
 pub mod command;
