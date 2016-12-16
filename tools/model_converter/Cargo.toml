@@ -1,0 +1,20 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+name = "model_converter"
+version = "0.1.0"
+
+[dependencies]
+capnp = "0.7.5"
+capnpc = "0.7.5"
+clap = "2.19.2"
+glob = "0.2.11"
+
+[dependencies.assimp]
+features = ["default", "compat"]
+path = "../../deps/assimp-rs"
+
+[dependencies.combustion_common]
+path = "../../common"
+
+[dependencies.combustion_protocols]
+path = "../../protocols"
