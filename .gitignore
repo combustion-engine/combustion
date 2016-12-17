@@ -14,7 +14,3 @@ engine/models/
 *.js
 *.ctex
 cmake-build*
-*.capnp.h
-*.capnp.c++
-*.capnp.cpp
-protocols/cpp/include
