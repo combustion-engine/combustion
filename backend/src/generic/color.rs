@@ -31,11 +31,13 @@ pub struct Color {
 }
 
 impl Color {
+    /// Create a new color in linear space
     #[inline(always)]
     pub fn new(r: f32, g: f32, b: f32, a: f32) -> Color {
         Color { r: r, g: g, b: b, a: a }
     }
 
+    /// Create a new color in linear space from tuple
     #[inline(always)]
     pub fn from_tuple(rgba: (f32, f32, f32, f32)) -> Color {
         Color::new(rgba.0, rgba.1, rgba.2, rgba.3)
@@ -45,6 +47,18 @@ impl Color {
     #[inline(always)]
     pub fn none() -> Color {
         Color::new(0.0, 0.0, 0.0, 0.0)
+    }
+
+    /// Create a white opaque color
+    #[inline(always)]
+    pub fn white() -> Color {
+        Color::new(1.0, 1.0, 1.0, 1.0)
+    }
+
+    /// Create a black opaque color
+    #[inline(always)]
+    pub fn black() -> Color {
+        Color::new(0.0, 0.0, 0.0, 1.0)
     }
 }
 
