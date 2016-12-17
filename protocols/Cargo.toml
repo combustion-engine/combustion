@@ -7,6 +7,10 @@ license = "MIT"
 name = "combustion_protocols"
 version = "0.1.0"
 
+[build-dependencies]
+cmake = "0.1.19"
+gcc = "0.3.40"
+
 [build-dependencies.capnpc]
 path = "../deps/capnpc-rust"
 
@@ -20,14 +24,13 @@ phf_macros = "0.7.20"
 serde = "0.8.19"
 serde_derive = "0.8.19"
 serde_json = "0.8.4"
-nalgebra = {path = "../deps/nalgebra"}
-
-[dependencies.capnpc]
-path = "../deps/capnpc-rust"
 
 [dependencies.assimp]
 features = ["default", "compat"]
 path = "../deps/assimp-rs"
+
+[dependencies.capnpc]
+path = "../deps/capnpc-rust"
 
 [dependencies.combustion_backend]
 path = "../backend"
@@ -37,3 +40,9 @@ path = "../common/"
 
 [dependencies.lz4]
 path = "../deps/lz4-rs"
+
+[dependencies.nalgebra]
+path = "../deps/nalgebra"
+
+[features]
+cpp = []
