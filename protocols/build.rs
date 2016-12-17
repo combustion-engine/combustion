@@ -59,7 +59,8 @@ fn compile_capnprotos() {
 }
 
 #[cfg(feature = "cpp")]
-fn build_cpp(out_dir: String) {
+fn build_cpp() {
+    let out_dir = env::var("OUT_DIR").unwrap();
     let src_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
     info!("Compiling Cap'N Proto C++ static library");
@@ -93,10 +94,8 @@ fn build_cpp(out_dir: String) {
 fn main() {
     common::log::init_global_logger("logs/build").unwrap();
 
-    let out_dir = env::var("OUT_DIR").unwrap();
-
     compile_capnprotos();
 
     #[cfg(feature = "cpp")]
-    build_cpp(out_dir.clone());
+    build_cpp();
 }
