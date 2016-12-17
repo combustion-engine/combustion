@@ -30,3 +30,12 @@ struct Matrix4 {
     m34 @14: Float32;
     m44 @15: Float32;
 }
+
+struct Transform {
+    transform: union {
+        translate @0: Vector3;
+        rotation @1: Vector3;
+        scale @2: Vector3;
+        matrix @3: Matrix4;
+    }
+}

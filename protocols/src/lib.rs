@@ -22,7 +22,18 @@ extern crate combustion_common as common;
 #[macro_use]
 extern crate combustion_backend as backend;
 
+pub mod utils {
+    pub mod protocol {
+        include!(concat!(env!("OUT_DIR"), "/protocols/utils_capnp.rs"));
+    }
+}
+
+pub mod math {
+    pub mod protocol {
+        include!(concat!(env!("OUT_DIR"), "/protocols/math_capnp.rs"));
+    }
+}
+
 pub mod model;
 pub mod scene;
 pub mod texture;
-pub mod math;
