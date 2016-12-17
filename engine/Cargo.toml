@@ -36,15 +36,8 @@ rusttype = "0.2.1"
 time = "0.1.35"
 vec_map = "0.6.0"
 
-[dependencies.assimp]
-features = ["default", "compat"]
-path = "../deps/assimp-rs"
-
 [dependencies.lazy]
 path = "../deps/lazy"
-
-[dependencies.nice_glfw]
-path = "../deps/nice_glfw"
 
 [dependencies.squirrel-rs]
 path = "../deps/squirrel-rs"

@@ -23,6 +23,3 @@ path = "../../common"
 
 [dependencies.combustion_protocols]
 path = "../../protocols"
-
-[dependencies.nice_glfw]
-path = "../../deps/nice_glfw"
