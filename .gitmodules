@@ -4,3 +4,6 @@
 [submodule "geometry/lib/eigen"]
 	path = geometry/lib/eigen
 	url = https://github.com/RLovelett/eigen/
+[submodule "protocols/cpp/capnproto"]
+	path = protocols/cpp/capnproto
+	url = https://github.com/sandstorm-io/capnproto
