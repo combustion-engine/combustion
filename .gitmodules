@@ -7,3 +7,36 @@
 [submodule "protocols/cpp/capnproto"]
 	path = protocols/cpp/capnproto
 	url = https://github.com/sandstorm-io/capnproto
+[submodule "deps/capnpc-rust"]
+	path = deps/capnpc-rust
+	url = git@gitlab.com:combustion/capnpc-rust.git
+[submodule "deps/tinyfiledialogs"]
+	path = deps/tinyfiledialogs
+	url = git@gitlab.com:combustion/tinyfiledialogs.git
+[submodule "deps/nalgebra"]
+	path = deps/nalgebra
+	url = git@gitlab.com:combustion/nalgebra.git
+[submodule "deps/assimp-sys"]
+	path = deps/assimp-sys
+	url = git@gitlab.com:combustion/assimp-sys.git
+[submodule "deps/assimp-rs"]
+	path = deps/assimp-rs
+	url = git@gitlab.com:combustion/assimp-rs.git
+[submodule "deps/lazy"]
+	path = deps/lazy
+	url = git@gitlab.com:combustion/lazy.git
+[submodule "deps/lz4-rs"]
+	path = deps/lz4-rs
+	url = git@gitlab.com:combustion/lz4-rs.git
+[submodule "deps/luajit-sys"]
+	path = deps/luajit-sys
+	url = git@gitlab.com:combustion/luajit-sys.git
+[submodule "deps/luajit-rs"]
+	path = deps/luajit-rs
+	url = git@gitlab.com:combustion/luajit-rs.git
+[submodule "deps/squirrel-rs"]
+	path = deps/squirrel-rs
+	url = git@gitlab.com:combustion/squirrel-rs.git
+[submodule "deps/squirrel-sys"]
+	path = deps/squirrel-sys
+	url = git@gitlab.com:combustion/squirrel-sys.git

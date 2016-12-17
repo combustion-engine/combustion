@@ -6,12 +6,15 @@ Cargo.lock
 .DS_Store
 *.log
 engine/models/
-*.exe
 *.dll
-deps
 *.png
 *.jpg
 *.cap
 *.zip
 *.js
 *.ctex
+cmake-build*
+*.capnp.h
+*.capnp.c++
+*.capnp.cpp
+protocols/cpp/include
