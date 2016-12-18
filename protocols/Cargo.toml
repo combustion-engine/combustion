@@ -19,6 +19,7 @@ path = "../common"
 
 [dependencies]
 capnp = "0.7.5"
+num-traits = "0.1.36"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 serde = "0.8.19"
@@ -46,3 +47,4 @@ path = "../deps/nalgebra"
 
 [features]
 cpp = []
+default = ["cpp"]

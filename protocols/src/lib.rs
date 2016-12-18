@@ -15,6 +15,7 @@ extern crate serde_json;
 
 extern crate assimp;
 extern crate nalgebra;
+extern crate num_traits;
 
 #[macro_use]
 extern crate combustion_common as common;
@@ -28,12 +29,7 @@ pub mod utils {
     }
 }
 
-pub mod math {
-    pub mod protocol {
-        include!(concat!(env!("OUT_DIR"), "/protocols/math_capnp.rs"));
-    }
-}
-
+pub mod math;
 pub mod model;
 pub mod scene;
 pub mod texture;
