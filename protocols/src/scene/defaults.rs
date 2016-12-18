@@ -3,15 +3,11 @@
 use std::collections::HashMap;
 
 use nalgebra::*;
+use ::named::*;
 
 use backend::generic::color::Color;
 
 use super::*;
-
-/// Since there are many named types, define a single trait for that
-pub trait DefaultName {
-    fn default_name() -> String;
-}
 
 impl DefaultName for Scene {
     fn default_name() -> String { "Untitled Scene".to_string() }

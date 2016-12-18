@@ -4,12 +4,10 @@ use nalgebra::*;
 
 use backend::generic::color::Color;
 
-#[macro_use]
-pub mod named;
 pub mod defaults;
 pub mod sample;
 
-pub use self::named::*;
+pub use super::named::*;
 pub use self::defaults::*;
 
 #[derive(Debug, Serialize, Deserialize)]

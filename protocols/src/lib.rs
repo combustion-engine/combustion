@@ -15,13 +15,15 @@ extern crate serde_json;
 
 extern crate assimp;
 extern crate nalgebra;
-extern crate num_traits;
 
 #[macro_use]
 extern crate combustion_common as common;
 
 #[macro_use]
 extern crate combustion_backend as backend;
+
+#[macro_use]
+pub mod named;
 
 pub mod utils {
     pub mod protocol {
@@ -33,3 +35,4 @@ pub mod math;
 pub mod model;
 pub mod scene;
 pub mod texture;
+pub mod material;

@@ -3,6 +3,11 @@ pub trait Named {
     fn set_name(&mut self, name: String);
 }
 
+/// Since there are many named types, define a single trait for that
+pub trait DefaultName {
+    fn default_name() -> String;
+}
+
 macro_rules! impl_named {
     ($object:ident) => {
         impl Named for $object {
