@@ -1,4 +1,8 @@
+use std::collections::HashMap;
+
 use nalgebra::*;
+
+use backend::generic::color::Color;
 
 #[macro_use]
 pub mod named;
@@ -19,6 +23,7 @@ pub struct Scene {
 
 impl_named!(Scene);
 
+/// Transforms that are applicable to a scene node. Most are pretty obvious.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum NodeTransform {
     #[serde(rename = "translate")]
@@ -61,18 +66,27 @@ pub struct Light {
     pub position: Point3<f32>,
     #[serde(default = "Light::default_direction")]
     pub direction: Vector3<f32>,
-    //color
-    //ambient
+    #[serde(default = "Color::white")]
+    pub color: Color,
+    #[serde(default = "Color::none")]
+    pub ambient: Color,
     #[serde(default = "Light::default_kind")]
     pub kind: LightKind,
+    /// Effect radius of light, outside of which the light does not illuminate
     #[serde(default = "Light::default_radius")]
     pub radius: f32,
+    /// Inner cone angle (in radians) for spotlights
     #[serde(default = "Light::default_inner_cone")]
     pub inner_cone: f32,
+    /// Outer cone angle (in radians) for spotlights
     #[serde(default = "Light::default_outer_cone")]
     pub outer_cone: f32,
+    /// Intensity (brightness) of the light
     #[serde(default = "Light::default_intensity")]
-    pub intensity: f32
+    pub intensity: f32,
+    /// Any arbitrary properties the engine might check for
+    #[serde(default)]
+    pub properties: HashMap<String, String>,
 }
 
 impl_named!(Light);

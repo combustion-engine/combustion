@@ -1,6 +1,11 @@
 //! Contains all the default values for Scene objects
 
+use std::collections::HashMap;
+
 use nalgebra::*;
+
+use backend::generic::color::Color;
+
 use super::*;
 
 /// Since there are many named types, define a single trait for that
@@ -59,11 +64,14 @@ impl Default for Light {
             zdistance: Light::default_zdistance(),
             position: Light::default_position(),
             direction: Light::default_direction(),
+            color: Color::white(),
+            ambient: Color::none(),
             kind: Light::default_kind(),
             radius: Light::default_radius(),
             inner_cone: Light::default_inner_cone(),
             outer_cone: Light::default_outer_cone(),
-            intensity: Light::default_intensity()
+            intensity: Light::default_intensity(),
+            properties: HashMap::default(),
         }
     }
 }
