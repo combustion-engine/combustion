@@ -14,7 +14,7 @@ use backend::gl::*;
 use backend::gl::types::*;
 use backend::gl::bindings as glb;
 
-use combustion_protocols::protocols;
+use combustion_protocols as protocols;
 
 use self::protocols::texture;
 use self::protocols::texture::protocol::{Kind};
@@ -156,11 +156,7 @@ pub fn start(mut context: glfw::RenderContext, rx: mpsc::Receiver<RenderSignal>)
 
                         check_errors!();
 
-                        try!(active_texture.generate_mipmap());
-
                         texture_resolution = (width, height);
-
-                        check_errors!();
                     } else {
                         info!("Loading normal image...");
 

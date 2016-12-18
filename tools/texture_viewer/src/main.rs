@@ -1,7 +1,6 @@
 #![feature(receiver_try_iter)]
 
 extern crate glfw;
-extern crate nice_glfw;
 extern crate clap;
 extern crate image;
 extern crate capnp;
@@ -14,6 +13,7 @@ extern crate combustion_backend as backend;
 extern crate combustion_protocols;
 
 use common::error::*;
+use backend::window::WindowBuilder;
 
 use std::sync::mpsc;
 use std::path::Path;
@@ -47,7 +47,7 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
 
     let mut glfw: glfw::Glfw = glfw::init(glfw::FAIL_ON_ERRORS).expect_logged("Could not initialize GLFW!");
 
-    let (mut window, events): (glfw::Window, _) = nice_glfw::WindowBuilder::new(&mut glfw)
+    let (window, events) = WindowBuilder::new(glfw)
         .try_modern_context_hints()
         .size(800, 600)
         .common_hints(&[
@@ -56,20 +56,26 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
             WindowHint::DoubleBuffer(true),
         ])
         .title("Combustion Texture Viewer")
+        .set_all_polling(true)
         .create()
         .expect_logged("Couldn't create window");
 
-    window.set_all_polling(true);
-
     info!("Window created");
 
-    //Load up all the OpenGL functions from the process
-    backend::gl::bindings::load_all_with(|symbol| window.get_proc_address(symbol) as *const _);
+    let render_context = {
+        let mut window = window.write().unwrap();
 
-    //Enable debugging of OpenGL messages
-    backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
+        //Load up all the OpenGL functions from the process
+        backend::gl::bindings::load_all_with(|symbol| window.get_proc_address(symbol) as *const _);
 
-    backend::gl::gl_debug::DEBUG_IGNORED.write().unwrap().extend_from_slice(&[131154, 131202]);
+        //Enable debugging of OpenGL messages
+        backend::gl::enable_debug(backend::gl::default_debug_callback, true).unwrap();
+
+        backend::gl::gl_debug::DEBUG_IGNORED.write().unwrap().extend_from_slice(&[131154, 131202]);
+
+        //Create Send-able context to send to render thread
+        window.render_context()
+    };
 
     //Create channel for forwarding events to the render thread
     let (tx, rx) = mpsc::channel();
@@ -77,16 +83,13 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
     // Disconnect current context
     glfw::make_context_current(None);
 
-    //Create Send-able context to send to render thread
-    let context = window.render_context();
-
     let render_thread = Builder::new().name("Render thread".to_string()).spawn(move || {
         info!("Render thread started...");
 
         //Make the OpenGL context active on the render thread
-        glfw::make_context_current(Some(&context));
+        glfw::make_context_current(Some(&render_context));
 
-        render::start(context, rx).expect_logged("Render thread crashed");
+        render::start(render_context, rx).expect_logged("Render thread crashed");
 
         //Once rendering has ended, free the OpenGL context
         glfw::make_context_current(None);
@@ -110,13 +113,16 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
     let mut left_mouse_pressed = false;
     let mut last_cursor_pos = (0.0, 0.0);
 
-    while !window.should_close() {
+    'event_loop: loop {
+        // Wrap this in a block so the read guard doesn't extend to the whole loop
+        if { window.read().unwrap().should_close() } { break 'event_loop; }
+
         glfw.wait_events();
 
         for (_, event) in glfw::flush_messages(&events) {
             match event {
                 WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-                    window.set_should_close(true);
+                    window.write().unwrap().set_should_close(true);
                 }
                 WindowEvent::FileDrop(paths) => {
                     if let Some(last) = paths.last() {
@@ -139,11 +145,11 @@ fn run<P: AsRef<Path>>(path: Option<P>) {
                 }
                 WindowEvent::MouseButton(glfw::MouseButtonLeft, Action::Press, _) => {
                     left_mouse_pressed = true;
-                    window.set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Hand)));
+                    window.write().unwrap().set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Hand)));
                 }
                 WindowEvent::MouseButton(glfw::MouseButtonLeft, Action::Release, _) => {
                     left_mouse_pressed = false;
-                    window.set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Arrow)));
+                    window.write().unwrap().set_cursor(Some(glfw::Cursor::standard(glfw::StandardCursor::Arrow)));
                 }
                 WindowEvent::CursorPos(x, y) => {
                     let delta = (last_cursor_pos.0 - x, last_cursor_pos.1 - y);
