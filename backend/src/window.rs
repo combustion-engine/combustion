@@ -4,18 +4,19 @@ use std::sync::mpsc::Receiver;
 use glfw::{Glfw, WindowMode, WindowHint, Window, WindowEvent, OpenGlProfileHint};
 
 pub struct WindowBuilder<'title, 'monitor> {
-    glfw: Arc<RwLock<Glfw>>,
+    glfw: Glfw,
     size: Option<(u32, u32)>,
     aspect_ratio: Option<(u32, u32)>,
     title: Option<&'title str>,
     mode: Option<WindowMode<'monitor>>,
     common_hints: Vec<WindowHint>,
     try_hints: Vec<Vec<WindowHint>>,
+    set_all_polling: bool,
 }
 
 impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
     /// Creates a new `WindowBuilder` for a existing `Glfw` value
-    pub fn new(glfw: Arc<RwLock<Glfw>>) -> WindowBuilder<'title, 'monitor> {
+    pub fn new(glfw: Glfw) -> WindowBuilder<'title, 'monitor> {
         WindowBuilder {
             glfw: glfw,
             size: None,
@@ -24,6 +25,7 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
             mode: None,
             try_hints: vec![],
             common_hints: vec![],
+            set_all_polling: false,
         }
     }
 }
@@ -110,6 +112,11 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
             .try_hints(&[WindowHint::ContextVersion(2, 0)])
     }
 
+    pub fn set_all_polling(mut self, enable: bool) -> WindowBuilder<'title, 'monitor> {
+        self.set_all_polling = enable;
+        self
+    }
+
     /// Try to create the window.
     ///
     /// This method tries each of the possible window hints given
@@ -126,9 +133,7 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
     ///   (or default values).
     /// - Returns on successful window creation.
     pub fn create(self) -> Option<(Arc<RwLock<Window>>, Receiver<(f64, WindowEvent)>)> {
-        let WindowBuilder { glfw, common_hints, try_hints, size, aspect_ratio, title, mode } = self;
-
-        let mut glfw = glfw.write().unwrap();
+        let WindowBuilder { mut glfw, common_hints, try_hints, size, aspect_ratio, title, mode, set_all_polling } = self;
 
         let (width, height) = size.unwrap_or((640, 480));
         let title = title.unwrap_or("Untitled Window");
@@ -153,6 +158,10 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
 
                 if let Some((numer, denom)) = aspect_ratio {
                     window.set_aspect_ratio(numer, denom);
+                }
+
+                if set_all_polling {
+                    window.set_all_polling(true);
                 }
 
                 return Some((Arc::new(RwLock::new(window)), events));
