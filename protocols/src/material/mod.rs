@@ -5,6 +5,7 @@ use std::hash::{Hash, Hasher};
 use backend::generic::color::Color;
 
 pub mod defaults;
+pub mod sample;
 
 pub use super::named::*;
 pub use self::defaults::*;
@@ -26,6 +27,7 @@ impl Deref for MaterialMap {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Material {
     /// Texture to apply to the material
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Material::default_texture")]
     pub texture: Option<String>,
     //TODO: Maybe texture opacity?

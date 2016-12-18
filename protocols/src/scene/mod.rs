@@ -14,7 +14,9 @@ pub use self::defaults::*;
 pub struct Scene {
     #[serde(default = "Scene::default_name")]
     pub name: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub lights: Vec<Light>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub materials: Vec<Material>,
     pub root: Node,
 }
@@ -37,9 +39,11 @@ pub enum NodeTransform {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Node {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
     pub children: Vec<Node>,
     /// Transforms to apply to node children, in applied order
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
     pub transform: Vec<NodeTransform>
 }
@@ -83,6 +87,7 @@ pub struct Light {
     #[serde(default = "Light::default_intensity")]
     pub intensity: f32,
     /// Any arbitrary properties the engine might check for
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
     #[serde(default)]
     pub properties: HashMap<String, String>,
 }

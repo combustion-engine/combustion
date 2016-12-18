@@ -8,7 +8,7 @@ pub trait DefaultMaterial {
     fn default_texture() -> Option<String> { None }
 
     #[inline(always)]
-    fn default_roughness() -> f32 { 0.75 }
+    fn default_roughness() -> f32 { 0.25 }
 
     #[inline(always)]
     fn default_color() -> Color { Color::white() }
