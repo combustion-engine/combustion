@@ -34,8 +34,8 @@ pub enum RenderSignal {
 
 #[cfg(debug_assertions)]
 fn load_screen_shader() -> GLResult<GLShaderProgram> {
-    let screen_vertex_shader = try!(GLShader::from_file("shaders/screen.vert", GLShaderVariant::VertexShader));
-    let screen_fragment_shader = try!(GLShader::from_file("shaders/screen.frag", GLShaderVariant::FragmentShader));
+    let screen_vertex_shader = try!(GLShader::from_file("../../assets/shaders/screen.vert", GLShaderVariant::VertexShader));
+    let screen_fragment_shader = try!(GLShader::from_file("../../assets/shaders/tools/texture_viewer.frag", GLShaderVariant::FragmentShader));
 
     let screen_shader = GLShaderProgramBuilder::new()?
         .attach_shader(screen_vertex_shader)?
@@ -48,8 +48,8 @@ fn load_screen_shader() -> GLResult<GLShaderProgram> {
 
 #[cfg(not(debug_assertions))]
 fn load_screen_shader() -> GLResult<GLShaderProgram> {
-    const SCREEN_VERTEX_SHADER_SRC: &'static str = include_str!("../shaders/screen.vert");
-    const SCREEN_FRAGMENT_SHADER_SRC: &'static str = include_str!("../shaders/screen.frag");
+    const SCREEN_VERTEX_SHADER_SRC: &'static str = include_str!("../../../assets/shaders/screen.vert");
+    const SCREEN_FRAGMENT_SHADER_SRC: &'static str = include_str!("../../../assets/shaders/tools/texture_viewer.frag");
 
     let screen_vertex_shader = try!(GLShader::from_source(SCREEN_VERTEX_SHADER_SRC.to_string(), GLShaderVariant::VertexShader));
     let screen_fragment_shader = try!(GLShader::from_source(SCREEN_FRAGMENT_SHADER_SRC.to_string(), GLShaderVariant::FragmentShader));
