@@ -1,61 +1,13 @@
-#![allow(unused_imports, dead_code)]
-#![allow(unknown_lints, inline_always, toplevel_ref_arg)]
-#![feature(proc_macro, receiver_try_iter, specialization)]
-#![crate_type = "bin"]
-
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate enum_primitive;
-extern crate libc;
-extern crate nalgebra;
-extern crate rusttype;
-extern crate image;
-extern crate palette;
-extern crate num_traits;
-extern crate regex;
-extern crate assimp;
-extern crate glfw;
-extern crate nice_glfw;
-extern crate time;
-extern crate specs;
-extern crate num_cpus;
-extern crate vec_map;
-extern crate petgraph;
-extern crate lazy;
-extern crate capnp;
-extern crate capnpc;
-
-#[macro_use]
-extern crate combustion_common as common;
-
-#[macro_use]
-extern crate combustion_backend as backend;
-
-#[macro_use]
-extern crate combustion_protocols;
+extern crate engine;
 
 use std::thread;
 use std::sync::mpsc;
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use glfw::{Glfw, Action, Context, Key, WindowHint, WindowEvent};
 
-pub mod error;
-
-#[macro_use]
-pub mod components;
-pub mod resources;
-pub mod entities;
-pub mod systems;
-
-pub mod storage;
-pub mod scene;
-pub mod graphics;
-pub mod game;
-pub mod scripting;
-pub mod protocols;
+use backend::window::WindowBuilder;
 
 use error::*;
 
@@ -64,9 +16,9 @@ use graphics::{RenderSignal, FullscreenToggle};
 fn main() {
     common::log::init_global_logger("logs").expect("Could not initialize logging system!");
 
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).expect_logged_box("Could not initialize GLFW!");
+    let mut glfw = Arc::new(RwLock::new(glfw::init(glfw::FAIL_ON_ERRORS).expect_logged_box("Could not initialize GLFW!")));
 
-    let (mut window, events) = nice_glfw::WindowBuilder::new(&mut glfw)
+    let (mut window, events) = WindowBuilder::new(glfw.clone())
         .try_modern_context_hints()
         .size(1280, 720)
         //.aspect_ratio(16, 9)
