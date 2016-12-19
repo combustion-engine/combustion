@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use nalgebra::*;
 
 use backend::generic::color::Color;
+use backend::generic::color::de as color_de;
 
 pub mod defaults;
 pub mod sample;
@@ -68,8 +69,12 @@ pub struct Light {
     pub position: Point3<f32>,
     #[serde(default = "Light::default_direction")]
     pub direction: Vector3<f32>,
+    #[serde(skip_serializing_if = "Color::is_none")]
+    #[serde(deserialize_with = "color_de::from_name_or_value")]
     #[serde(default = "Color::white")]
     pub color: Color,
+    #[serde(skip_serializing_if = "Color::is_none")]
+    #[serde(deserialize_with = "color_de::from_name_or_value")]
     #[serde(default = "Color::none")]
     pub ambient: Color,
     #[serde(default = "Light::default_kind")]

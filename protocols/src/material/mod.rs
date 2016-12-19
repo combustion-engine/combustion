@@ -3,6 +3,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::PathBuf;
 
 use backend::generic::color::Color;
+use backend::generic::color::de as color_de;
 
 pub mod defaults;
 pub mod sample;
@@ -30,6 +31,10 @@ impl DerefMut for MaterialMap {
 /// Represents a certain material for an object in a scene.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Material {
+    /// Presets allow for materials to inherit properties from another material
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub preset: Option<String>,
     /// Texture to apply to the material
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
@@ -56,8 +61,9 @@ pub struct Material {
     #[serde(default = "Option::default")]
     pub metallic_map: Option<PathBuf>,
     /// Roughness of material for BRDF calculations
-    #[serde(default = "Material::default_roughness")]
-    pub roughness: f32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub roughness: Option<f32>,
     /// Metallic-ness of the material.
     ///
     /// A value of `None` means the material is purely dialectic.
@@ -65,7 +71,9 @@ pub struct Material {
     #[serde(default = "Option::default")]
     pub metallic: Option<f32>,
     /// Color of material
-    #[serde(default = "Material::default_color")]
+    #[serde(skip_serializing_if = "Color::is_none")]
+    #[serde(deserialize_with = "color_de::from_name_or_value")]
+    #[serde(default = "Color::none")]
     pub color: Color,
     /// Emissive materials emit light from their surface.
     ///
@@ -79,12 +87,18 @@ pub struct Material {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub translucency: Option<f32>,
+    /// Index-of-Refraction for material
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub ior: Option<f32>,
     /// What specific shader should be used for the material
-    #[serde(default = "Material::default_shader")]
-    pub shader: MaterialShader,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub shader: Option<MaterialShader>,
     /// How the object should be rendered
-    #[serde(default = "Material::default_render")]
-    pub render: RenderMethod,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub render: Option<RenderMethod>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -106,14 +120,18 @@ pub enum MaterialShader {
     /// All-in-one lighting shader used in deferred or forward rendering contexts
     #[serde(rename = "uber")]
     Uber,
+    /// Shader optimized for mirror-like surfaces
     #[serde(rename = "mirror")]
     Mirror,
+    /// Shader optimized for metallic surfaces
     #[serde(rename = "metal")]
     Metal,
+    /// Shader optimized for simple, flat surfaces
     #[serde(rename = "matte")]
     Matte,
     #[serde(rename = "substrate")]
     Substrate,
+    /// Shader optimized for transparent objects
     #[serde(rename = "glass")]
     Glass,
 }
