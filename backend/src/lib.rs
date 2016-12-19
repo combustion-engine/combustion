@@ -25,6 +25,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate glfw;
+extern crate void;
 
 #[macro_use]
 extern crate combustion_common;

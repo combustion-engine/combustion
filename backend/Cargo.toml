@@ -16,6 +16,7 @@ regex = "0.1.80"
 serde = "0.8.19"
 serde_derive = "0.8.19"
 vec_map = "0.6.0"
+void = "1.0.2"
 
 [dependencies.combustion_common]
 path = "../common/"
