@@ -1,12 +1,10 @@
+use std::collections::HashMap;
+
 use backend::generic::color::Color;
 
 use super::*;
-use ::named::*;
 
 pub trait DefaultMaterial {
-    #[inline(always)]
-    fn default_texture() -> Option<String> { None }
-
     #[inline(always)]
     fn default_roughness() -> f32 { 0.25 }
 
@@ -25,11 +23,24 @@ impl DefaultMaterial for Material {}
 impl Default for Material {
     fn default() -> Material {
         Material {
-            texture: Material::default_texture(),
+            texture: None,
+            normal_map: None,
+            roughness_map: None,
+            metallic_map: None,
+            height_map: None,
             roughness: Material::default_roughness(),
+            metallic: None,
             color: Material::default_color(),
+            emission: None,
+            translucency: None,
             shader: Material::default_shader(),
             render: Material::default_render(),
         }
+    }
+}
+
+impl Default for MaterialMap {
+    fn default() -> MaterialMap {
+        MaterialMap { materials: HashMap::default() }
     }
 }
