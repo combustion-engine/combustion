@@ -1,0 +1,20 @@
+[package]
+name = "scripting"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies.combustion_backend]
+path = "../backend"
+
+[dependencies.combustion_common]
+path = "../common"
+
+[dependencies.combustion_protocols]
+path = "../protocols"
+
+[dependencies]
+capnp = "0.7.5"
+capnpc = "0.7.5"
+
+[dependencies.squirrel]
+path = "../deps/squirrel-rs"
