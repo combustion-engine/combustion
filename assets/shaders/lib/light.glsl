@@ -50,7 +50,7 @@ Light lights[MAX_LIGHTS] = Light[MAX_LIGHTS](
         radians(2.0),
         1,
         100,                   //intensity
-        false
+        true
     ),
     Light(
         vec2(0, 100000),    //zdistance
@@ -64,7 +64,7 @@ Light lights[MAX_LIGHTS] = Light[MAX_LIGHTS](
         radians(2.0),
         1,
         100,                   //intensity
-        false
+        true
     ),
     Light(
         vec2(0, 100000),    //zdistance

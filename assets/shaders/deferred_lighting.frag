@@ -54,8 +54,8 @@ void main() {
     vec3 Color      = gamma_decode(ColorS.rgb, 2.2);
     vec3 Normal     = normalize(NormalM.xyz);
     vec4 PositionD  = texture(PositionDs, MUV);
-    vec3 Position = PositionD.xyz;
-    float Depth = PositionD.w;
+    vec3 Position   = PositionD.xyz;
+    float Depth     = PositionD.w;
 
     float smoothness = ColorS.w;
     float roughness = pow(1.0 - smoothness, 2.0);
