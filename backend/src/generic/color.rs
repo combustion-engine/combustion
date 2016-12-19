@@ -1,19 +1,31 @@
 //! Flexible Color type suitable for using as a shader uniform
 
 use std::ops::Deref;
+use num_traits::{Zero, One, Float};
+use std::f32::EPSILON;
+use std::str::FromStr;
+use void::Void;
 
-use num_traits::float::Float;
 use nalgebra::Vector4;
-
-use palette::{Color as PaletteColor, Luma, Rgb, Rgba, Xyz, Yxy, Lab, Lch, Hsv, Hsl, Hwb, Alpha};
-use palette::white_point::WhitePoint;
-use palette::pixel::RgbPixel;
 
 /// Reexported types from the Palette library. Most of these can be converted into a `Color` instance easily and automatically.
 pub mod palette {
     pub use palette::{Color as PaletteColor, Luma, Rgb, Rgba, Xyz, Yxy, Lab, Lch, Hsv, Hsl, Hwb, Alpha};
     pub use palette::white_point::WhitePoint;
-    pub use palette::pixel::RgbPixel;
+    pub use palette::pixel::{RgbPixel, Srgb};
+    pub use palette::named::from_str;
+}
+
+use self::palette::*;
+
+#[inline(always)]
+pub fn is_zero(value: &f32) -> bool {
+    *value <= EPSILON
+}
+
+#[inline(always)]
+pub fn is_one(value: &f32) -> bool {
+    *value >= (1.0 - EPSILON)
 }
 
 /// C structure to store RGBA color information, suitable for using as a shader uniform
@@ -21,12 +33,20 @@ pub mod palette {
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Color {
     /// Red component
+    #[serde(skip_serializing_if = "is_zero")]
+    #[serde(default = "Zero::zero")]
     pub r: f32,
     /// Green component
+    #[serde(skip_serializing_if = "is_zero")]
+    #[serde(default = "Zero::zero")]
     pub g: f32,
     /// Blue component
+    #[serde(skip_serializing_if = "is_zero")]
+    #[serde(default = "Zero::zero")]
     pub b: f32,
     /// Alpha component
+    #[serde(skip_serializing_if = "is_one")]
+    #[serde(default = "One::one")]
     pub a: f32
 }
 
@@ -41,6 +61,14 @@ impl Color {
     #[inline(always)]
     pub fn from_tuple(rgba: (f32, f32, f32, f32)) -> Color {
         Color::new(rgba.0, rgba.1, rgba.2, rgba.3)
+    }
+
+    pub fn from_name(name: &str) -> Option<Color> {
+        from_str(name).map(Into::into)
+    }
+
+    pub fn from_name_or_none(name: &str) -> Color {
+        Color::from_name(name).unwrap_or_else(Color::none)
     }
 
     /// Create a black transparent color
@@ -60,11 +88,27 @@ impl Color {
     pub fn black() -> Color {
         Color::new(0.0, 0.0, 0.0, 1.0)
     }
+
+    #[inline(always)]
+    pub fn is_opaque(&self) -> bool { is_one(&self.a) }
+
+    pub fn is_none(&self) -> bool {
+        (self.r + self.g + self.b + self.a) <= EPSILON
+    }
 }
 
 impl Default for Color {
     #[inline(always)]
     fn default() -> Color { Color::none() }
+}
+
+impl FromStr for Color {
+    type Err = Void;
+
+    #[inline(always)]
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Color::from_name_or_none(s))
+    }
 }
 
 impl From<Color> for Vector4<f32> {
@@ -95,6 +139,13 @@ macro_rules! impl_from_color {
     }
 }
 
+impl<Wp, T> From<Srgb<Wp, T>> for Color where T: Float, Wp: WhitePoint<T> {
+    #[inline(always)]
+    fn from(other: Srgb<Wp, T>) -> Color {
+        other.to_linear().into()
+    }
+}
+
 //Convert from Palette color types to Color
 impl_from_color!(PaletteColor, Luma, Rgb, Xyz, Yxy, Lab, Lch, Hsv, Hsl, Hwb);
 
@@ -122,3 +173,32 @@ impl_from_pixel!([u8;  4]);
 impl_from_pixel!([f64; 3]);
 impl_from_pixel!([f32; 3]);
 impl_from_pixel!([u8;  3]);
+
+pub mod de {
+    use serde::de::{self, Deserialize, Deserializer};
+    use void::Void;
+    use std::str::FromStr;
+    use std::marker::PhantomData;
+
+    pub fn from_name_or_value<T, D>(d: &mut D) -> Result<T, D::Error>
+                                    where T: Deserialize + FromStr<Err = Void>,
+                                          D: Deserializer {
+        struct NameOrValue<T>(PhantomData<T>);
+
+        impl<T> de::Visitor for NameOrValue<T> where T: Deserialize + FromStr<Err = Void> {
+            type Value = T;
+
+            fn visit_str<E>(&mut self, value: &str) -> Result<T, E> where E: de::Error {
+                Ok(FromStr::from_str(value).unwrap())
+            }
+
+            fn visit_map<M>(&mut self, visitor: M) -> Result<T, M::Error> where M: de::MapVisitor {
+                let mut mvd = de::value::MapVisitorDeserializer::new(visitor);
+
+                Deserialize::deserialize(&mut mvd)
+            }
+        }
+
+        d.deserialize(NameOrValue(PhantomData))
+    }
+}
