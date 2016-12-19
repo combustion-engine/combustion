@@ -14,6 +14,7 @@ pub mod palette {
     pub use palette::white_point::WhitePoint;
     pub use palette::pixel::{RgbPixel, Srgb};
     pub use palette::named::from_str;
+    pub use palette::white_point::D65;
 }
 
 use self::palette::*;
@@ -28,7 +29,7 @@ pub fn is_one(value: &f32) -> bool {
     *value >= (1.0 - EPSILON)
 }
 
-/// C structure to store RGBA color information, suitable for using as a shader uniform
+/// C structure to store RGBA color information in linear space, suitable for using as a shader uniform
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Color {
@@ -111,10 +112,38 @@ impl FromStr for Color {
     }
 }
 
+impl From<String> for Color {
+    #[inline(always)]
+    fn from(s: String) -> Color {
+        Color::from_name_or_none(s.as_str())
+    }
+}
+
+impl<'a> From<&'a str> for Color {
+    #[inline(always)]
+    fn from(s: &'a str) -> Color {
+        Color::from_name_or_none(s)
+    }
+}
+
 impl From<Color> for Vector4<f32> {
     #[inline(always)]
     fn from(color: Color) -> Vector4<f32> {
         Vector4::new(color.r, color.g, color.b, color.a)
+    }
+}
+
+impl From<Color> for Rgba<D65, f32> {
+    #[inline(always)]
+    fn from(color: Color) -> Rgba<D65, f32> {
+        Rgba::new(color.r, color.g, color.b, color.a)
+    }
+}
+
+impl From<Color> for Rgba<D65, f64> {
+    #[inline(always)]
+    fn from(color: Color) -> Rgba<D65, f64> {
+        Rgba::new(color.r as f64, color.g as f64, color.b as f64, color.a as f64)
     }
 }
 
