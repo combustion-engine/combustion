@@ -25,15 +25,3 @@ pub fn sample() -> Scene {
         }
     }
 }
-
-#[cfg(test)]
-mod test {
-    #[test]
-    pub fn json_test() {
-        use serde_json::to_string_pretty;
-
-        let sample_scene = super::sample();
-
-        println!("Scene {}", to_string_pretty(&sample_scene).unwrap());
-    }
-}
