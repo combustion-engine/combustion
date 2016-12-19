@@ -23,6 +23,9 @@ phf = "0.7.20"
 phf_macros = "0.7.20"
 serde = "0.8.19"
 serde_derive = "0.8.19"
+
+[dev-dependencies]
+serde-hjson = "0.8.1"
 serde_json = "0.8.4"
 
 [dependencies.assimp]
