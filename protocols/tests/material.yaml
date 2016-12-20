@@ -8,6 +8,9 @@ materials:
       g: 0.084376216
       b: 0.4910209
     ior: 1.763
+    anisotropy:
+      amount: 0.5
+      rotation: {x: 0, y: 0, z: 1}
 
   MyMaterial1:
     texture: sometexture.ctex
@@ -16,3 +19,4 @@ materials:
     color: coral
     shader: uber
     render: deferred
+    anisotropy: 1

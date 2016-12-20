@@ -10,10 +10,12 @@ impl Default for Material {
             preset: None,
             texture: None,
             normal_map: None,
+            tangent_map: None,
             roughness_map: None,
             metallic_map: None,
             height_map: None,
             roughness: None,
+            smoothness: None,
             metallic: None,
             color: Color::none(),
             emission: None,
@@ -21,6 +23,7 @@ impl Default for Material {
             ior: None,
             shader: None,
             render: None,
+            anisotropy: MaterialAnisotropy::default(),
         }
     }
 }

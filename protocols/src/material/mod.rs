@@ -7,8 +7,12 @@ use backend::generic::color::de as color_de;
 
 pub mod defaults;
 pub mod sample;
+pub mod anisotropy;
 
 pub use self::defaults::*;
+pub use self::anisotropy::MaterialAnisotropy;
+
+use self::anisotropy::de as anisotropy_de;
 
 /// Map of materials used for a certain model or scene
 #[derive(Debug, Serialize, Deserialize)]
@@ -35,26 +39,30 @@ pub struct Material {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub preset: Option<String>,
-    /// Texture to apply to the material
+    /// Path to texture to apply to the material
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub texture: Option<PathBuf>,
     //TODO: Maybe texture opacity?
-    /// Normal map for material
+    /// Path to normal map for material
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub normal_map: Option<PathBuf>,
-    /// Height map for material.
+    /// Path to tangent map for material
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub tangent_map: Option<PathBuf>,
+    /// Path to height map for material.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub height_map: Option<PathBuf>,
-    /// Texture to be used as roughness values.
+    /// Path to texture to be used as roughness values.
     ///
     /// See `roughness` field for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub roughness_map: Option<PathBuf>,
-    /// Texture to be used as metallic values.
+    /// Path to texture to be used as metallic values.
     ///
     /// See `metallic` field for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -64,6 +72,16 @@ pub struct Material {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub roughness: Option<f32>,
+    /// Alternative to Roughness.
+    ///
+    /// It is converted to roughness via `roughness = pow(1.0 - smoothness, 2.0)`
+    ///
+    /// If both smoothness and roughness are specified, they are averaged together.
+    ///
+    /// Use whichever makes the most artistic sense to you.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default = "Option::default")]
+    pub smoothness: Option<f32>,
     /// Metallic-ness of the material.
     ///
     /// A value of `None` means the material is purely dialectic.
@@ -99,6 +117,13 @@ pub struct Material {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub render: Option<RenderMethod>,
+    /// Anisotropy of the material
+    ///
+    /// Uses model tangents and tangent maps
+    #[serde(skip_serializing_if = "MaterialAnisotropy::is_none")]
+    #[serde(deserialize_with = "anisotropy_de::num_or_anisotropy")]
+    #[serde(default = "MaterialAnisotropy::default")]
+    pub anisotropy: MaterialAnisotropy,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
