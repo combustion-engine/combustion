@@ -50,3 +50,4 @@ pub mod scene;
 pub mod graphics;
 pub mod game;
 pub mod scripting;
+pub mod asset;
