@@ -16,8 +16,9 @@ slog-atomic = "0.4.3"
 slog-scope = "0.2.2"
 slog-stream = "1.2.0"
 slog-term = "1.3.3"
-vec_map = "0.6.0"
+statrs = "0.4.0"
 time = "0.1.35"
+vec_map = "0.6.0"
 
 [dependencies.tinyfiledialogs]
 path = "../deps/tinyfiledialogs"

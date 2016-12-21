@@ -19,6 +19,7 @@ extern crate tinyfiledialogs;
 
 extern crate time;
 extern crate chrono;
+extern crate statrs;
 
 pub mod macros;
 
