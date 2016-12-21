@@ -19,14 +19,16 @@ pub mod palette {
 
 use self::palette::*;
 
+use common::utils::AlmostEqExt;
+
 #[inline(always)]
 pub fn is_zero(value: &f32) -> bool {
-    *value <= EPSILON
+    value.almost_eq(0.0, 1e-6)
 }
 
 #[inline(always)]
 pub fn is_one(value: &f32) -> bool {
-    *value >= (1.0 - EPSILON)
+    value.almost_eq(1.0, 1e-6)
 }
 
 /// C structure to store RGBA color information in linear space, suitable for using as a shader uniform
@@ -229,5 +231,34 @@ pub mod de {
         }
 
         d.deserialize(NameOrValue(PhantomData))
+    }
+}
+
+#[cfg(test)]
+pub mod test {
+    use super::*;
+
+    #[test]
+    fn is_zero_test() {
+        assert!(is_zero(&0.0));
+        assert!(is_zero(&0.00000001));
+    }
+
+    #[test]
+    fn is_one_test() {
+        assert!(is_one(&1.0));
+        assert!(is_one(&0.99999999));
+    }
+
+    #[test]
+    #[should_panic]
+    fn is_zero_test2() {
+        assert!(is_zero(&0.001));
+    }
+
+    #[test]
+    #[should_panic]
+    fn is_one_test2() {
+        assert!(is_one(&0.999));
     }
 }
