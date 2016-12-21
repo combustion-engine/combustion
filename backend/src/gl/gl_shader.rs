@@ -10,7 +10,7 @@ use std::ops::Deref;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
-use ::combustion_common::preprocessor::*;
+use ::common::preprocessor::*;
 
 use super::gl_error::*;
 use super::gl_shader_program::*;

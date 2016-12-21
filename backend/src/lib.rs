@@ -28,7 +28,7 @@ extern crate glfw;
 extern crate void;
 
 #[macro_use]
-extern crate combustion_common;
+extern crate combustion_common as common;
 
 pub mod window;
 pub mod generic;
