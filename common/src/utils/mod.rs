@@ -54,32 +54,44 @@ impl_clamp!(f64);
 
 /// Extension that provides approximate equality comparison for floating point numbers
 pub trait AlmostEqExt {
-    fn almost_eq(&self, b: Self, acc: Self) -> bool;
+    /// Tests if two numbers are almost equal within a degree of accuracy
+    ///
+    /// E.g.:
+    ///
+    /// ```ignore
+    /// assert!(5.12345f32.almost_eq(5.12, 0.1));
+    /// assert!(0.00000001f32.almost_eq(0.0, 0.0000001));
+    /// assert!(0.99999999f32.almost_eq(1.0, 0.0000001));
+    /// ```
+    fn almost_eq(&self, b: Self, accuracy: Self) -> bool;
+
+    /// Variation of `almost_eq` that doesn't check for infinite or NaN values.
+    fn almost_eq_fast(&self, b: Self, accuracy: Self) -> bool;
 }
 
-impl AlmostEqExt for f32 {
-    fn almost_eq(&self, b: f32, accuracy: f32) -> bool {
-        if self.is_infinite() || b.is_infinite() {
-            return *self == b;
-        } else if self.is_nan() && b.is_nan() {
-            return false;
-        } else {
-            (*self - b).abs() < accuracy
+macro_rules! impl_almost_eq_ext {
+    ($t:ident) => {
+        impl AlmostEqExt for $t {
+            fn almost_eq(&self, b: $t, accuracy: $t) -> bool {
+                if self.is_infinite() || b.is_infinite() {
+                    return *self == b;
+                } else if self.is_nan() && b.is_nan() {
+                    return false;
+                } else {
+                    (*self - b).abs() < accuracy
+                }
+            }
+
+            #[inline(always)]
+            fn almost_eq_fast(&self, b: $t, accuracy: $t) -> bool {
+                (*self - b).abs() < accuracy
+            }
         }
     }
 }
 
-impl AlmostEqExt for f64 {
-    fn almost_eq(&self, b: f64, accuracy: f64) -> bool {
-        if self.is_infinite() || b.is_infinite() {
-            return *self == b;
-        } else if self.is_nan() && b.is_nan() {
-            return false;
-        } else {
-            (*self - b).abs() < accuracy
-        }
-    }
-}
+impl_almost_eq_ext!(f32);
+impl_almost_eq_ext!(f64);
 
 #[cfg(test)]
 pub mod test {
@@ -95,7 +107,8 @@ pub mod test {
     #[test]
     fn test_almost_eq() {
         assert!(5.12345f32.almost_eq(5.12, 0.1));
-        assert!(0.00000001f32.almost_eq(0.0, 0.0000001))
+        assert!(0.00000001f32.almost_eq(0.0, 0.0000001));
+        assert!(0.99999999f32.almost_eq(1.0, 0.0000001));
     }
 
     #[test]
