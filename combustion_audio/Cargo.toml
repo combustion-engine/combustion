@@ -1,0 +1,6 @@
+[package]
+name = "combustion_audio"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies]
