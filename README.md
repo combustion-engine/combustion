@@ -1,6 +1,45 @@
 Combustion Game Engine
 ----------------------
 
+## Engine components
+
+#### `combustion_asset`
+
+Contains routines for dealing with game assets in a more abstract sense than `combustion_protocols`
+
+#### `combustion_audio`
+
+Contains routines for dealing with game audio.
+
+#### `combustion_backend`
+
+Abstraction layer over low-level graphics APIs.
+
+#### `combustion_common`
+
+Common utilities and data structures used across the engine.
+
+#### `combustion_engine`
+
+The primary engine crate, which includes the ECS systems, primary render loop and just generally brings together the other components into a whole.
+
+#### `combustion_geometry`
+
+Bindings to [libigl](https://github.com/libigl/libigl) and more low-level math/geometry manipulation routines.
+
+#### `combustion_gui`
+
+GUI framework for use within the Combustion game engine.
+
+#### `combustion_protocols`
+
+APIs for interacting with foreign data.
+
+#### `combustion_scripting`
+
+Routines for integrating and running game scripts.
+
+-----
 ## Developing on Windows:
 
 ##### Dependencies:
@@ -45,7 +84,7 @@ Combustion Game Engine
     4. Install `Rust` and `TOML` nightly plugins
     5. Import project from sources
         1. Select Import project from existing sources
-        2. Select ONE of the Combustion subcrates, like `protocols`, `common`, `backend` or `engine`.
+        2. Select ONE of the Combustion subcrates, like `combustion_protocols`, `combustion_common`, `combustion_backend`, `combustion_engine`, etc.
             * The Rust plugin only supports a single crate per project, so engine subcrates need to be opened as separate projects.
         3. Do that for all the subcrates you wish to work on. It will initialize an IDEA project in each so they can be reopened normally.
 7. Building LuaJIT
