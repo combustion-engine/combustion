@@ -1,11 +1,11 @@
-[submodule "geometry/lib/libigl"]
-	path = geometry/lib/libigl
+[submodule "combustion_geometry/lib/libigl"]
+	path = combustion_geometry/lib/libigl
 	url = https://github.com/libigl/libigl/
-[submodule "geometry/lib/eigen"]
-	path = geometry/lib/eigen
+[submodule "combustion_geometry/lib/eigen"]
+	path = combustion_geometry/lib/eigen
 	url = https://github.com/RLovelett/eigen/
-[submodule "protocols/cpp/capnproto"]
-	path = protocols/cpp/capnproto
+[submodule "combustion_protocols/cpp/capnproto"]
+	path = combustion_protocols/cpp/capnproto
 	url = https://github.com/sandstorm-io/capnproto
 [submodule "deps/capnpc-rust"]
 	path = deps/capnpc-rust

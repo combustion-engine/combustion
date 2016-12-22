@@ -14,7 +14,7 @@ features = ["default", "compat"]
 path = "../../deps/assimp-rs"
 
 [dependencies.combustion_common]
-path = "../../common"
+path = "../../combustion_common"
 
 [dependencies.combustion_protocols]
-path = "../../protocols"
+path = "../../combustion_protocols"

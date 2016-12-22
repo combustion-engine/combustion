@@ -1,0 +1,48 @@
+[package]
+authors = ["novacrazy <novacrazy@gmail.com>"]
+build = "build.rs"
+exclude = ["*.png"]
+include = ["Cargo.toml", "src/**/*.rs", "protocols/**/*.capnp"]
+license = "MIT"
+name = "combustion_protocols"
+version = "0.1.0"
+
+[build-dependencies]
+cmake = "0.1.19"
+gcc = "0.3.40"
+
+[build-dependencies.capnpc]
+path = "../deps/capnpc-rust"
+
+[build-dependencies.combustion_common]
+path = "../combustion_common"
+
+[dependencies]
+capnp = "0.7.5"
+phf = "0.7.20"
+phf_macros = "0.7.20"
+serde = "0.8.19"
+serde_derive = "0.8.19"
+
+[dependencies.capnpc]
+path = "../deps/capnpc-rust"
+
+[dependencies.combustion_backend]
+path = "../combustion_backend"
+
+[dependencies.combustion_common]
+path = "../combustion_common/"
+
+[dependencies.lz4]
+path = "../deps/lz4-rs"
+
+[dependencies.nalgebra]
+path = "../deps/nalgebra"
+
+[dev-dependencies]
+serde_json = "0.8.4"
+serde_yaml = "0.5.0"
+
+[features]
+cpp = []
+default = ["cpp"]

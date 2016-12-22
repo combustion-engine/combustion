@@ -1,0 +1,19 @@
+materials:
+  sapphire:
+    preset: glass
+    roughness_map: tiny_scratches.ctex
+    smoothness: 0.95
+    color:
+      r: 0.0047769533
+      g: 0.084376216
+      b: 0.4910209
+    ior: 1.763
+
+  MyMaterial1:
+    texture: sometexture.ctex
+    roughness: 0.33
+    metallic: 0.4
+    color: coral
+    shader: uber
+    render: deferred
+    anisotropy: 1

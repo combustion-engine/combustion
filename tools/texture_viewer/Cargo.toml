@@ -15,10 +15,10 @@ glfw = "0.11.0"
 image = "0.10.4"
 
 [dependencies.combustion_backend]
-path = "../../backend"
+path = "../../combustion_backend"
 
 [dependencies.combustion_common]
-path = "../../common"
+path = "../../combustion_common"
 
 [dependencies.combustion_protocols]
-path = "../../protocols"
+path = "../../combustion_protocols"

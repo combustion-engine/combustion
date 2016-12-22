@@ -1,0 +1,28 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+name = "combustion_asset"
+version = "0.1.0"
+
+[dependencies]
+capnp = "0.7.5"
+capnpc = "0.7.5"
+phf = "0.7.20"
+phf_macros = "0.7.20"
+serde = "0.8.19"
+serde_derive = "0.8.19"
+
+[dependencies.assimp]
+features = ["default", "compat"]
+path = "../deps/assimp-rs"
+
+[dependencies.combustion_common]
+path = "../combustion_common"
+
+[dependencies.combustion_protocols]
+path = "../combustion_protocols"
+
+[dependencies.lz4]
+path = "../deps/lz4-rs"
+
+[dependencies.nalgebra]
+path = "../deps/nalgebra"
