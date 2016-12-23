@@ -31,12 +31,11 @@ extern crate combustion_common as common;
 extern crate combustion_backend as backend;
 
 #[macro_use]
-extern crate combustion_protocols;
+extern crate combustion_protocols as protocols;
 
 pub use common;
 pub use backend;
-pub use combustion_protocols as protocols;
-
+pub use protocols;
 pub mod error;
 
 #[macro_use]
