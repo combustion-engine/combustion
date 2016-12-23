@@ -80,8 +80,8 @@ pub struct Light {
     #[serde(default = "Light::default_kind")]
     pub kind: LightKind,
     /// Effect radius of light, outside of which the light does not illuminate
-    #[serde(default = "Light::default_radius")]
-    pub radius: f32,
+    #[serde(default = "Light::default_effect_radius")]
+    pub effect_radius: f32,
     /// Inner cone angle (in radians) for spotlights
     #[serde(default = "Light::default_inner_cone")]
     pub inner_cone: f32,

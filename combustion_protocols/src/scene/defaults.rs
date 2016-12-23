@@ -39,7 +39,7 @@ pub trait DefaultLight {
     fn default_kind() -> LightKind { LightKind::Spotlight }
 
     #[inline(always)]
-    fn default_radius() -> f32 { 1000.0 }
+    fn default_effect_radius() -> f32 { 1000.0 }
 
     #[inline(always)]
     fn default_inner_cone() -> f32 { 0.0 }
@@ -63,7 +63,7 @@ impl Default for Light {
             color: Color::white(),
             ambient: Color::none(),
             kind: Light::default_kind(),
-            radius: Light::default_radius(),
+            effect_radius: Light::default_effect_radius(),
             inner_cone: Light::default_inner_cone(),
             outer_cone: Light::default_outer_cone(),
             intensity: Light::default_intensity(),
