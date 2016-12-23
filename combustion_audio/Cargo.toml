@@ -1,6 +1,18 @@
 [package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_audio"
 version = "0.1.0"
-authors = ["Aaron Trent <novacrazy@gmail.com>"]
 
 [dependencies]
+
+[dependencies.combustion_asset]
+path = "../combustion_asset"
+
+[dependencies.combustion_common]
+path = "../combustion_common"
+
+[dev-dependencies]
+gcc = "0.3.40"
+
+[dependencies.openalsoft-sys]
+path = "../deps/openalsoft-sys"
