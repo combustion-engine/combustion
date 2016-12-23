@@ -1,0 +1,10 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+build = "build.rs"
+name = "combustion_physics"
+version = "0.1.0"
+
+[dependencies]
+
+[dev-dependencies]
+gcc = "0.3.40"
