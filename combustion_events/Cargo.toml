@@ -1,0 +1,11 @@
+[package]
+name = "combustion_events"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies.combustion_common]
+path = "../combustion_common"
+
+
+[dependencies]
+
