@@ -1,11 +1,11 @@
 [package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_events"
 version = "0.1.0"
-authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies]
+fnv = "1.0.5"
+smallvec = "0.3.1"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
-
-
-[dependencies]
-
