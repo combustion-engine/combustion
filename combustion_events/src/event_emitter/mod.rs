@@ -1,17 +1,19 @@
+// Use std::any for type erasure
 use std::any::Any;
+// Use a fast hashing algorithm for the event lookup table
 use fnv::FnvHashMap;
-use smallvec::SmallVec;
 
-type SmallVec16<T> = SmallVec<[T; 16]>;
-
+/// Define the internal callback type, which is a boxed closure that accepts optional arguments
 type Callback = Box<FnMut(Option<&Box<Any>>)>;
 
+/// Stores the listener callback and its ID value
 struct EventListener {
     id: u64,
     cb: Callback,
 }
 
 impl EventListener {
+    /// Create a new `EventListener` from an id and callback
     #[inline(always)]
     fn new(id: u64, cb: Callback) -> EventListener {
         EventListener { id: id, cb: cb }
@@ -31,7 +33,7 @@ pub trait AbstractEventEmitter {
 /// Holds type-erased callbacks that are associated with an event `String`.
 /// When an event is emitted, callbacks associated with it are invoked.
 pub struct EventEmitter {
-    events: FnvHashMap<String, SmallVec16<EventListener>>,
+    events: FnvHashMap<String, Vec<EventListener>>,
     counter: u64,
 }
 
@@ -41,8 +43,9 @@ impl EventEmitter {
         EventEmitter { events: FnvHashMap::default(), counter: 0 }
     }
 
+    // The "real" implementation of add_listener that generates the IDs and inserts it into the table
     fn add_listener_impl(&mut self, event: String, cb: Callback) -> u64 {
-        let mut listeners = self.events.entry(event).or_insert_with(|| SmallVec16::new());
+        let mut listeners = self.events.entry(event).or_insert_with(|| Vec::new());
 
         let id = self.counter;
 
@@ -77,9 +80,9 @@ impl EventEmitter {
     /// If the listener was removed, `true` is returned.
     pub fn remove_listener<E: Into<String>>(&mut self, event: E, id: u64) -> bool {
         if let Some(mut listeners) = self.events.get_mut(&event.into()) {
-            let index = listeners.iter().position(|listener| listener.id == id);
+            let index = listeners.binary_search_by_key(&id, |listener| listener.id);
 
-            if let Some(index) = index {
+            if let Ok(index) = index {
                 listeners.remove(index);
 
                 return true;
@@ -94,9 +97,9 @@ impl EventEmitter {
     /// `false` is returned if it was not found.
     pub fn remove_any_listener(&mut self, id: u64) -> bool {
         for (_, mut listeners) in self.events.iter_mut() {
-            let index = listeners.iter().position(|listener| listener.id == id);
+            let index = listeners.binary_search_by_key(&id, |listener| listener.id);
 
-            if let Some(index) = index {
+            if let Ok(index) = index {
                 listeners.remove(index);
 
                 return true;
@@ -112,7 +115,7 @@ impl EventEmitter {
     pub fn proxy<'a, E: Into<String>>(&'a mut self, event: E) -> EventEmitterProxy<'a> {
         let event = event.into();
 
-        let mut listeners = self.events.entry(event.clone()).or_insert_with(|| SmallVec16::new());
+        let mut listeners = self.events.entry(event.clone()).or_insert_with(|| Vec::new());
 
         EventEmitterProxy {
             event: event,
@@ -126,7 +129,7 @@ impl EventEmitter {
 /// This avoids hash table lookups for every call to `emit`
 pub struct EventEmitterProxy<'a> {
     event: String,
-    listeners: &'a mut SmallVec16<EventListener>,
+    listeners: &'a mut Vec<EventListener>,
 }
 
 impl<'a> EventEmitterProxy<'a> {
@@ -214,6 +217,39 @@ mod test {
         assert_eq!(emitter.emit("test"), 3);
         assert_eq!(emitter.emit_value("test", 10), 3);
         assert_eq!(emitter.emit_value("test", "test"), 3);
+    }
+
+    #[test]
+    fn test_remove_listener() {
+        let mut emitter = EventEmitter::new();
+
+        let a = emitter.add_listener("test", box || {
+            println!("A")
+        });
+
+        let b = emitter.add_listener_value::<i32, _>("test", box |arg| {
+            println!("B {:?}", arg);
+        });
+
+        emitter.add_listener_value::<&str, _>("test", box |arg| {
+            println!("C {:?}", arg);
+        });
+
+        assert_eq!(emitter.emit("test"), 3);
+        assert_eq!(emitter.emit_value("test", 10), 3);
+        assert_eq!(emitter.emit_value("test", "test"), 3);
+
+        emitter.remove_listener("test", b);
+
+        assert_eq!(emitter.emit("test"), 2);
+        assert_eq!(emitter.emit_value("test", 10), 2);
+        assert_eq!(emitter.emit_value("test", "test"), 2);
+
+        emitter.remove_listener("test", a);
+
+        assert_eq!(emitter.emit("test"), 1);
+        assert_eq!(emitter.emit_value("test", 10), 1);
+        assert_eq!(emitter.emit_value("test", "test"), 1);
     }
 
     #[test]
