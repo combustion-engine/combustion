@@ -55,19 +55,6 @@ macro_rules! check_errors {
    }};
 }
 
-#[macro_export]
-macro_rules! checked {
-    ($code:block) => ({
-        let ret = $code;
-        check_errors!(ret)
-    })
-}
-
-#[macro_export]
-macro_rules! checked_unsafe {
-    ($code:block) => (unsafe { checked!($code) })
-}
-
 impl GLError {
     /// Check if there are any errors in the OpenGL error queue
     ///
