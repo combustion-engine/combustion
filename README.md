@@ -19,9 +19,17 @@ Abstraction layer over low-level graphics APIs.
 
 Common utilities and data structures used across the engine.
 
+#### `combustion_ecs`
+
+Entity-Component-System parts. The goal is to have dynamic components and systems be added from any other crate and the game itself, without any problems.
+
 #### `combustion_engine`
 
 The primary engine crate, which includes the ECS systems, primary render loop and just generally brings together the other components into a whole.
+
+#### `combustion_events`
+
+Event handling (immediate-mode) systems for the engine.
 
 #### `combustion_geometry`
 
@@ -30,6 +38,10 @@ Bindings to [libigl](https://github.com/libigl/libigl) and more low-level math/g
 #### `combustion_gui`
 
 GUI framework for use within the Combustion game engine.
+
+#### `combustion_physics`
+
+Eventual bindings to the Bullet physics library
 
 #### `combustion_protocols`
 
