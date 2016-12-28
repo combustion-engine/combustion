@@ -1,6 +1,6 @@
 [workspace]
 members = [
-	"combustion_common", "combustion_backend", "combustion_protocols", "combustion_engine", "combustion_geometry", "combustion_scripting", "combustion_asset", "combustion_gui", "combustion_audio", "combustion_physics", "combustion_events",
+	"combustion_common", "combustion_backend", "combustion_protocols", "combustion_engine", "combustion_geometry", "combustion_scripting", "combustion_asset", "combustion_gui", "combustion_audio", "combustion_physics", "combustion_events", "combustion_ecs",
 	"tools/texture_compressor", "tools/texture_viewer", "tools/model_converter", "tools/material_viewer",
 	"deps/tinyfiledialogs", "deps/lz4-rs", "deps/assimp-sys", "deps/assimp-rs", "deps/lazy", 
 	"deps/luajit-sys", "deps/luajit-rs", "deps/squirrel-sys", "deps/squirrel-rs",

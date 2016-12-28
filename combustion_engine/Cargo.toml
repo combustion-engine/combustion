@@ -41,7 +41,3 @@ path = "../deps/lazy"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
-
-[dependencies.specs]
-features = ["parallel"]
-git = "git://github.com/slide-rs/specs.git"
