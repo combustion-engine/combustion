@@ -40,6 +40,9 @@
 [submodule "deps/squirrel-sys"]
 	path = deps/squirrel-sys
 	url = git@gitlab.com:combustion/squirrel-sys.git
+[submodule "deps/openalsoft-rs"]
+	path = deps/openalsoft-rs
+	url = https://gitlab.com/combustion/openalsoft-rs.git
 [submodule "deps/openalsoft-sys"]
 	path = deps/openalsoft-sys
 	url = git@gitlab.com:combustion/openalsoft-sys.git
