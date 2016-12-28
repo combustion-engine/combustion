@@ -4,6 +4,8 @@ name = "combustion_audio"
 version = "0.1.0"
 
 [dependencies]
+lewton = "0.4.1"
+ogg = "0.4.0"
 
 [dependencies.combustion_asset]
 path = "../combustion_asset"
@@ -11,8 +13,8 @@ path = "../combustion_asset"
 [dependencies.combustion_common]
 path = "../combustion_common"
 
+[dependencies.openalsoft-rs]
+path = "../deps/openalsoft-rs"
+
 [dev-dependencies]
 gcc = "0.3.40"
-
-[dependencies.openalsoft-sys]
-path = "../deps/openalsoft-sys"
