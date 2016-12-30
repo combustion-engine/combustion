@@ -4,8 +4,9 @@ name = "combustion_ecs"
 version = "0.1.0"
 
 [dependencies]
-daggy = "0.4.1"
+fnv = "1.0.5"
 num_cpus = "1.1.0"
+petgraph = "0.4.1"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
