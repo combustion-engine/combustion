@@ -1,16 +1,17 @@
-use std::collections::hash_map::{Entry, VacantEntry, OccupiedEntry};
+//! Acyclic Directed graph dependency builder for
+
+use std::collections::hash_map::Entry;
 
 use fnv::FnvHashMap;
 use specs;
 
 use petgraph::prelude::*;
 use petgraph::algo::*;
-use petgraph::graph::*;
 use petgraph::visit::*;
 
 use error::*;
 
-pub type SystemConstructor = Box<FnMut() -> SystemResult<()>>;
+pub type SystemConstructor = Box<FnMut(&mut super::Planner, specs::Priority) -> SystemResult<()>>;
 
 type SystemGraph = Graph<Option<SystemConstructor>, (), Directed, usize>;
 
@@ -28,14 +29,6 @@ impl SystemBuilder {
 
         SystemBuilder { node_table: FnvHashMap::default(), root: root, graph: graph, cycle_state: DfsSpace::default() }
     }
-
-
-    /*
-    General behavior:
-        Adding a system will either create a new system or replace the previous one.
-
-        Adding dependencies will create missing systems with a constructor that errors if they don't exist, then link them with the deps.
-    */
 
     fn add_system_impl(&mut self, name: String, constructor: SystemConstructor) -> SystemResult<NodeIndex<usize>> {
         Ok(match self.node_table.entry(name.into()) {
@@ -81,7 +74,7 @@ impl SystemBuilder {
                 Entry::Vacant(vacant_entry) => {
                     let dep_name = vacant_entry.key().clone();
 
-                    let dep_node = self.graph.add_node(Some(box move || {
+                    let dep_node = self.graph.add_node(Some(box move |_, _| {
                         Err(SystemError::MissingDependentSystem(dep_name.clone()))
                     }));
 
@@ -108,19 +101,17 @@ impl SystemBuilder {
         Ok(node)
     }
 
-    pub fn add_dep<S1: Into<String>, S2: Into<String>>(&mut self, name: S1, dep: S2) -> SystemResult<()> {
-
-
-
-        Ok(())
-    }
-
-    pub fn build(mut self) -> SystemResult<()> {
+    pub fn build(mut self, mut planner: &mut super::Planner) -> SystemResult<()> {
         let mut bfs = Dfs::new(&self.graph, self.root);
+
+        // Since specs has a higher-number = higher-priority sorting policy, we need to start from the max value and go from highest priority systems to lowest.
+        let mut priority = specs::Priority::max_value();
 
         while let Some(node) = bfs.next(&self.graph) {
             if let &mut Some(ref mut cb) = self.graph.node_weight_mut(node).unwrap() {
-                cb()?;
+                cb(planner, priority)?;
+
+                priority -= 1;
             }
         }
 
@@ -131,14 +122,15 @@ impl SystemBuilder {
 #[cfg(test)]
 pub mod test {
     use super::*;
+    use ::Planner;
 
     #[test]
     fn basic() {
         let mut builder = SystemBuilder::new();
 
         macro_rules! dummy {
-            ($name:expr) => {box || {
-                println!("Name: {}", $name);
+            ($name:expr) => {box |_, p| {
+                println!("Name: {} {}", $name, p);
 
                 Ok(())
             }}
@@ -157,6 +149,10 @@ pub mod test {
         builder.add_system_with_deps("test5", dummy!("test5"), deps!["test2"]).unwrap();
         builder.add_system_with_deps("test2", dummy!("test2"), deps!["test4"]).unwrap();
 
-        builder.build().unwrap();
+        let mut planner = {
+            Planner::new(specs::World::new(), 4)
+        };
+
+        builder.build(&mut planner).unwrap();
     }
 }
