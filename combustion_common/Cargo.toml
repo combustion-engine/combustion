@@ -11,6 +11,8 @@ chrono = "0.2.25"
 lazy_static = "0.2.2"
 num-traits = "0.1.36"
 regex = "0.1.80"
+serde = "0.8.21"
+serde_derive = "0.8.21"
 slog = "1.3.2"
 slog-atomic = "0.4.3"
 slog-scope = "0.2.2"
@@ -19,6 +21,13 @@ slog-term = "1.3.3"
 statrs = "0.4.0"
 time = "0.1.35"
 vec_map = "0.6.0"
+void = "1.0.2"
 
 [dependencies.tinyfiledialogs]
 path = "../deps/tinyfiledialogs"
+
+[dependencies.palette]
+git = "git://github.com/Ogeon/palette.git"
+
+[dependencies.nalgebra]
+path = "../deps/nalgebra"

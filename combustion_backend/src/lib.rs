@@ -18,7 +18,6 @@ extern crate lazy_static;
 extern crate nalgebra;
 extern crate num_traits;
 extern crate image;
-extern crate palette;
 extern crate regex;
 extern crate vec_map;
 extern crate serde;
@@ -31,7 +30,6 @@ extern crate void;
 extern crate combustion_common as common;
 
 pub mod window;
-pub mod generic;
 
 #[cfg(feature = "gl")]
 pub mod gl;

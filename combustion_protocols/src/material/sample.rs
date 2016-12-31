@@ -1,6 +1,6 @@
 use super::*;
 
-use backend::generic::color::palette::*;
+use common::color::palette::*;
 
 pub fn sample() -> MaterialMap {
     let mut materials = MaterialMap::default();

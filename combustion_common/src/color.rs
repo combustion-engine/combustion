@@ -1,6 +1,5 @@
 //! Flexible Color type suitable for using as a shader uniform
 
-use std::ops::Deref;
 use num_traits::{Zero, One, Float};
 use std::f32::EPSILON;
 use std::str::FromStr;
@@ -19,7 +18,7 @@ pub mod palette {
 
 use self::palette::*;
 
-use common::utils::AlmostEqExt;
+use utils::AlmostEqExt;
 
 #[inline(always)]
 fn is_zero(value: &f32) -> bool {

@@ -55,9 +55,6 @@ path = "../deps/lazy"
 [dependencies.nalgebra]
 path = "../deps/nalgebra"
 
-[dependencies.palette]
-git = "git://github.com/Ogeon/palette.git"
-
 [dependencies.user32-sys]
 optional = true
 version = "0.2.0"

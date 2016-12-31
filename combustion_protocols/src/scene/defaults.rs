@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use nalgebra::*;
 use ::named::*;
 
-use backend::generic::color::Color;
+use common::color::Color;
 
 use super::*;
 

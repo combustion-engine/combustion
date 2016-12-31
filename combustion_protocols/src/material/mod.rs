@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
 use std::path::PathBuf;
 
-use backend::generic::color::Color;
-use backend::generic::color::de as color_de;
+use common::color::Color;
+use common::color::de as color_de;
 
 pub mod defaults;
 pub mod sample;

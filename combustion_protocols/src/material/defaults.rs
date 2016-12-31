@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use backend::generic::color::Color;
+use common::color::Color;
 
 use super::*;
 
