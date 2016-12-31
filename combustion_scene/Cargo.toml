@@ -1,7 +1,11 @@
 [package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_scene"
 version = "0.1.0"
-authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies]
+fnv = "1.0.5"
+petgraph = "0.4.1"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
@@ -12,4 +16,6 @@ path = "../combustion_ecs"
 [dependencies.combustion_events]
 path = "../combustion_events"
 
-[dependencies]
+[dependencies.specs]
+features = ["parallel"]
+git = "git://github.com/slide-rs/specs.git"
