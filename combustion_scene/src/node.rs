@@ -1,4 +1,4 @@
-use specs::Entity;
+use ecs::Entity;
 use fnv::FnvBuildHasher;
 use typemap::{Key, SimpleTypeMap};
 

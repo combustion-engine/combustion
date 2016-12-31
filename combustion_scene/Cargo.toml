@@ -7,18 +7,8 @@ version = "0.1.0"
 fnv = "1.0.5"
 petgraph = "0.4.1"
 
-[dependencies.combustion_common]
-path = "../combustion_common"
-
 [dependencies.combustion_ecs]
 path = "../combustion_ecs"
-
-[dependencies.combustion_events]
-path = "../combustion_events"
-
-[dependencies.specs]
-features = ["parallel"]
-git = "git://github.com/slide-rs/specs.git"
 
 [dependencies.typemap]
 git = "https://github.com/novacrazy/rust-typemap"

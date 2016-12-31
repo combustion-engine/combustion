@@ -1,7 +1,10 @@
 use std::ops::{Deref, DerefMut};
 
 use petgraph::prelude::*;
-use specs::{Entity, World};
+use petgraph::visit::*;
+use petgraph::algo::*;
+
+use ecs::{Entity, World};
 use fnv::FnvHashMap;
 
 use error::*;
@@ -16,6 +19,7 @@ pub struct SceneEdge {}
 
 pub struct SceneGraph {
     graph: StableDiGraph<SceneNode, SceneEdge, Ix>,
+    cycle_state: DfsSpace<NodeIndex<Ix>, < StableDiGraph<SceneNode, SceneEdge, Ix> as Visitable >::Map>,
     root: NodeIndex<Ix>,
     entity_table: FnvHashMap<Entity, NodeIndex<Ix>>,
 }
@@ -26,7 +30,7 @@ impl SceneGraph {
 
         let root = graph.add_node(SceneNode::new(world.create_later()));
 
-        SceneGraph { graph: graph, root: root, entity_table: FnvHashMap::default() }
+        SceneGraph { graph: graph, cycle_state: DfsSpace::default(), root: root, entity_table: FnvHashMap::default() }
     }
 
     #[inline(always)]
@@ -69,6 +73,10 @@ impl SceneGraph {
 
     /// This operation is `O(e' + e')` for the two edge lookups.
     pub fn reparent(&mut self, child: NodeIndex<Ix>, old_parent: NodeIndex<Ix>, new_parent: NodeIndex<Ix>) -> SceneResult<()> {
+        if has_path_connecting(&self.graph, new_parent, child, Some(&mut self.cycle_state)) {
+            return Err(SceneError::WouldCycle);
+        }
+
         if let Some(edge) = self.graph.find_edge(old_parent, child) {
             self.graph.remove_edge(edge);
 
