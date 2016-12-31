@@ -1,0 +1,18 @@
+[package]
+name = "combustion_scene"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies.combustion_asset]
+path = "../combustion_asset"
+
+[dependencies.combustion_common]
+path = "../combustion_common"
+
+[dependencies.combustion_ecs]
+path = "../combustion_ecs"
+
+[dependencies.combustion_events]
+path = "../combustion_events"
+
+[dependencies]
