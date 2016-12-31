@@ -19,3 +19,6 @@ path = "../combustion_events"
 [dependencies.specs]
 features = ["parallel"]
 git = "git://github.com/slide-rs/specs.git"
+
+[dependencies.typemap]
+git = "https://github.com/novacrazy/rust-typemap"
