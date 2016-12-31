@@ -102,12 +102,12 @@ impl SystemBuilder {
     }
 
     pub fn build(mut self, mut planner: &mut super::Planner) -> SystemResult<()> {
-        let mut bfs = Dfs::new(&self.graph, self.root);
-
         // Since specs has a higher-number = higher-priority sorting policy, we need to start from the max value and go from highest priority systems to lowest.
         let mut priority = specs::Priority::max_value();
 
-        while let Some(node) = bfs.next(&self.graph) {
+        let mut dfs = Dfs::new(&self.graph, self.root);
+
+        while let Some(node) = dfs.next(&self.graph) {
             if let &mut Some(ref mut cb) = self.graph.node_weight_mut(node).unwrap() {
                 cb(planner, priority)?;
 
@@ -148,6 +148,10 @@ pub mod test {
         builder.add_system_with_deps("test3", dummy!("test3"), deps!["test2"]).unwrap();
         builder.add_system_with_deps("test5", dummy!("test5"), deps!["test2"]).unwrap();
         builder.add_system_with_deps("test2", dummy!("test2"), deps!["test4"]).unwrap();
+        builder.add_system_with_deps("test6", dummy!("test6"), deps!["test2"]).unwrap();
+        builder.add_system_with_deps("test7", dummy!("test7"), deps!["test6"]).unwrap();
+        builder.add_system_with_deps("test8", dummy!("test8"), deps!["test7"]).unwrap();
+        builder.add_system_with_deps("test9", dummy!("test9"), deps!["test8"]).unwrap();
 
         let mut planner = {
             Planner::new(specs::World::new(), 4)
