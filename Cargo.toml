@@ -6,3 +6,7 @@ members = [
 	"deps/luajit-sys", "deps/luajit-rs", "deps/squirrel-sys", "deps/squirrel-rs",
 	"deps/nalgebra", "deps/capnpc-rust", "deps/openalsoft-rs", "deps/openalsoft-sys"
 ]
+
+[profile.release]
+lto = true
+opt-level = 3
