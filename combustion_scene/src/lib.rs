@@ -11,3 +11,8 @@ pub mod error;
 pub mod node;
 pub mod edge;
 pub mod graph;
+
+pub use error::{SceneError, SceneResult};
+pub use node::{SceneNode, SceneNodeExt, SceneNodeKind, EntityNode, MultiEntityNode};
+pub use edge::SceneEdge;
+pub use graph::SceneGraph;
