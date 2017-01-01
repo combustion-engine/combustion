@@ -8,7 +8,7 @@ use ecs::{Entity, World};
 use fnv::FnvHashMap;
 
 use error::*;
-use node::SceneNode;
+use node::*;
 
 /// Numeric index type
 pub type Ix = usize;
@@ -28,7 +28,7 @@ impl SceneGraph {
     pub fn new(world: &World) -> SceneGraph {
         let mut graph = StableDiGraph::default();
 
-        let root = graph.add_node(SceneNode::new(world.create_later()));
+        let root = graph.add_node(SceneNode::new_entity_node(world.create_later()));
 
         SceneGraph { graph: graph, cycle_state: DfsSpace::default(), root: root, entity_table: FnvHashMap::default() }
     }
@@ -38,7 +38,7 @@ impl SceneGraph {
 
     /// Adds a new scene node to the graph with the given parent, and returns the new node's index
     pub fn add_child(&mut self, parent: NodeIndex<Ix>, entity: Entity) -> NodeIndex<Ix> {
-        let child_node = self.graph.add_node(SceneNode::new(entity));
+        let child_node = self.graph.add_node(SceneNode::new_entity_node(entity));
 
         self.entity_table.insert(entity, child_node);
 
