@@ -7,6 +7,8 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
+//https://cbreeden.github.io/Macros11/
+
 // Cannot be public
 mod hello;
 
