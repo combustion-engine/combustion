@@ -13,3 +13,5 @@ pub mod builder;
 
 pub type Delta = f64;
 pub type Planner = specs::Planner<Delta>;
+
+pub use specs::{Entity, World, System, VecStorage, NullStorage, HashMapStorage, UnprotectedStorage, RunArg};
