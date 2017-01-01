@@ -7,6 +7,9 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
+// Cannot be public
+mod hello;
+
 #[proc_macro_derive(HelloWorld)]
 pub fn hello_world(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
@@ -16,19 +19,8 @@ pub fn hello_world(input: TokenStream) -> TokenStream {
     let ast = syn::parse_macro_input(&s).unwrap();
 
     // Build the impl
-    let gen = impl_hello_world(&ast);
+    let gen = hello::impl_hello_world(&ast);
 
     // Return the generated impl
     gen.parse().unwrap()
-}
-
-fn impl_hello_world(ast: &syn::MacroInput) -> quote::Tokens {
-    let name = &ast.ident;
-    quote! {
-        impl #name {
-            fn hello_world() {
-                println!("Hello, World! My name is {}", stringify!(#name));
-            }
-        }
-    }
 }
