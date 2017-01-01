@@ -16,10 +16,7 @@ extern crate enum_primitive;
 #[macro_use]
 extern crate lazy_static;
 extern crate nalgebra;
-extern crate num_traits;
 extern crate image;
-extern crate regex;
-extern crate vec_map;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

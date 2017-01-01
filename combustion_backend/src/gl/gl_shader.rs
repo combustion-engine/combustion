@@ -136,7 +136,7 @@ impl GLShader {
 
         let IncludeResult { source, .. } = try!(include(path));
 
-        try!(self.set_source(source.deref().clone()));
+        try!(self.set_source(source.clone()));
 
         Ok(())
     }

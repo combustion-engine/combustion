@@ -14,33 +14,18 @@ lazy_static! {
         RegexBuilder::new("^\\s*#\\s*(?:pragma\\s+)?include\\s+\"(.*?)\"")
             .multi_line(true)
             .unicode(true)
-            .compile()
+            .build()
             .unwrap()
     };
 }
 
-struct RcReplacer<F>(F) where F: FnMut(&Captures) -> Rc<String>;
-
-impl<F> Replacer for RcReplacer<F> where F: FnMut(&Captures) -> Rc<String> {
-    fn reg_replace<'a>(&'a mut self, caps: &Captures) -> Cow<'a, str> {
-       (*(self.0)(caps)).clone().into()
-    }
-}
-
 #[derive(Debug)]
 pub struct IncludeResult {
-    pub source: Rc<String>,
-    //pub position_map: Vec<(usize, Rc<String>)>
+    pub source: String,
 }
 
-//impl IncludeResult {
-//    pub fn get_file_at(pos: usize) -> Option<Rc<String>> {
-//        None
-//    }
-//}
-
 //TODO: Build position map
-fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, Rc<String>>) -> Result<IncludeResult, io::Error> {
+fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, String>) -> Result<IncludeResult, io::Error> {
     let mut file: File = try!(File::open(path));
 
     let mut source = String::new();
@@ -49,10 +34,10 @@ fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, Rc<String>>) -> Re
 
     let mut err: Option<io::Error> = None;
 
-    source = INCLUDE_DIRECTIVE_RE.replace_all(&source, RcReplacer(|captures: &Captures| -> Rc<String> {
+    source = INCLUDE_DIRECTIVE_RE.replace_all(&source, |captures: &Captures| -> String {
         if err.is_none() {
             //let pos = captures.pos(1).unwrap();
-            let included_path = captures.at(1).unwrap().to_string();
+            let included_path = captures.get(1).unwrap().as_str();
 
             let parent = path.parent().unwrap_or(Path::new("./"));
 
@@ -69,20 +54,19 @@ fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, Rc<String>>) -> Re
                 Ok(IncludeResult { source, .. }) => {
                     cache.insert(full_path, source.clone());
 
-                    return source;
+                    return source.into();
                 }
             }
         }
 
-        Rc::new(String::new())
-    }));
+        String::new()
+    }).into();
 
     if let Some(e) = err {
         Err(e)
     } else {
         Ok(IncludeResult {
-            source: Rc::new(source),
-            //position_map: vec![]
+            source: source,
         })
     }
 }
