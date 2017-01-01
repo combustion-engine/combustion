@@ -2,6 +2,8 @@ use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use ecs::Entity;
+use petgraph::graph::NodeIndex;
+use super::Ix;
 
 pub type SceneResult<T> = Result<T, SceneError>;
 
@@ -11,6 +13,7 @@ pub enum SceneError {
     MissingChild(Entity),
     InvalidNode,
     InvalidEdge,
+    AlreadyExists(Entity, NodeIndex<Ix>),
 }
 
 impl Display for SceneError {
@@ -26,6 +29,7 @@ impl Error for SceneError {
             SceneError::MissingChild(_) => "Missing Child",
             SceneError::InvalidNode => "Invalid Node",
             SceneError::InvalidEdge => "Invalid Edge",
+            SceneError::AlreadyExists(..) => "Entity Already Exists",
         }
     }
 }

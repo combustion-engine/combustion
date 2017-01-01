@@ -5,17 +5,14 @@ use petgraph::visit::*;
 use petgraph::algo::*;
 
 use ecs::{Entity, World};
+use std::collections::hash_map::Entry;
 use fnv::FnvHashMap;
 
 use error::*;
 use node::*;
+use edge::*;
 
-/// Numeric index type
-pub type Ix = usize;
-
-//TODO
-pub struct SceneEdge {}
-
+use super::Ix;
 
 pub struct SceneGraph {
     graph: StableDiGraph<SceneNode, SceneEdge, Ix>,
@@ -37,22 +34,53 @@ impl SceneGraph {
     pub fn root(&self) -> NodeIndex<Ix> { self.root }
 
     /// Adds a new scene node to the graph with the given parent, and returns the new node's index
-    pub fn add_child(&mut self, parent: NodeIndex<Ix>, entity: Entity) -> NodeIndex<Ix> {
-        let child_node = self.graph.add_node(SceneNode::new_entity_node(entity));
+    pub fn add_child(&mut self, parent: NodeIndex<Ix>, node: SceneNode) -> SceneResult<NodeIndex<Ix>> {
+        let child_node = self.graph.add_node(node);
 
-        self.entity_table.insert(entity, child_node);
+        {
+            // Get a reference to the node we literally just added...
+            let node = self.graph.node_weight(child_node).unwrap();
+
+            match node.kind() {
+                &SceneNodeKind::EntityNode(ref node) => {
+                    let entity = node.entity();
+
+                    match self.entity_table.entry(entity) {
+                        Entry::Occupied(entry) => {
+                            return Err(SceneError::AlreadyExists(entity, entry.get().clone()));
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(child_node);
+                        }
+                    }
+                }
+                &SceneNodeKind::MultiEntityNode(ref node) => {
+                    for entity in node.iter().cloned() {
+                        match self.entity_table.entry(entity) {
+                            Entry::Occupied(entry) => {
+                                return Err(SceneError::AlreadyExists(entity, entry.get().clone()));
+                            }
+                            Entry::Vacant(entry) => {
+                                entry.insert(child_node);
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
 
         self.graph.add_edge(parent, child_node, SceneEdge {});
 
-        child_node
+        Ok(child_node)
     }
 
     /// Adds a new scene node to the graph with root as its parent, and returns the new node's index.
     #[inline]
-    pub fn add_node(&mut self, entity: Entity) -> NodeIndex<Ix> {
+    pub fn add_node(&mut self, node: SceneNode) -> SceneResult<NodeIndex<Ix>> {
         let root = self.root;
 
-        self.add_child(root, entity)
+        self.add_child(root, node)
     }
 
     /// Find the node index for a specific entity using a lookup table.
@@ -67,7 +95,7 @@ impl SceneGraph {
     ///
     /// This operation is `O(1)`
     #[inline]
-    pub fn lookup_entity(&self, index: NodeIndex<Ix>) -> Option<&SceneNode> {
+    pub fn lookup_node(&self, index: NodeIndex<Ix>) -> Option<&SceneNode> {
         self.graph.node_weight(index)
     }
 
