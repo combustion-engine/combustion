@@ -1,9 +1,7 @@
 [package]
+name = "combustion_game"
 authors = ["novacrazy <novacrazy@gmail.com>"]
-exclude = ["*.png"]
 include = ["Cargo.toml", "src/**/*.rs"]
-license = "MIT"
-name = "combustion"
 version = "0.1.0"
 
 [dependencies.combustion_backend]
@@ -19,25 +17,20 @@ path = "../combustion_protocols"
 path = "../combustion_asset"
 
 [dependencies]
-capnp = "0.7.5"
-capnpc = "0.7.5"
 chrono = "0.2.25"
 enum_primitive = "0.1.0"
-image = "0.10.3"
 lazy_static = "0.2.2"
 libc = "0.2.17"
-nalgebra = {path = "../deps/nalgebra"}
 num-traits = "0.1.36"
 num_cpus = "1.1.0"
-oncemutex = "0.1.1"
-petgraph = "0.4.1"
-regex = "0.1.80"
-rusttype = "0.2.1"
 time = "0.1.35"
 vec_map = "0.6.0"
 
 [dependencies.lazy]
 path = "../deps/lazy"
+
+[dependencies.nalgebra]
+path = "../deps/nalgebra"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
