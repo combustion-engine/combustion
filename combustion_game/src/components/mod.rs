@@ -19,30 +19,25 @@ pub mod camera;
 pub mod light;
 pub mod physics;
 
-#[macro_export]
-macro_rules! register_mod {
-    ($world:expr, $component_mod:ident) => { $world.register::<$component_mod::Component>() }
-}
-
 pub mod constraints;
 
 pub fn register_all(world: &mut specs::World) {
-    register_mod!(world, node);
-    register_mod!(world, renderable);
-    register_mod!(world, effector);
-    register_mod!(world, mesh);
-    register_mod!(world, model);
-    register_mod!(world, material);
-    register_mod!(world, instanced);
-    register_mod!(world, position);
-    register_mod!(world, isometry);
-    register_mod!(world, rotation);
-    register_mod!(world, quaternion_rotation);
-    register_mod!(world, scale);
-    register_mod!(world, transform);
-    register_mod!(world, camera);
-    register_mod!(world, light);
-    register_mod!(world, physics);
+    ecs_register_mod!(world, node);
+    ecs_register_mod!(world, renderable);
+    ecs_register_mod!(world, effector);
+    ecs_register_mod!(world, mesh);
+    ecs_register_mod!(world, model);
+    ecs_register_mod!(world, material);
+    ecs_register_mod!(world, instanced);
+    ecs_register_mod!(world, position);
+    ecs_register_mod!(world, isometry);
+    ecs_register_mod!(world, rotation);
+    ecs_register_mod!(world, quaternion_rotation);
+    ecs_register_mod!(world, scale);
+    ecs_register_mod!(world, transform);
+    ecs_register_mod!(world, camera);
+    ecs_register_mod!(world, light);
+    ecs_register_mod!(world, physics);
 
     constraints::register_all(world);
 }

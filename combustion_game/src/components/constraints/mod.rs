@@ -7,5 +7,5 @@ use specs;
 pub mod lookat;
 
 pub fn register_all(world: &mut specs::World) {
-    register_mod!(world, lookat);
+    ecs_register_mod!(world, lookat);
 }
