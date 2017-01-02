@@ -5,6 +5,7 @@ use std::io;
 
 pub type SchedulerResult<T> = Result<T, SchedulerError>;
 
+#[derive(Debug)]
 pub enum SchedulerError {
     Io(io::Error),
 }

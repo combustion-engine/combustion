@@ -16,6 +16,12 @@ path = "../combustion_protocols"
 [dependencies.combustion_asset]
 path = "../combustion_asset"
 
+[dependencies.combustion_ecs]
+path = "../combustion_ecs"
+
+[dependencies.combustion_events]
+path = "../combustion_events"
+
 [dependencies]
 chrono = "0.2.25"
 enum_primitive = "0.1.0"

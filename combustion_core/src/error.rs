@@ -7,8 +7,6 @@ use std::sync::PoisonError;
 use std::io;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use assimp::error::AiError;
-
 pub use ::common::error::*;
 
 use ::backend::gl::GLError;
@@ -23,7 +21,6 @@ pub enum AppError {
     Utf8Error(Utf8Error),
     NulError(NulError),
     PoisonError(TypeId, Box<Error + 'static>),
-    AiError(AiError),
     InvalidScene
 }
 
@@ -50,18 +47,6 @@ impl<T: 'static> From<PoisonError<T>> for AppError {
     }
 }
 
-impl From<AiError> for AppError {
-    fn from(err: AiError) -> AppError {
-        match err {
-            AiError::Io(err) => AppError::Io(err),
-            AiError::Utf8Error(err) => AppError::Utf8Error(err),
-            AiError::NulError(err) => AppError::NulError(err),
-            AiError::InvalidScene => AppError::InvalidScene,
-            _ => AppError::AiError(err)
-        }
-    }
-}
-
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "{}", self.description())
@@ -77,7 +62,6 @@ impl Error for AppError {
             AppError::FromUtf8Error(ref err) => err.description(),
             AppError::NulError(ref err) => err.description(),
             AppError::PoisonError(_, ref err) => err.description(),
-            AppError::AiError(ref err) => err.description(),
             AppError::InvalidScene => "Invalid Scene",
         }
     }

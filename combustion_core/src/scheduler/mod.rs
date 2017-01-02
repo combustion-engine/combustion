@@ -18,17 +18,17 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    pub fn new() -> SchedulerResult<Arc<Scheduler>> {
-        let (bootstrap_tx, bootstrap_rx) = mpsc::sync_channel();
-
-        let scheduler_join_handle = thread::Builder::new().name("Scheduler").spawn(move || {
-            let scheduler = bootstrap_rx.recv().unwrap();
-
-            // Do scheduling stuff
-        })?;
-
-
-
-        Ok(())
-    }
+    //pub fn new() -> SchedulerResult<Arc<Scheduler>> {
+    //    let (bootstrap_tx, bootstrap_rx) = mpsc::sync_channel();
+//
+    //    let scheduler_join_handle = thread::Builder::new().name("Scheduler").spawn(move || {
+    //        let scheduler = bootstrap_rx.recv().unwrap();
+//
+    //        // Do scheduling stuff
+    //    })?;
+//
+//
+//
+    //    Ok(())
+    //}
 }

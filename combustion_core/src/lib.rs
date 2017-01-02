@@ -1,6 +1,6 @@
 #![allow(unused_imports, dead_code)]
 #![allow(unknown_lints, inline_always, toplevel_ref_arg)]
-#![feature(proc_macro, receiver_try_iter, specialization)]
+#![feature(proc_macro, specialization)]
 #![crate_type = "bin"]
 
 #[macro_use]
@@ -23,20 +23,15 @@ extern crate combustion_backend as backend;
 
 #[macro_use]
 extern crate combustion_protocols as protocols;
-
-pub use common;
-pub use backend;
-pub use protocols;
+extern crate combustion_asset as asset;
+extern crate combustion_events as events;
+extern crate combustion_ecs as ecs;
 
 pub mod error;
 
-//#[macro_use]
-//pub mod components;
-//pub mod resources;
-//pub mod entities;
-//pub mod systems;
-//pub mod scheduler;
-//
+#[macro_use]
+pub mod scheduler;
+
 //pub mod storage;
 //pub mod scene;
 //pub mod graphics;
