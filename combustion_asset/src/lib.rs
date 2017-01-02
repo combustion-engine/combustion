@@ -11,6 +11,7 @@ extern crate capnp;
 extern crate capnpc;
 #[macro_use]
 extern crate phf;
+extern crate rayon;
 extern crate nalgebra;
 #[macro_use]
 extern crate serde;
