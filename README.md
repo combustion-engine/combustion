@@ -1,55 +1,11 @@
 Combustion Game Engine
 ----------------------
 
-## Engine components
+## Engine Crates
 
-#### `combustion_asset`
+Most parts of the engine have been separated into multiple crates for both organizational purposes and to improve compile times.
 
-Contains routines for dealing with game assets in a more abstract sense than `combustion_protocols`
-
-#### `combustion_audio`
-
-Contains routines for dealing with game audio.
-
-#### `combustion_backend`
-
-Abstraction layer over low-level graphics APIs.
-
-#### `combustion_common`
-
-Common utilities and data structures used across the engine.
-
-#### `combustion_ecs`
-
-Entity-Component-System parts. The goal is to have dynamic components and systems be added from any other crate and the game itself, without any problems.
-
-#### `combustion_engine`
-
-The primary engine crate, which includes the ECS systems, primary render loop and just generally brings together the other components into a whole.
-
-#### `combustion_events`
-
-Event handling (immediate-mode) systems for the engine.
-
-#### `combustion_geometry`
-
-Bindings to [libigl](https://github.com/libigl/libigl) and more low-level math/geometry manipulation routines.
-
-#### `combustion_gui`
-
-GUI framework for use within the Combustion game engine.
-
-#### `combustion_physics`
-
-Eventual bindings to the Bullet physics library
-
-#### `combustion_protocols`
-
-APIs for interacting with foreign data.
-
-#### `combustion_scripting`
-
-Routines for integrating and running game scripts.
+All crates beginning with `combustion_` are integral parts of the engine. See each crate's README for specific information.
 
 -----
 ## Developing on Windows:
@@ -96,7 +52,7 @@ Routines for integrating and running game scripts.
     4. Install `Rust` and `TOML` nightly plugins
     5. Import project from sources
         1. Select Import project from existing sources
-        2. Select ONE of the Combustion subcrates, like `combustion_protocols`, `combustion_common`, `combustion_backend`, `combustion_engine`, etc.
+        2. Select ONE of the Combustion subcrates, like `combustion_protocols`, `combustion_common`, `combustion_backend`, `combustion_core`, etc.
             * The Rust plugin only supports a single crate per project, so engine subcrates need to be opened as separate projects.
         3. Do that for all the subcrates you wish to work on. It will initialize an IDEA project in each so they can be reopened normally.
 7. Building LuaJIT
