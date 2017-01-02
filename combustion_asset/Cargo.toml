@@ -5,12 +5,14 @@ version = "0.1.0"
 
 [dependencies]
 capnp = "0.7.5"
-capnpc = "0.7.5"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 rayon = "0.6.0"
 serde = "0.8.19"
 serde_derive = "0.8.19"
+
+[dependencies.capnpc]
+path = "../deps/capnpc-rust"
 
 [dependencies.assimp]
 features = ["default", "compat"]
