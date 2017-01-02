@@ -11,6 +11,7 @@ backtrace = "0.3.0"
 chrono = "0.2.25"
 lazy_static = "0.2.2"
 num-traits = "0.1.36"
+rand = "0.3.15"
 regex = "0.2"
 serde = "0.8.21"
 serde_derive = "0.8.21"
@@ -23,6 +24,9 @@ statrs = "0.4.0"
 time = "0.1.35"
 vec_map = "0.6.0"
 void = "1.0.2"
+
+[dependencies.lz4]
+path = "../deps/lz4-rs"
 
 [dependencies.nalgebra]
 path = "../deps/nalgebra"

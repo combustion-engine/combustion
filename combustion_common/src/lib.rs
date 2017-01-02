@@ -25,9 +25,12 @@ extern crate backtrace;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate lz4;
+extern crate rand;
 
 pub mod macros;
 
+pub mod compression;
 pub mod preprocessor;
 pub mod utils;
 pub mod structures;
