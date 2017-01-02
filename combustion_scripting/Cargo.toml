@@ -13,8 +13,6 @@ path = "../combustion_common"
 path = "../combustion_protocols"
 
 [dependencies]
-capnp = "0.7.5"
-capnpc = "0.7.5"
 
 [dependencies.squirrel]
 path = "../deps/squirrel-rs"
