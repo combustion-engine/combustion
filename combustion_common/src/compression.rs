@@ -54,9 +54,9 @@ impl<W: Write> Drop for AutoEncoder<W> {
 
 /// Generic options for in-memory compression
 pub struct CompressionOptions {
-    blockmode: BlockMode,
-    blocksize: BlockSize,
-    level: u32
+    pub blockmode: BlockMode,
+    pub blocksize: BlockSize,
+    pub level: u32
 }
 
 impl CompressionOptions {
