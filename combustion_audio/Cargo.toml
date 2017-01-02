@@ -13,8 +13,8 @@ path = "../combustion_asset"
 [dependencies.combustion_common]
 path = "../combustion_common"
 
+[dependencies.combustion_ecs]
+path = "../combustion_ecs"
+
 [dependencies.openalsoft-rs]
 path = "../deps/openalsoft-rs"
-
-[dev-dependencies]
-gcc = "0.3.40"
