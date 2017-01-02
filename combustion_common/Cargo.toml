@@ -7,6 +7,7 @@ name = "combustion_common"
 version = "0.1.0"
 
 [dependencies]
+backtrace = "0.3.0"
 chrono = "0.2.25"
 lazy_static = "0.2.2"
 num-traits = "0.1.36"
@@ -23,11 +24,11 @@ time = "0.1.35"
 vec_map = "0.6.0"
 void = "1.0.2"
 
-[dependencies.tinyfiledialogs]
-path = "../deps/tinyfiledialogs"
+[dependencies.nalgebra]
+path = "../deps/nalgebra"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
 
-[dependencies.nalgebra]
-path = "../deps/nalgebra"
+[dependencies.tinyfiledialogs]
+path = "../deps/tinyfiledialogs"
