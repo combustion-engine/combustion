@@ -3,7 +3,7 @@ extern crate combustion_common as common;
 
 #[inline(never)]
 fn test2() {
-    println!("{}", backtrace![]);
+    println!("{}", backtrace!());
 }
 
 #[inline(never)]
