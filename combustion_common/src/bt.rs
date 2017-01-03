@@ -55,7 +55,7 @@ pub fn format_trace<Fmt: BacktraceFmt>(line: u32, file: &str) -> String {
     let mut count = 0;
 
     trace(|frame| {
-        if count <= IGNORE_COUNT {
+        if count < IGNORE_COUNT {
             count += 1;
         } else {
             let before = count;
