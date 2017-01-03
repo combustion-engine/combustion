@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 use std::io;
 use std::io::prelude::*;
 use std::fs::{File, create_dir_all};
-use backtrace;
 
 use slog;
 use slog::DrainExt;

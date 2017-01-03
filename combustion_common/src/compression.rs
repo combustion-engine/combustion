@@ -9,7 +9,7 @@ pub struct AutoEncoder<W: Write>(Option<Encoder<W>>);
 
 impl<W: Write> AutoEncoder<W> {
     /// Short for `into_encoder().finish()`
-    pub fn finish(mut self) -> (W, io::Result<()>) {
+    pub fn finish(self) -> (W, io::Result<()>) {
         self.into_encoder().finish()
     }
 
