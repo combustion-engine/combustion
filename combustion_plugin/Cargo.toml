@@ -1,0 +1,19 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+name = "combustion_plugin"
+version = "0.1.0"
+
+[dependencies]
+lazy_static = "0.2.2"
+libloading = "0.3.1"
+semver = "0.5.1"
+serde = "0.8.21"
+serde_derive = "0.8.21"
+
+[dependencies.dlib]
+features = ["dlopen"]
+version = "0.3.1"
+
+[dependencies.toml]
+features = ["serde"]
+version = "0.2.1"
