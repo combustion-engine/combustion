@@ -15,5 +15,14 @@ pub mod macros;
 pub type Delta = f64;
 pub type Planner = specs::Planner<Delta>;
 
-pub use specs::{Entity, Component, System, World, VecStorage, NullStorage, HashMapStorage, UnprotectedStorage, RunArg};
-
+pub use specs::{
+    Entity,
+    Component,
+    System,
+    World,
+    VecStorage,
+    NullStorage,
+    HashMapStorage,
+    UnprotectedStorage,
+    RunArg
+};

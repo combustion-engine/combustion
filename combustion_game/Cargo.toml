@@ -28,7 +28,6 @@ path = "../combustion_events"
 [dependencies.combustion_audio]
 path = "../combustion_audio"
 
-
 [dependencies]
 chrono = "0.2.25"
 enum_primitive = "0.1.0"
