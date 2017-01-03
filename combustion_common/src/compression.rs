@@ -101,13 +101,32 @@ impl CompressedMemory {
         Ok(CompressedMemory { data: buffer })
     }
 
+    /// Compress data from `buffer` with the given `options`
+    pub fn from_buffer(buffer: &[u8], options: CompressionOptions) -> io::Result<CompressedMemory> {
+        CompressedMemory::from_reader(io::Cursor::new(buffer), options)
+    }
+
+    /// Copies compressed data from `reader` into `CompressedMemory`
+    pub fn from_compressed_reader<R: Read>(mut reader: R) -> io::Result<CompressedMemory> {
+        let mut buffer = io::Cursor::new(Vec::new());
+
+        io::copy(&mut reader, &mut buffer)?;
+
+        Ok(CompressedMemory { data: buffer })
+    }
+
+    /// Copies compressed data from `buffer` into `CompressedMemory`
+    pub fn from_compressed_buffer(buffer: &[u8]) -> io::Result<CompressedMemory> {
+        CompressedMemory::from_compressed_reader(io::Cursor::new(buffer))
+    }
+
     /// Get the compressed size (in bytes) of the data.
     #[inline]
     pub fn len(&self) -> usize {
         self.data.get_ref().len()
     }
 
-    /// Create a reader that decompresses the data on demand.
+    /// Create a reader that decompresses the data on the fly.
     ///
     /// The lifetime of the reader shall not exceed the lifetime of the `CompressedMemory` instance.
     pub fn create_reader<'a>(&'a self) -> io::Result<Box<Read + 'a>> {
