@@ -10,6 +10,7 @@ version = "0.1.0"
 [build-dependencies]
 cmake = "0.1.19"
 gcc = "0.3.40"
+walkdir = "1.0.3"
 
 [build-dependencies.capnpc]
 path = "../deps/capnpc-rust"

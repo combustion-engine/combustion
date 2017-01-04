@@ -3,42 +3,53 @@ extern crate combustion_common as common;
 extern crate capnpc;
 extern crate cmake;
 extern crate gcc;
+extern crate walkdir;
+
+use walkdir::*;
 
 use std::process::Command;
 use std::env;
-use std::fs::*;
-use std::path::Path;
 
 use common::error::*;
-use common::utils;
 
 /// Visit directories, find .capnp files, compile them, then replace absolute module references with `super` in the output code.
 fn compile_capnprotos() {
     info!("Compiling Cap'N Proto protocols");
 
-    utils::fs::visit_dirs(Path::new("protocols"), &|entry: &DirEntry| {
-        if let Some(ext) = entry.path().as_path().extension() {
-            if ext == "capnp" {
-                info!("Attempting to generate: {:?} as Rust", entry.path());
-
-                capnpc::CompilerCommand::new().file(entry.path()).include("protocols").run().expect_logged("Failed to compile protocol");
-
-                #[cfg(feature = "cpp")]
-                {
-                    info!("Attempting to generate: {:?} as C++", entry.path());
-                    let output = Command::new("capnp.exe").arg("compile").arg("-oc++").arg("-Iprotocols").arg(entry.path()).output()
-                                                          .expect_logged("Failed to compile protocol");
-
-                    if !output.status.success() {
-                        error!("Output: {:?}", output);
-                        panic!("Output: {:?}", output);
-                    }
-                }
-
-                info!("Success!");
-            }
+    let walker = walkdir::WalkDir::new("protocols").into_iter().filter_entry(|entry| {
+        // Skip files without the "capnp" extension, but allow other items through
+        match entry.path().extension() {
+            Some(ext) if ext != "capnp" => false,
+            _ => true
         }
     });
+
+    for entry in walker {
+        let entry = entry.unwrap();
+
+        // Skip dirs and symlinks
+        if !entry.file_type().is_file() {
+            continue;
+        }
+
+        info!("Attempting to generate: {:?} as Rust", entry.path());
+
+        capnpc::CompilerCommand::new().file(entry.path()).include("protocols").run().expect_logged("Failed to compile protocol");
+
+        #[cfg(feature = "cpp")]
+        {
+            info!("Attempting to generate: {:?} as C++", entry.path());
+            let output = Command::new("capnp.exe").arg("compile").arg("-oc++").arg("-Iprotocols").arg(entry.path()).output()
+                                                  .expect_logged("Failed to compile protocol");
+
+            if !output.status.success() {
+                error!("Output: {:?}", output);
+                panic!("Output: {:?}", output);
+            }
+        }
+
+        info!("Success!");
+    }
 
     #[cfg(feature = "cpp")]
     {
