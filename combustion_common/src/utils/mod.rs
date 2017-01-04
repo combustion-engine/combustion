@@ -2,7 +2,6 @@ use num_traits::Num;
 
 pub mod stopwatch;
 pub mod human_readable;
-pub mod fs;
 
 #[inline(always)]
 pub fn min<T: PartialOrd>(a: T, b: T) -> T {
