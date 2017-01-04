@@ -1,0 +1,10 @@
+[package]
+name = "combustion_test"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies.combustion_macros]
+path = "../combustion_macros"
+
+[dev-dependencies.combustion_ecs]
+path = "../combustion_ecs"
