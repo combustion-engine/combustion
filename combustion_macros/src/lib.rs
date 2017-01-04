@@ -1,28 +1,20 @@
 #![feature(proc_macro, proc_macro_lib)]
 extern crate proc_macro;
 extern crate syn;
-
 #[macro_use]
 extern crate quote;
 
 use proc_macro::TokenStream;
 
-//https://cbreeden.github.io/Macros11/
+mod ecs;
 
-// Cannot be public
-mod hello;
+#[proc_macro_derive(Component, attributes(ecs))]
+pub fn derive_ecs_component(input: TokenStream) -> TokenStream {
+    let input = input.to_string();
 
-#[proc_macro_derive(HelloWorld)]
-pub fn hello_world(input: TokenStream) -> TokenStream {
-    // Construct a string representation of the type definition
-    let s = input.to_string();
+    let ast = syn::parse_macro_input(&input).unwrap();
 
-    // Parse the string representation
-    let ast = syn::parse_macro_input(&s).unwrap();
+    let gen = ecs::component::impl_derive(&ast);
 
-    // Build the impl
-    let gen = hello::impl_hello_world(&ast);
-
-    // Return the generated impl
-    gen.parse().unwrap()
+    gen.parse().expect("Failed to generate code")
 }
