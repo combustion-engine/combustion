@@ -53,6 +53,7 @@ impl<W: Write> Drop for AutoEncoder<W> {
 }
 
 /// Generic options for in-memory compression
+#[derive(Debug, Clone, Copy)]
 pub struct CompressionOptions {
     pub blockmode: BlockMode,
     pub blocksize: BlockSize,
@@ -72,6 +73,7 @@ impl CompressionOptions {
 
 /// Stores a chunk of compressed data in memory so it can be decompressed on demand,
 /// but otherwise take up less space when not being used.
+#[derive(Clone)]
 pub struct CompressedMemory {
     data: io::Cursor<Vec<u8>>,
 }
