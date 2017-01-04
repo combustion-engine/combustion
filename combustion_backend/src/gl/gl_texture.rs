@@ -130,11 +130,11 @@ impl GLTexture {
 
         unsafe { GenTextures(1, &mut texture as *mut _); }
 
-        check_errors!();
+        check_gl_errors!();
 
         unsafe { BindTexture(kind as GLenum, texture); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLTexture {
             handle: texture,
@@ -155,7 +155,7 @@ impl GLTexture {
 
         unsafe { BindTexture(self.kind as GLenum, self.handle); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -185,7 +185,7 @@ impl GLTexture {
             }
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         self.format = Some(format);
         self.internal_format = Some(internal_format);
@@ -253,7 +253,7 @@ impl GLTexture {
         self.format = Some(format);
         self.internal_format = Some(iformat);
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -262,7 +262,7 @@ impl GLTexture {
         if self.is_valid() {
             unsafe { DeleteTextures(1, &mut self.handle as *mut GLuint); }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())
@@ -273,7 +273,7 @@ impl GLTexture {
 
         unsafe { GenerateMipmap(self.kind as GLenum); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -285,7 +285,7 @@ impl GLTexture {
 
         unsafe { GetFloatv(MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut max_anisoptopy as *mut _); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(max_anisoptopy)
     }
@@ -295,7 +295,7 @@ impl GLTexture {
 
         unsafe { TexParameterf(self.kind as GLenum, TEXTURE_MAX_ANISOTROPY_EXT, value); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -332,7 +332,7 @@ impl GLTexture {
             TexParameteri(self.kind as GLenum, TEXTURE_MAG_FILTER, mag_filter);
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -358,7 +358,7 @@ impl GLTexture {
                 }, mode as GLint);
             }
 
-            check_errors!();
+            check_gl_errors!();
 
             Ok(())
         } else {

@@ -50,11 +50,11 @@ impl GLFramebuffer {
 
         unsafe { GenFramebuffers(1, &mut framebuffer as *mut _); }
 
-        check_errors!();
+        check_gl_errors!();
 
         unsafe { BindFramebuffer(FRAMEBUFFER, framebuffer); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLFramebuffer(framebuffer))
     }
@@ -64,7 +64,7 @@ impl GLFramebuffer {
 
         unsafe { BindFramebuffer(FRAMEBUFFER, self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -94,7 +94,7 @@ impl GLFramebuffer {
                 DeleteFramebuffers(1, &mut self.0 as *mut _);
             }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())

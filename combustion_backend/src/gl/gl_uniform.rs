@@ -12,7 +12,7 @@ macro_rules! impl_scalar_uniform {
                 $glFunc(self.0, $($field as $glType),+);
             }
 
-            check_errors!();
+            check_gl_errors!();
 
             Ok(())
         }
@@ -29,7 +29,7 @@ macro_rules! impl_array_uniform {
                 );
             }
 
-            check_errors!();
+            check_gl_errors!();
 
             Ok(())
         }
@@ -46,7 +46,7 @@ macro_rules! impl_matrix_uniform {
                 }, mat.as_ref() as *const _ as *const $glType);
             }
 
-            check_errors!();
+            check_gl_errors!();
 
             Ok(())
         }

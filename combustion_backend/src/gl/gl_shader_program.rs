@@ -66,7 +66,7 @@ impl GLShaderProgram {
     pub fn new() -> GLResult<GLShaderProgram> {
         let program: GLShaderProgram = GLShaderProgram(unsafe { CreateProgram() });
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(program)
     }
@@ -76,7 +76,7 @@ impl GLShaderProgram {
 
         unsafe { UseProgram(self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -87,7 +87,7 @@ impl GLShaderProgram {
 
         unsafe { AttachShader(self.0, shader.into_raw()); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -97,7 +97,7 @@ impl GLShaderProgram {
 
         unsafe { LinkProgram(self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         let status = try!(self.get_info(GLProgramInfo::LinkStatus));
 
@@ -115,7 +115,7 @@ impl GLShaderProgram {
 
         unsafe { GetProgramiv(self.0, field as GLenum, &mut status); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(status)
     }
@@ -137,7 +137,7 @@ impl GLShaderProgram {
             }
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(String::from_utf8(buffer)?)
     }
@@ -155,7 +155,7 @@ impl GLShaderProgram {
             GetAttachedShaders(self.0, len, &mut count, buffer.as_mut_ptr() as *mut GLuint);
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         assert_eq!(len, count);
 
@@ -167,7 +167,7 @@ impl GLShaderProgram {
 
         let id = unsafe { GetUniformLocation(self.0, name.as_ptr() as *const GLchar) };
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLUniform(id))
     }
@@ -179,7 +179,7 @@ impl GLShaderProgram {
         if self.is_valid() {
             unsafe { DeleteProgram(self.0); }
 
-            check_errors!();
+            check_gl_errors!();
 
             //If the current program still exists, at least check if it is queued for deletion...
             if self.is_valid() {
@@ -189,7 +189,7 @@ impl GLShaderProgram {
                     panic!("{}", self.get_string(GLProgramString::InfoLog).unwrap());
                 }
 
-                check_errors!();
+                check_gl_errors!();
             }
         }
 

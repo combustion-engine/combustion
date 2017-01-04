@@ -114,19 +114,19 @@ pub fn enable_debug(cb: GLDebugProc, synchronous: bool) -> GLResult<()> {
         GetIntegerv(CONTEXT_FLAGS, &mut flags as *mut GLint);
     }
 
-    check_errors!();
+    check_gl_errors!();
 
     if flags as GLuint & CONTEXT_FLAG_DEBUG_BIT != 0 {
         unsafe {
             Enable(DEBUG_OUTPUT);
 
-            check_errors!();
+            check_gl_errors!();
 
             try!(set_synchronous(synchronous));
 
             DebugMessageCallback(debug_callback, cb as *mut _);
 
-            check_errors!();
+            check_gl_errors!();
 
             try!(set_filter(None, None, None));
         }
@@ -154,7 +154,7 @@ pub fn set_filter(source: Option<GLDebugSource>, ty: Option<GLDebugType>, severi
                             0, ptr::null(), TRUE);
     }
 
-    check_errors!();
+    check_gl_errors!();
 
     Ok(())
 }
@@ -168,7 +168,7 @@ pub fn set_synchronous(value: bool) -> GLResult<()> {
         }
     }
 
-    check_errors!();
+    check_gl_errors!();
 
     Ok(())
 }
@@ -183,7 +183,7 @@ pub fn send_debug_message(id: GLuint,
         DebugMessageInsert(DEBUG_SOURCE_APPLICATION, ty as GLenum, id, severity as GLenum, -1, c_message.as_ptr() as *const _);
     }
 
-    check_errors!();
+    check_gl_errors!();
 
     Ok(())
 }

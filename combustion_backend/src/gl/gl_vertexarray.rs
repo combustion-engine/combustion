@@ -26,11 +26,11 @@ impl GLVertexArray {
 
         unsafe { GenVertexArrays(1, &mut vao); }
 
-        check_errors!();
+        check_gl_errors!();
 
         unsafe { BindVertexArray(vao); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLVertexArray(vao))
     }
@@ -38,7 +38,7 @@ impl GLVertexArray {
     pub fn bind(&self) -> GLResult<()> {
         unsafe { BindVertexArray(self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -47,7 +47,7 @@ impl GLVertexArray {
         if self.is_valid() {
             unsafe { DeleteVertexArrays(1, &self.0 as *const GLuint); }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())

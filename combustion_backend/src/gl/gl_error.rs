@@ -41,7 +41,7 @@ pub enum GLError {
 static mut CHECK_DISABLED: AtomicBool = ATOMIC_BOOL_INIT;
 
 #[macro_export]
-macro_rules! check_errors {
+macro_rules! check_gl_errors {
     () => {if let Err(err) = GLError::check() {
         error!("GLError ({:?})", err);
         return Err(err.into());

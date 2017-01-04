@@ -114,7 +114,7 @@ impl GLShader {
     pub fn new(variant: GLShaderVariant) -> GLResult<GLShader> {
         let shader: GLShader = GLShader(unsafe { CreateShader(variant as GLenum) });
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(shader)
     }
@@ -126,7 +126,7 @@ impl GLShader {
 
         unsafe { ShaderSource(self.0, 1, &source_c.as_ptr(), ptr::null()); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -146,7 +146,7 @@ impl GLShader {
 
         unsafe { CompileShader(self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         let status = try!(self.get_info(GLShaderInfo::CompileStatus));
 
@@ -165,7 +165,7 @@ impl GLShader {
 
         unsafe { GetShaderiv(self.0, field as GLenum, &mut status); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(status)
     }
@@ -194,7 +194,7 @@ impl GLShader {
             }
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(try!(String::from_utf8(buffer)))
     }
@@ -204,7 +204,7 @@ impl GLShader {
 
         unsafe { DetachShader(program.raw(), self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -216,7 +216,7 @@ impl GLShader {
         if self.is_valid() {
             unsafe { DeleteShader(self.0); }
 
-            check_errors!();
+            check_gl_errors!();
 
             let status = try!(self.get_info(GLShaderInfo::DeleteStatus));
 
@@ -224,7 +224,7 @@ impl GLShader {
                 panic!("{}", self.get_string(GLShaderString::InfoLog).unwrap());
             }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())

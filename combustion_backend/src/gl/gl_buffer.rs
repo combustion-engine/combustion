@@ -52,11 +52,11 @@ impl GLBuffer {
 
         unsafe { GenBuffers(1, &mut buffer); }
 
-        check_errors!();
+        check_gl_errors!();
 
         unsafe { BindBuffer(target as GLenum, buffer); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLBuffer(buffer, target, 0))
     }
@@ -70,7 +70,7 @@ impl GLBuffer {
 
         unsafe { BindBuffer(self.1 as GLenum, self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -106,7 +106,7 @@ impl GLBuffer {
 
             BufferData(self.1 as GLenum, size as GLsizeiptr, data, usage as GLenum);
 
-            check_errors!();
+            check_gl_errors!();
 
             self.2 = size;
 
@@ -118,7 +118,7 @@ impl GLBuffer {
         if self.is_valid() {
             unsafe { DeleteBuffers(1, &self.0 as *const GLuint); }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())

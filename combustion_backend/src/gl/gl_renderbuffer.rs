@@ -21,11 +21,11 @@ impl GLRenderbuffer {
 
         unsafe { GenRenderbuffers(1, &mut buffer as *mut _); }
 
-        check_errors!();
+        check_gl_errors!();
 
         unsafe { BindRenderbuffer(RENDERBUFFER, buffer); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(GLRenderbuffer(buffer))
     }
@@ -33,7 +33,7 @@ impl GLRenderbuffer {
     pub fn bind(&self) -> GLResult<()> {
         unsafe { BindRenderbuffer(RENDERBUFFER, self.0); }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -48,7 +48,7 @@ impl GLRenderbuffer {
                                 height as GLsizei);
         }
 
-        check_errors!();
+        check_gl_errors!();
 
         Ok(())
     }
@@ -57,7 +57,7 @@ impl GLRenderbuffer {
         if self.is_valid() {
             unsafe { DeleteRenderbuffers(1, &self.0 as *const _); }
 
-            check_errors!();
+            check_gl_errors!();
         }
 
         Ok(())
