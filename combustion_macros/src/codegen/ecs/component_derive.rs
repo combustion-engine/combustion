@@ -1,19 +1,13 @@
 use syn;
 use quote;
 
-// MacroInput { ident: Ident("Component"), vis: Public,
-// attrs: [Attribute { style: Outer, value: List(Ident("ecs"),
-// [MetaItem(NameValue(Ident("storage"), Str("HashStorage", Cooked)))]),
-// is_sugared_doc: false }], generics: Generics { lifetimes: [], ty_params: [],
-// where_clause: WhereClause { predicates: [] } }, body: Struct(Unit) }
-
 struct ECSComponentProperties {
     storage_path: Option<syn::Path>,
     builtin_storage: bool,
     ecs_path: Option<syn::Path>,
 }
 
-pub fn impl_derive(ast: &syn::MacroInput) -> quote::Tokens {
+pub fn expand_derive(ast: &syn::MacroInput) -> Result<quote::Tokens, String> {
     let mut props = ECSComponentProperties {
         storage_path: None,
         builtin_storage: true,
@@ -38,18 +32,15 @@ pub fn impl_derive(ast: &syn::MacroInput) -> quote::Tokens {
                                         // #[ecs(storage = "VecStorage")]
                                         "storage" => {
                                             if let &syn::Lit::Str(ref s, _) = lit {
-                                                props.storage_path = Some(syn::parse_path(s.as_str()).expect("Invalid Path"));
+                                                props.storage_path = Some(syn::parse_path(s.as_str())?);
 
-                                                props.builtin_storage = match s.as_str() {
-                                                    "VecStorage" | "HashMapStorage" | "NullStorage" => { true },
-                                                    _ => { false }
-                                                };
+                                                props.builtin_storage = matches!(s.as_str(), "VecStorage" | "HashMapStorage" | "NullStorage");
                                             }
                                         }
                                         // #[ecs(path = "combustion_ecs")]
                                         "path" => {
                                             if let &syn::Lit::Str(ref s, _) = lit {
-                                                props.ecs_path = Some(syn::parse_path(s.as_str()).expect("Invalid Path"));
+                                                props.ecs_path = Some(syn::parse_path(s.as_str())?);
                                             }
                                         }
                                         _ => {}
@@ -86,9 +77,9 @@ pub fn impl_derive(ast: &syn::MacroInput) -> quote::Tokens {
         storage_path.global = ecs_path.global;
     }
 
-    quote! {
+    Ok(quote! {
         impl #component_path for #name {
             type Storage = #storage_path<#name>;
         }
-    }
+    })
 }

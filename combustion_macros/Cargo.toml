@@ -4,6 +4,7 @@ name = "combustion_macros"
 version = "0.1.0"
 
 [dependencies]
+matches = "0.1.4"
 quote = "0.3.10"
 
 [dependencies.syn]
