@@ -1,3 +1,5 @@
+#![feature(proc_macro)]
+
 extern crate ogg;
 extern crate lewton;
 extern crate openal as al;
@@ -8,5 +10,7 @@ extern crate combustion_common as common;
 extern crate combustion_asset as asset;
 #[macro_use]
 extern crate combustion_ecs as ecs;
+#[macro_use]
+extern crate combustion_macros;
 
 pub mod components;

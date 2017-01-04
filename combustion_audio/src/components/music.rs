@@ -1,7 +1,2 @@
-use ecs;
-
+#[derive(Component)]
 pub struct Component;
-
-impl ecs::Component for Component {
-    type Storage = ecs::VecStorage<Component>;
-}
