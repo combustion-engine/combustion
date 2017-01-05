@@ -19,7 +19,7 @@ path = "../deps/capnpc-rust"
 path = "../combustion_common"
 
 [dependencies]
-capnp = "0.7.5"
+capnp = "0.8"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 serde = "0.8.19"
