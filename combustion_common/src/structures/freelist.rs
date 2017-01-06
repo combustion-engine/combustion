@@ -1,25 +1,58 @@
+//! Freelist data structure
+//!
+//! A Freelist is a combination of a `VecMap` and `Vec`. Elements are stored in the `VecMap`,
+//! and empty elements are stored in the `Vec`.
+//!
+//! This structure is useful because the indexes returned by `.add` are not invalidated when other elements are added or removed,
+//! because nothing is reordered.
+//!
+//! When an element is removed, its index is placed in the `Vec`, the "freelist". Then when another element is added,
+//! the freelist is checked and it just pops off an index and inserts the new element in the spot of an old entry.
+use std::ops::{Index, IndexMut};
 use vec_map::{VecMap, Keys, Iter, IterMut};
 
-pub struct FreelistVecMap<T> {
+/// Freelist data structure as described above.
+///
+/// Elements can be added by called `.add`, which then returns the index in which it can be accessed from.
+#[derive(PartialEq, Eq, Clone)]
+pub struct Freelist<T> {
     freelist: Vec<usize>,
     map: VecMap<T>,
 }
 
-impl<T> Default for FreelistVecMap<T> {
+impl<T> Default for Freelist<T> {
     #[inline(always)]
-    fn default() -> FreelistVecMap<T> { FreelistVecMap::new() }
+    fn default() -> Freelist<T> {
+        Freelist::new()
+    }
 }
 
-impl<T> FreelistVecMap<T> {
-    pub fn new() -> FreelistVecMap<T> {
-        FreelistVecMap {
+impl<T> Index<usize> for Freelist<T> {
+    type Output = T;
+
+    #[inline]
+    fn index(&self, index: usize) -> &T {
+        self.get(index).expect("no entry found for key")
+    }
+}
+
+impl<T> IndexMut<usize> for Freelist<T> {
+    #[inline]
+    fn index_mut(&mut self, index: usize) -> &mut T {
+        self.get_mut(index).expect("no entry found for key")
+    }
+}
+
+impl<T> Freelist<T> {
+    pub fn new() -> Freelist<T> {
+        Freelist {
             freelist: Vec::new(),
             map: VecMap::new()
         }
     }
 
-    pub fn with_capacity(cap: usize) -> FreelistVecMap<T> {
-        FreelistVecMap {
+    pub fn with_capacity(cap: usize) -> Freelist<T> {
+        Freelist {
             freelist: Vec::with_capacity(cap),
             map: VecMap::with_capacity(cap)
         }
