@@ -1,5 +1,119 @@
-use std::fmt::Debug;
+use std::sync::Arc;
+use std::error::Error;
+use std::ops::Deref;
+use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
+
+use bt::{DefaultBacktraceFmt, LineBacktrace};
+
 use tinyfiledialogs::*;
+
+pub type TraceResult<T, E> = Result<T, Trace<E>>;
+
+/// Trace error that encapsulates a backtrace alongside an error value.
+///
+/// Trace itself does not implement `Error`, so they cannot be nested.
+#[derive(Debug)]
+pub struct Trace<E: Error> {
+    error: E,
+    backtrace: Arc<LineBacktrace>,
+}
+
+impl<E: Error> Trace<E> {
+    /// Creates a new `Trace` from the given error and backtrace
+    #[inline]
+    pub fn new(error: E, backtrace: Arc<LineBacktrace>) -> Trace<E> {
+        Trace { error: error, backtrace: backtrace }
+    }
+
+    /// Consume self and return the inner error value
+    #[inline]
+    pub fn into_error(self) -> E {
+        self.error
+    }
+
+    /// Get a reference to the inner backtrace
+    #[inline]
+    pub fn backtrace(&self) -> &LineBacktrace {
+        &*self.backtrace
+    }
+
+    /// Convert the inner error of type `E` into type `O`
+    #[inline]
+    pub fn convert<O: Error>(self) -> Trace<O> where O: From<E> {
+        Trace {
+            error: From::from(self.error),
+            backtrace: self.backtrace
+        }
+    }
+}
+
+impl<E: Error> Deref for Trace<E> {
+    type Target = E;
+
+    #[inline]
+    fn deref(&self) -> &E {
+        &self.error
+    }
+}
+
+impl<E: Error> Display for Trace<E> {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "{}\n{}", self.description(), self.backtrace.format::<DefaultBacktraceFmt>(true))
+    }
+}
+
+impl<E: Error> From<E> for Trace<E> {
+    fn from(err: E) -> Trace<E> {
+        Trace {
+            error: err,
+            backtrace: Arc::new(LineBacktrace::new(line!(), file!()))
+        }
+    }
+}
+
+/// Creates a new `Result::Err(Trace<E>)` and immediately returns it
+#[macro_export]
+macro_rules! throw {
+    ($err:expr) => {
+        return ::std::result::Result::Err($crate::error::Trace::new(
+            ::std::convert::From::from($err),
+            ::std::sync::Arc::new($crate::bt::LineBacktrace::new(line!(), file!()))
+        ))
+    }
+}
+
+/// Like `try!`, but invokes `throw!` on the error value if it exists, converting it to `Result::Err(Trace<E>)`
+///
+/// Note that the backtrace will only go as far as the location this macro was invoked
+///
+/// This macro will try to call `From::from` on the error to convert it if necessary, just like `try!`
+#[macro_export]
+macro_rules! try_throw {
+    ($res:expr) => (match $res {
+        ::std::result::Result::Ok(val) => val,
+        ::std::result::Result::Err(err) => { throw!(err) }
+    })
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub fn _assert_traceable_result<T, E: Error>(res: TraceResult<T, E>) -> TraceResult<T, E> {
+    res
+}
+
+/// Like `try_throw!`, but designed for expression that are `TraceResult`s already,
+/// as it keeps the previous trace.
+///
+/// This macro will try to call `From::from` on the error to convert it if necessary, just like `try!`
+#[macro_export]
+macro_rules! try_rethrow {
+    ($res:expr) => (match $crate::error::_assert_traceable_result($res) {
+        ::std::result::Result::Ok(val) => val,
+        ::std::result::Result::Err(traceable_err) => {
+            return ::std::result::Result::Err(traceable_err.convert())
+        }
+    })
+}
 
 #[inline(never)]
 #[cold]
