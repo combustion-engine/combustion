@@ -3,7 +3,7 @@ use std::error::Error;
 use std::ops::Deref;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
-use bt::{DefaultBacktraceFmt, LineBacktrace};
+use backtrace::{DefaultBacktraceFmt, LineBacktrace};
 
 use tinyfiledialogs::*;
 
@@ -77,7 +77,7 @@ macro_rules! throw {
     ($err:expr) => {
         return ::std::result::Result::Err($crate::error::Trace::new(
             ::std::convert::From::from($err),
-            ::std::sync::Arc::new($crate::bt::LineBacktrace::new(line!(), file!()))
+            ::std::sync::Arc::new($crate::backtrace::LineBacktrace::new(line!(), file!()))
         ))
     }
 }

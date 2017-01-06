@@ -21,7 +21,7 @@ extern crate time;
 extern crate chrono;
 extern crate statrs;
 extern crate void;
-extern crate backtrace;
+extern crate backtrace as bt;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -35,6 +35,6 @@ pub mod preprocessor;
 pub mod utils;
 pub mod structures;
 pub mod log;
-pub mod bt;
+pub mod backtrace;
 pub mod error;
 pub mod color;

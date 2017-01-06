@@ -4,7 +4,7 @@ use std::path::Path;
 use std::thread;
 use std::mem;
 
-use backtrace::*;
+use bt::*;
 
 pub trait BacktraceFmt {
     /// Formats backtrace symbol components in some way
@@ -174,11 +174,11 @@ impl From<Backtrace> for LineBacktrace {
 #[macro_export]
 macro_rules! backtrace {
     () => {
-        backtrace!($crate::bt::DefaultBacktraceFmt)
+        backtrace!($crate::backtrace::DefaultBacktraceFmt)
     };
 
     ($fmt:ty) => {
-        $crate::bt::format_trace::<$fmt>(true, line!(), file!())
+        $crate::backtrace::format_trace::<$fmt>(true, line!(), file!())
     };
 }
 
@@ -186,18 +186,18 @@ macro_rules! backtrace {
 #[macro_export]
 macro_rules! backtrace_noheader {
     () => {
-        backtrace_noheader!($crate::bt::DefaultBacktraceFmt)
+        backtrace_noheader!($crate::backtrace::DefaultBacktraceFmt)
     };
 
     ($fmt:ty) => {
-        $crate::bt::format_trace::<$fmt>(false, line!(), file!())
+        $crate::backtrace::format_trace::<$fmt>(false, line!(), file!())
     };
 }
 
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_bt() {
+    fn test_backtrace() {
         println!("{}", backtrace!());
     }
 }
