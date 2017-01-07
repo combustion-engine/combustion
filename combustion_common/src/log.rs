@@ -1,3 +1,5 @@
+//! Logging utils
+
 use std::path::{Path, PathBuf};
 use std::io;
 use std::io::prelude::*;
@@ -13,6 +15,7 @@ use chrono;
 
 pub use slog_scope::logger;
 
+/// Create a new logger
 pub fn new_logger<P: AsRef<Path>>(path: P) -> io::Result<slog::Logger> {
     let mut dir: PathBuf = path.as_ref().to_path_buf();
 
@@ -31,6 +34,7 @@ pub fn new_logger<P: AsRef<Path>>(path: P) -> io::Result<slog::Logger> {
     Ok(logger)
 }
 
+/// Create a new logger and set it as the global logger
 pub fn init_global_logger<P: AsRef<Path>>(path: P) -> io::Result<()> {
     let logger = try!(new_logger(path));
 

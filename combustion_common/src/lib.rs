@@ -1,4 +1,4 @@
-#![feature(macro_reexport, proc_macro)]
+#![feature(macro_reexport)]
 
 extern crate regex;
 extern crate vec_map;

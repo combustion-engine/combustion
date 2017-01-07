@@ -1,3 +1,8 @@
+//! Error utilities
+//!
+//! `Trace` and `TraceResult` should usually be used in place of `Result` using the macros
+//! `throw!`, `try_throw!`, and `try_rethrow!`
+
 use std::sync::Arc;
 use std::error::Error;
 use std::ops::Deref;

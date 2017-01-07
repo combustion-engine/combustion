@@ -1,3 +1,5 @@
+//! Compressed memory and other compression utils
+
 use std::io::prelude::*;
 use std::io;
 
@@ -142,7 +144,6 @@ impl CompressedMemory {
 mod test {
     use super::*;
     use std::io;
-    use std::iter::repeat;
     use rand::*;
 
     #[test]

@@ -1,3 +1,5 @@
+//! Source preprocessing
+
 //TODO: Rewrite this whole thing with flexibility in mind, such as code reuse, defines, include directories, and so forth.
 
 use std::fs::File;

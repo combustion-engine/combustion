@@ -1,3 +1,5 @@
+//! Backtrace utilities
+
 use std::os::raw::c_void;
 use std::fmt::{Debug, Formatter, Result as FmtResult};
 use std::path::Path;
@@ -6,6 +8,7 @@ use std::mem;
 
 use bt::*;
 
+/// Trait to define formats for backtraces
 pub trait BacktraceFmt {
     /// Formats backtrace symbol components in some way
     fn format(count: u32, name: Option<SymbolName>, addr: Option<*mut c_void>, filename: Option<&Path>, lineno: Option<u32>) -> String;
@@ -28,12 +31,10 @@ impl BacktraceFmt for DefaultBacktraceFmt {
             } else {
                 format!("at {}\n", filename.display())
             }
+        } else if let Some(lineno) = lineno {
+            format!("at <anonymous>:{}\n", lineno)
         } else {
-            if let Some(lineno) = lineno {
-                format!("at <anonymous>:{}\n", lineno)
-            } else {
-                format!("at <anonymous>\n")
-            }
+            format!("at <anonymous>\n")
         };
 
         begin + end.as_str()

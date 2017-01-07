@@ -46,7 +46,7 @@ pub struct Color {
     #[serde(skip_serializing_if = "is_zero")]
     #[serde(default = "Zero::zero")]
     pub b: f32,
-    /// Alpha component
+    /// Alpha (transparency) component
     #[serde(skip_serializing_if = "is_one")]
     #[serde(default = "One::one")]
     pub a: f32
@@ -65,10 +65,14 @@ impl Color {
         Color::new(rgba.0, rgba.1, rgba.2, rgba.3)
     }
 
+    /// Create a new color from its name.
+    ///
+    /// They are taken from the [SVG keyword colors](https://www.w3.org/TR/SVG/types.html#ColorKeywords) (same as in CSS3)
     pub fn from_name(name: &str) -> Option<Color> {
         from_str(name).map(Into::into)
     }
 
+    /// Same as `from_name`, but returns `Color::none()` if the name wasn't found
     pub fn from_name_or_none(name: &str) -> Color {
         Color::from_name(name).unwrap_or_else(Color::none)
     }
@@ -94,6 +98,7 @@ impl Color {
     #[inline(always)]
     pub fn is_opaque(&self) -> bool { is_one(&self.a) }
 
+    /// Returns true if all the components add up to near-zero
     pub fn is_none(&self) -> bool {
         (self.r + self.g + self.b + self.a) <= EPSILON
     }
@@ -205,6 +210,7 @@ impl_from_pixel!([f32; 3]);
 impl_from_pixel!([u8;  3]);
 
 pub mod de {
+    //! Custom deserialization for colors, allowing them to be deserialized by name or RGBA values
     use serde::de::{self, Deserialize, Deserializer};
     use void::Void;
     use std::str::FromStr;
