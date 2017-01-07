@@ -1,8 +1,7 @@
 //! Inner protocol components
+use std::str::FromStr;
 
 use phf;
-
-use common::error::*;
 
 include!(concat!(env!("OUT_DIR"), "/protocols/texture_capnp.rs"));
 
@@ -23,12 +22,16 @@ pub static BLOCKSIZES: phf::Map<&'static str, BlockSize> = phf_map! {
     "12x12" => BlockSize::B12x12, "b12x12" => BlockSize::B12x12, "B12x12" => BlockSize::B12x12,
 };
 
-impl BlockSize {
-    /// Accepts strings in the form `4x4`, `b4x4`, or `B4x4`
-    pub fn from_str(s: &str) -> BlockSize {
-        BLOCKSIZES.get(s).expect_logged("Invalid BlockSize").clone()
-    }
+impl FromStr for BlockSize {
+    type Err = &'static str;
 
+    /// Accepts strings in the form `4x4`, `b4x4`, or `B4x4`
+    fn from_str(s: &str) -> Result<BlockSize, Self::Err> {
+        BLOCKSIZES.get(s).cloned().ok_or("Invalid BlockSize")
+    }
+}
+
+impl BlockSize {
     /// Convert symbolic blocksize to `&'static str`
     ///
     /// E.g. `BlockSize::B4x4.to_str() == "4x4"`
