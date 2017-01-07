@@ -93,35 +93,35 @@ impl ::std::fmt::Debug for Which {
         use self::protocol::*;
 
         write!(f, "{}", match *self {
-            Which::None(ref uncompressed) => {
+            Which::None(uncompressed) => {
                 match uncompressed {
-                    &Raw::R => "Luma (Red) No",
-                    &Raw::Rg => "Luma + Alpha (Red-Green) No",
-                    &Raw::Rgb => "RGB No",
-                    &Raw::Rgba => "RGBA No",
+                    Raw::R => "Luma (Red) No",
+                    Raw::Rg => "Luma + Alpha (Red-Green) No",
+                    Raw::Rgb => "RGB No",
+                    Raw::Rgba => "RGBA No",
                 }
             },
-            Which::Rgtc(ref rgtc) => {
+            Which::Rgtc(rgtc) => {
                 match rgtc {
-                    &Rgtc::Red => "Red (Red-Green) Unsigned",
-                    &Rgtc::RedSigned => "Red (Red-Green) Signed",
-                    &Rgtc::Rg => "Red-Green Unsigned",
-                    &Rgtc::RgSigned => "Red-Green Signed",
+                    Rgtc::Red => "Red (Red-Green) Unsigned",
+                    Rgtc::RedSigned => "Red (Red-Green) Signed",
+                    Rgtc::Rg => "Red-Green Unsigned",
+                    Rgtc::RgSigned => "Red-Green Signed",
                 }
             },
-            Which::Bptc(ref bptc) => {
+            Which::Bptc(bptc) => {
                 match bptc {
-                    &Bptc::Rgba => "BPTC RGBA",
-                    &Bptc::RgbFloatSigned => "BPTC RGB Float Signed",
-                    &Bptc::RgbFloatUnsigned => "BPTC RGB Float Unsigned",
+                    Bptc::Rgba => "BPTC RGBA",
+                    Bptc::RgbFloatSigned => "BPTC RGB Float Signed",
+                    Bptc::RgbFloatUnsigned => "BPTC RGB Float Unsigned",
                 }
             },
-            Which::S3tc(ref s3tc) => {
+            Which::S3tc(s3tc) => {
                 match s3tc {
-                    &S3tc::Rgb1 => "S3TC DXT1 RGB",
-                    &S3tc::Rgba1 => "S3TC DXT1 RGBA",
-                    &S3tc::Rgba3 => "S3TC DXT3 RGBA",
-                    &S3tc::Rgba5 => "S3TC DXT5 RGBA"
+                    S3tc::Rgb1 => "S3TC DXT1 RGB",
+                    S3tc::Rgba1 => "S3TC DXT1 RGBA",
+                    S3tc::Rgba3 => "S3TC DXT3 RGBA",
+                    S3tc::Rgba5 => "S3TC DXT5 RGBA"
                 }
             },
             Which::Astc(_) => "ASTC"
@@ -141,22 +141,22 @@ impl Which {
         use self::protocol::*;
 
         match *self {
-            Which::None(ref raw) => raw.clone().into(),
-            Which::Rgtc(ref rgtc) => {
+            Which::None(raw) => raw.into(),
+            Which::Rgtc(rgtc) => {
                 match rgtc {
-                    &Rgtc::Red | &Rgtc::RedSigned => Channels::R,
-                    &Rgtc::Rg | &Rgtc::RgSigned => Channels::Rg,
+                    Rgtc::Red | Rgtc::RedSigned => Channels::R,
+                    Rgtc::Rg | Rgtc::RgSigned => Channels::Rg,
                 }
             },
-            Which::Bptc(ref bptc) => {
+            Which::Bptc(bptc) => {
                 match bptc {
-                    &Bptc::Rgba => Channels::Rgba,
+                    Bptc::Rgba => Channels::Rgba,
                     _ => Channels::Rgb,
                 }
             },
-            Which::S3tc(ref s3tc) => {
+            Which::S3tc(s3tc) => {
                 match s3tc {
-                    &S3tc::Rgb1 => Channels::Rgb,
+                    S3tc::Rgb1 => Channels::Rgb,
                     _ => Channels::Rgba
                 }
             },
@@ -169,15 +169,15 @@ impl Which {
         use self::protocol::*;
 
         match *self {
-            Which::Rgtc(ref rgtc) => {
+            Which::Rgtc(rgtc) => {
                 match rgtc {
-                    &Rgtc::RedSigned | &Rgtc::RgSigned => true,
+                    Rgtc::RedSigned | Rgtc::RgSigned => true,
                     _ => false
                 }
             },
-            Which::Bptc(ref bptc) => {
+            Which::Bptc(bptc) => {
                 match bptc {
-                    &Bptc::RgbFloatSigned => true,
+                    Bptc::RgbFloatSigned => true,
                     _ => false
                 }
             },
@@ -190,9 +190,9 @@ impl Which {
         use self::protocol::*;
 
         match *self {
-            Which::Bptc(ref bptc) => {
+            Which::Bptc(bptc) => {
                 match bptc {
-                    &Bptc::RgbFloatSigned | &Bptc::RgbFloatUnsigned => true,
+                    Bptc::RgbFloatSigned | Bptc::RgbFloatUnsigned => true,
                     _ => false,
                 }
             },
@@ -346,7 +346,7 @@ impl SpecificFormat {
             channels: self.which.channels(),
             srgb: self.srgb,
             blocksize: match self.which {
-                Which::Astc(blocksize) => Some(blocksize.clone()),
+                Which::Astc(blocksize) => Some(blocksize),
                 _ => None
             },
             signed: self.which.signed(),

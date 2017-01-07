@@ -118,82 +118,82 @@ impl GLCompressedSpecificFormats for SpecificFormat {
         use super::protocol::*;
 
         match self.which {
-            Which::None(ref raw) => {
+            Which::None(raw) => {
                 match raw {
-                    &Raw::R => glb::R8,
-                    &Raw::Rg => glb::RG8,
-                    &Raw::Rgb => glb::RGB8,
-                    &Raw::Rgba => glb::RGBA8,
+                    Raw::R => glb::R8,
+                    Raw::Rg => glb::RG8,
+                    Raw::Rgb => glb::RGB8,
+                    Raw::Rgba => glb::RGBA8,
                 }
             }
-            Which::Rgtc(ref rgtc) => {
+            Which::Rgtc(rgtc) => {
                 match rgtc {
-                    &Rgtc::Red => glb::COMPRESSED_RED_RGTC1,
-                    &Rgtc::RedSigned => glb::COMPRESSED_SIGNED_RED_RGTC1,
-                    &Rgtc::Rg => glb::COMPRESSED_RG_RGTC2,
-                    &Rgtc::RgSigned => glb::COMPRESSED_SIGNED_RG_RGTC2,
+                    Rgtc::Red => glb::COMPRESSED_RED_RGTC1,
+                    Rgtc::RedSigned => glb::COMPRESSED_SIGNED_RED_RGTC1,
+                    Rgtc::Rg => glb::COMPRESSED_RG_RGTC2,
+                    Rgtc::RgSigned => glb::COMPRESSED_SIGNED_RG_RGTC2,
                 }
             }
-            Which::Bptc(ref bptc) => {
+            Which::Bptc(bptc) => {
                 match bptc {
-                    &Bptc::Rgba => {
+                    Bptc::Rgba => {
                         if self.srgb { glb::COMPRESSED_SRGB_ALPHA_BPTC_UNORM } else { glb::COMPRESSED_RGBA_BPTC_UNORM }
                     }
-                    &Bptc::RgbFloatSigned => glb::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
-                    &Bptc::RgbFloatUnsigned => glb::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
+                    Bptc::RgbFloatSigned => glb::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
+                    Bptc::RgbFloatUnsigned => glb::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
                 }
             }
-            Which::S3tc(ref s3tc) => {
+            Which::S3tc(s3tc) => {
                 if self.srgb {
                     match s3tc {
-                        &S3tc::Rgb1 => glb::COMPRESSED_SRGB_S3TC_DXT1_EXT,
-                        &S3tc::Rgba1 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-                        &S3tc::Rgba3 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-                        &S3tc::Rgba5 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+                        S3tc::Rgb1 => glb::COMPRESSED_SRGB_S3TC_DXT1_EXT,
+                        S3tc::Rgba1 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+                        S3tc::Rgba3 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+                        S3tc::Rgba5 => glb::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
                     }
                 } else {
                     match s3tc {
-                        &S3tc::Rgb1 => glb::COMPRESSED_RGB_S3TC_DXT1_EXT,
-                        &S3tc::Rgba1 => glb::COMPRESSED_RGBA_S3TC_DXT1_EXT,
-                        &S3tc::Rgba3 => glb::COMPRESSED_RGBA_S3TC_DXT3_EXT,
-                        &S3tc::Rgba5 => glb::COMPRESSED_RGBA_S3TC_DXT5_EXT,
+                        S3tc::Rgb1 => glb::COMPRESSED_RGB_S3TC_DXT1_EXT,
+                        S3tc::Rgba1 => glb::COMPRESSED_RGBA_S3TC_DXT1_EXT,
+                        S3tc::Rgba3 => glb::COMPRESSED_RGBA_S3TC_DXT3_EXT,
+                        S3tc::Rgba5 => glb::COMPRESSED_RGBA_S3TC_DXT5_EXT,
                     }
                 }
             }
-            Which::Astc(ref blocksize) => {
+            Which::Astc(blocksize) => {
                 if self.srgb {
                     match blocksize {
-                        &BlockSize::B4x4 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
-                        &BlockSize::B5x4 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
-                        &BlockSize::B5x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
-                        &BlockSize::B6x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
-                        &BlockSize::B6x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
-                        &BlockSize::B8x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
-                        &BlockSize::B8x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
-                        &BlockSize::B10x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
-                        &BlockSize::B10x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
-                        &BlockSize::B8x8 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
-                        &BlockSize::B10x8 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
-                        &BlockSize::B10x10 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
-                        &BlockSize::B12x10 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
-                        &BlockSize::B12x12 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
+                        BlockSize::B4x4 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
+                        BlockSize::B5x4 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
+                        BlockSize::B5x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
+                        BlockSize::B6x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
+                        BlockSize::B6x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
+                        BlockSize::B8x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
+                        BlockSize::B8x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
+                        BlockSize::B10x5 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
+                        BlockSize::B10x6 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
+                        BlockSize::B8x8 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
+                        BlockSize::B10x8 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
+                        BlockSize::B10x10 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
+                        BlockSize::B12x10 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
+                        BlockSize::B12x12 => glb::COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
                     }
                 } else {
                     match blocksize {
-                        &BlockSize::B4x4 => glb::COMPRESSED_RGBA_ASTC_4x4_KHR,
-                        &BlockSize::B5x4 => glb::COMPRESSED_RGBA_ASTC_5x4_KHR,
-                        &BlockSize::B5x5 => glb::COMPRESSED_RGBA_ASTC_5x5_KHR,
-                        &BlockSize::B6x5 => glb::COMPRESSED_RGBA_ASTC_6x5_KHR,
-                        &BlockSize::B6x6 => glb::COMPRESSED_RGBA_ASTC_6x6_KHR,
-                        &BlockSize::B8x5 => glb::COMPRESSED_RGBA_ASTC_8x5_KHR,
-                        &BlockSize::B8x6 => glb::COMPRESSED_RGBA_ASTC_8x6_KHR,
-                        &BlockSize::B10x5 => glb::COMPRESSED_RGBA_ASTC_10x5_KHR,
-                        &BlockSize::B10x6 => glb::COMPRESSED_RGBA_ASTC_10x6_KHR,
-                        &BlockSize::B8x8 => glb::COMPRESSED_RGBA_ASTC_8x8_KHR,
-                        &BlockSize::B10x8 => glb::COMPRESSED_RGBA_ASTC_10x8_KHR,
-                        &BlockSize::B10x10 => glb::COMPRESSED_RGBA_ASTC_10x10_KHR,
-                        &BlockSize::B12x10 => glb::COMPRESSED_RGBA_ASTC_12x10_KHR,
-                        &BlockSize::B12x12 => glb::COMPRESSED_RGBA_ASTC_12x12_KHR,
+                        BlockSize::B4x4 => glb::COMPRESSED_RGBA_ASTC_4x4_KHR,
+                        BlockSize::B5x4 => glb::COMPRESSED_RGBA_ASTC_5x4_KHR,
+                        BlockSize::B5x5 => glb::COMPRESSED_RGBA_ASTC_5x5_KHR,
+                        BlockSize::B6x5 => glb::COMPRESSED_RGBA_ASTC_6x5_KHR,
+                        BlockSize::B6x6 => glb::COMPRESSED_RGBA_ASTC_6x6_KHR,
+                        BlockSize::B8x5 => glb::COMPRESSED_RGBA_ASTC_8x5_KHR,
+                        BlockSize::B8x6 => glb::COMPRESSED_RGBA_ASTC_8x6_KHR,
+                        BlockSize::B10x5 => glb::COMPRESSED_RGBA_ASTC_10x5_KHR,
+                        BlockSize::B10x6 => glb::COMPRESSED_RGBA_ASTC_10x6_KHR,
+                        BlockSize::B8x8 => glb::COMPRESSED_RGBA_ASTC_8x8_KHR,
+                        BlockSize::B10x8 => glb::COMPRESSED_RGBA_ASTC_10x8_KHR,
+                        BlockSize::B10x10 => glb::COMPRESSED_RGBA_ASTC_10x10_KHR,
+                        BlockSize::B12x10 => glb::COMPRESSED_RGBA_ASTC_12x10_KHR,
+                        BlockSize::B12x12 => glb::COMPRESSED_RGBA_ASTC_12x12_KHR,
                     }
                 }
             }
