@@ -4,15 +4,3 @@ members = [
 	"tools/texture_compressor", "tools/texture_viewer", "tools/model_converter", "tools/material_viewer",
 	"deps/tinyfiledialogs", "deps/lz4-rs", "deps/assimp-sys", "deps/assimp-rs", "deps/lazy", "deps/luajit-sys", "deps/luajit-rs", "deps/squirrel-sys", "deps/squirrel-rs","deps/nalgebra", "deps/capnpc-rust", "deps/openalsoft-rs", "deps/openalsoft-sys"
 ]
-
-[profile.release]
-opt-level = 3
-debug = false
-lto = true
-debug-assertions = false
-
-[profile.bench]
-opt-level = 3
-debug = false
-lto = true
-debug-assertions = false
