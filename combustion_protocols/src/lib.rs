@@ -1,6 +1,6 @@
-#![feature(plugin, proc_macro, conservative_impl_trait)]
+#![feature(plugin, conservative_impl_trait)]
 #![plugin(phf_macros)]
-#![allow(dead_code)]
+#![allow(dead_code, unknown_lints, inline_always)]
 
 extern crate capnp;
 extern crate capnpc;
