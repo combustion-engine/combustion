@@ -1,5 +1,3 @@
-#![feature(proc_macro)]
-
 extern crate ogg;
 extern crate lewton;
 extern crate openal as al;
