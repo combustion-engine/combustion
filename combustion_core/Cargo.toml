@@ -4,6 +4,16 @@ authors = ["novacrazy <novacrazy@gmail.com>"]
 include = ["Cargo.toml", "src/**/*.rs"]
 version = "0.1.0"
 
+[lib]
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = false
+debug-assertions = false
+
 [dependencies.combustion_backend]
 path = "../combustion_backend"
 

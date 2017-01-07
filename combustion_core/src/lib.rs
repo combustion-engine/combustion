@@ -1,7 +1,6 @@
 #![allow(unused_imports, dead_code)]
 #![allow(unknown_lints, inline_always, toplevel_ref_arg)]
-#![feature(proc_macro, specialization)]
-#![crate_type = "bin"]
+#![feature(specialization)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -16,16 +15,16 @@ extern crate vec_map;
 extern crate lazy;
 
 #[macro_use]
-extern crate combustion_common as common;
+pub extern crate combustion_common as common;
 
 #[macro_use]
-extern crate combustion_backend as backend;
+pub extern crate combustion_backend as backend;
 
 #[macro_use]
-extern crate combustion_protocols as protocols;
-extern crate combustion_asset as asset;
-extern crate combustion_events as events;
-extern crate combustion_ecs as ecs;
+pub extern crate combustion_protocols as protocols;
+pub extern crate combustion_asset as asset;
+pub extern crate combustion_events as events;
+pub extern crate combustion_ecs as ecs;
 
 pub mod error;
 

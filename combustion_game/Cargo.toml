@@ -4,29 +4,21 @@ authors = ["novacrazy <novacrazy@gmail.com>"]
 include = ["Cargo.toml", "src/**/*.rs"]
 version = "0.1.0"
 
-[dependencies.combustion_backend]
-path = "../combustion_backend"
+[[bin]]
+name = "test"
+path = "src/bin/test.rs"
 
-[dependencies.combustion_common]
-path = "../combustion_common"
+[profile.release]
+opt-level = 3
+debug = false
+lto = false
+debug-assertions = false
 
-[dependencies.combustion_protocols]
-path = "../combustion_protocols"
-
-[dependencies.combustion_asset]
-path = "../combustion_asset"
+[dependencies.combustion_macros]
+path = "../combustion_macros"
 
 [dependencies.combustion_core]
 path = "../combustion_core"
-
-[dependencies.combustion_ecs]
-path = "../combustion_ecs"
-
-[dependencies.combustion_events]
-path = "../combustion_events"
-
-[dependencies.combustion_audio]
-path = "../combustion_audio"
 
 [dependencies]
 chrono = "0.2.25"
