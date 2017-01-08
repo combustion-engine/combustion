@@ -1,6 +1,8 @@
 [package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_gui"
 version = "0.1.0"
-authors = ["Aaron Trent <novacrazy@gmail.com>"]
 
-[dependencies]
+# [dependencies.gtk]
+# git = "https://github.com/gtk-rs/gtk.git"
+# features = ["v3_22", "embed-lgpl-docs"]
