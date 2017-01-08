@@ -41,7 +41,7 @@ impl SystemBuilder {
                     *weight = Some(constructor);
                 } else {
                     // If for some really weird reason the system existed in the node_table but not in the graph, complain about it.
-                    return Err(SystemError::DuplicateSystem(occupied_entry.key().clone()));
+                    throw!(SystemError::DuplicateSystem(occupied_entry.key().clone()));
                 }
 
                 node
@@ -58,7 +58,7 @@ impl SystemBuilder {
     }
 
     pub fn add_system<S: Into<String>>(&mut self, name: S, constructor: SystemConstructor) -> SystemResult<NodeIndex<usize>> {
-        let node = self.add_system_impl(name.into(), constructor)?;
+        let node = try_rethrow!(self.add_system_impl(name.into(), constructor));
 
         // Connect a system with zero dependencies to the root node
         self.graph.add_edge(self.root, node, ());
@@ -67,7 +67,7 @@ impl SystemBuilder {
     }
 
     pub fn add_system_with_deps<S: Into<String>, D: IntoIterator<Item = String>>(&mut self, name: S, constructor: SystemConstructor, deps: D) -> SystemResult<NodeIndex<usize>> {
-        let node = self.add_system_impl(name.into(), constructor)?;
+        let node = try_rethrow!(self.add_system_impl(name.into(), constructor));
 
         for dep in deps.into_iter() {
             let dep_node = match self.node_table.entry(dep) {
@@ -75,7 +75,7 @@ impl SystemBuilder {
                     let dep_name = vacant_entry.key().clone();
 
                     let dep_node = self.graph.add_node(Some(box move |_, _| {
-                        Err(SystemError::MissingDependentSystem(dep_name.clone()))
+                        throw!(SystemError::MissingDependentSystem(dep_name.clone()))
                     }));
 
                     self.graph.add_edge(self.root, dep_node, ());
@@ -88,7 +88,7 @@ impl SystemBuilder {
                     let dep_node = occupied_entry.get().clone();
 
                     if has_path_connecting(&self.graph, dep_node, node, Some(&mut self.cycle_state)) {
-                        return Err(SystemError::WouldCycle);
+                        throw!(SystemError::WouldCycle);
                     }
 
                     dep_node
@@ -109,7 +109,7 @@ impl SystemBuilder {
 
         while let Some(node) = dfs.next(&self.graph) {
             if let &mut Some(ref mut cb) = self.graph.node_weight_mut(node).unwrap() {
-                cb(planner, priority)?;
+                try_rethrow!(cb(planner, priority));
 
                 priority -= 1;
             }
@@ -124,21 +124,21 @@ pub mod test {
     use super::*;
     use ::Planner;
 
+    macro_rules! dummy {
+        ($name:expr) => {box |_, p| {
+            println!("Name: {} {}", $name, p);
+
+            Ok(())
+        }}
+    }
+
+    macro_rules! deps {
+        [$($dep:expr),*] => {[$($dep),*].iter().map(|s| s.to_string())}
+    }
+
     #[test]
     fn basic() {
         let mut builder = SystemBuilder::new();
-
-        macro_rules! dummy {
-            ($name:expr) => {box |_, p| {
-                println!("Name: {} {}", $name, p);
-
-                Ok(())
-            }}
-        }
-
-        macro_rules! deps {
-            [$($dep:expr),*] => {[$($dep),*].iter().map(|s| s.to_string())}
-        }
 
         builder.add_system("test", dummy!("test")).unwrap();
         builder.add_system("testing", dummy!("testing")).unwrap();
@@ -153,9 +153,21 @@ pub mod test {
         builder.add_system_with_deps("test8", dummy!("test8"), deps!["test7"]).unwrap();
         builder.add_system_with_deps("test9", dummy!("test9"), deps!["test8"]).unwrap();
 
-        let mut planner = {
-            Planner::new(specs::World::new(), 4)
-        };
+        let mut planner = Planner::new(specs::World::new(), 4);
+
+        builder.build(&mut planner).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_cycle() {
+        let mut builder = SystemBuilder::new();
+
+        builder.add_system_with_deps("test1", dummy!("test1"), deps!["test4"]).unwrap();
+        builder.add_system_with_deps("test4", dummy!("test4"), deps!["test1"]).unwrap();
+        builder.add_system_with_deps("test2", dummy!("test2"), deps!["test2"]).unwrap();
+
+        let mut planner = Planner::new(specs::World::new(), 4);
 
         builder.build(&mut planner).unwrap();
     }

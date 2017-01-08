@@ -1,7 +1,9 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-pub type SystemResult<T> = Result<T, SystemError>;
+use common::error::TraceResult;
+
+pub type SystemResult<T> = TraceResult<T, SystemError>;
 
 #[derive(Debug)]
 pub enum SystemError {
