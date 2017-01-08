@@ -5,45 +5,28 @@ use super::GLObject;
 use std::mem;
 use std::ptr;
 
-use super::gl_error::*;
-use super::gl_shader::*;
-use super::gl_renderbuffer::*;
+use super::error::*;
+use super::shader::*;
+use super::renderbuffer::*;
 
 #[derive(Eq, PartialEq)]
 pub struct GLFramebuffer(GLuint);
 
-impl GLObject for GLFramebuffer {
-    #[inline(always)]
-    fn raw(&self) -> GLuint { self.0 }
-
-    #[inline(always)]
-    fn into_raw(mut self) -> GLuint {
-        mem::replace(&mut self.0, 0)
-    }
-
-    #[inline(always)]
-    fn is_valid(&self) -> bool {
-        // This one is special since the value 0 is a valid framebuffer
-        TRUE == unsafe { IsFramebuffer(self.0) } || self.0 == 0
-    }
-
-    #[inline(always)]
-    fn check(&self) -> GLResult<()> {
-        if self.is_valid() { Ok(()) } else {
-            error!("Invalid GLFramebuffer");
-            Err(GLError::InvalidValue)
-        }
-    }
+#[inline(always)]
+fn is_default_framebuffer(framebuffer: &GLFramebuffer) -> bool {
+    framebuffer.0 == 0
 }
 
-//impl_simple_globject!(GLFramebuffer, IsFramebuffer, "GLFramebuffer");
+impl_simple_globject!(GLFramebuffer, IsFramebuffer, { is_default_framebuffer });
 
 lazy_static! {
     pub static ref DEFAULT_FRAMEBUFFER: GLFramebuffer = GLFramebuffer::default();
 }
 
 impl GLFramebuffer {
-    pub fn default() -> GLFramebuffer { GLFramebuffer(0) }
+    pub fn default() -> GLFramebuffer {
+        GLFramebuffer(0)
+    }
 
     pub fn new() -> GLResult<GLFramebuffer> {
         let mut framebuffer: GLuint = 0;
@@ -60,7 +43,7 @@ impl GLFramebuffer {
     }
 
     pub fn bind(&self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { BindFramebuffer(FRAMEBUFFER, self.0); }
 
@@ -70,13 +53,13 @@ impl GLFramebuffer {
     }
 
     pub fn is_complete(&self) -> GLResult<bool> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         Ok(FRAMEBUFFER_COMPLETE == unsafe { CheckFramebufferStatus(FRAMEBUFFER) })
     }
 
     pub fn renderbuffer(&mut self, renderbuffer: &GLRenderbuffer) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         unsafe {
             FramebufferRenderbuffer(FRAMEBUFFER,

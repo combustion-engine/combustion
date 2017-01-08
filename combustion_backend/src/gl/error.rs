@@ -10,7 +10,9 @@ use std::sync::atomic::{Ordering, AtomicBool, ATOMIC_BOOL_INIT};
 
 use image::ImageError;
 
-pub type GLResult<T> = Result<T, GLError>;
+use common::error::TraceResult;
+
+pub type GLResult<T> = TraceResult<T, GLError>;
 
 /// `GLError` represents all errors that could be encountered while handling OpenGL calls,
 /// including pointer errors, UTF-8 errors, and IO errors.
@@ -36,6 +38,9 @@ pub enum GLError {
     MissingScene,
     Unsupported,
     IncompleteFramebuffer,
+    PoisonError,
+    InvalidInstance,
+    AlreadyInitialized,
 }
 
 static mut CHECK_DISABLED: AtomicBool = ATOMIC_BOOL_INIT;
@@ -62,11 +67,11 @@ impl GLError {
     pub fn check() -> GLResult<()> {
         if unsafe { !CHECK_DISABLED.load(Ordering::SeqCst) } {
             //Get last error from OpenGL
-            let err = unsafe { GetError() };
+            let err_code = unsafe { GetError() };
 
             //If there was an error, match it to the known OpenGL error kinds
-            if err != NO_ERROR {
-                return Err(match err {
+            if err_code != NO_ERROR {
+                let err = match err_code {
                     INVALID_ENUM => GLError::InvalidEnum,
                     INVALID_VALUE => GLError::InvalidValue,
                     INVALID_OPERATION => GLError::InvalidOperation,
@@ -75,8 +80,10 @@ impl GLError {
                     OUT_OF_MEMORY => GLError::OutOfMemory,
                     INVALID_FRAMEBUFFER_OPERATION => GLError::InvalidFramebufferOperation,
                     CONTEXT_LOST => GLError::ContextLost,
-                    _ => GLError::UnknownError(err)
-                });
+                    _ => GLError::UnknownError(err_code)
+                };
+
+                throw!(err);
             }
         }
 
@@ -159,7 +166,10 @@ impl Error for GLError {
             GLError::MissingScene => "Missing scene",
             GLError::Image(ref err) => err.description(),
             GLError::Unsupported => "Unsupported",
-            GLError::IncompleteFramebuffer => "Incomplete Framebuffer"
+            GLError::IncompleteFramebuffer => "Incomplete Framebuffer",
+            GLError::PoisonError => "Poison Error",
+            GLError::InvalidInstance => "Invalid Instance",
+            GLError::AlreadyInitialized => "Already Initialized",
         }
     }
 }

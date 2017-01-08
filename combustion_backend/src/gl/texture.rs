@@ -8,8 +8,8 @@ use std::path::Path;
 
 use image::{self, DynamicImage, GenericImage};
 
-use super::gl_error::*;
-use super::gl_shader::*;
+use super::error::*;
+use super::shader::*;
 
 #[derive(Copy, Clone, Debug)]
 pub enum GLTextureFilter {
@@ -90,12 +90,12 @@ pub struct GLCubemapPaths<P: AsRef<Path> + Copy> {
 
 impl<P: AsRef<Path> + Copy> GLCubemapPaths<P> {
     pub fn load_into(&self, texture: &mut GLTexture) -> GLResult<()> {
-        try!(texture.load_from_file(self.right, Some(GLCubemapFace::Right)));
-        try!(texture.load_from_file(self.left, Some(GLCubemapFace::Left)));
-        try!(texture.load_from_file(self.top, Some(GLCubemapFace::Top)));
-        try!(texture.load_from_file(self.bottom, Some(GLCubemapFace::Bottom)));
-        try!(texture.load_from_file(self.back, Some(GLCubemapFace::Back)));
-        try!(texture.load_from_file(self.front, Some(GLCubemapFace::Front)));
+        try_rethrow!(texture.load_from_file(self.right, Some(GLCubemapFace::Right)));
+        try_rethrow!(texture.load_from_file(self.left, Some(GLCubemapFace::Left)));
+        try_rethrow!(texture.load_from_file(self.top, Some(GLCubemapFace::Top)));
+        try_rethrow!(texture.load_from_file(self.bottom, Some(GLCubemapFace::Bottom)));
+        try_rethrow!(texture.load_from_file(self.back, Some(GLCubemapFace::Back)));
+        try_rethrow!(texture.load_from_file(self.front, Some(GLCubemapFace::Front)));
 
         Ok(())
     }
@@ -151,7 +151,7 @@ impl GLTexture {
     pub fn internal_format(&self) -> Option<GLenum> { self.internal_format }
 
     pub fn bind(&self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { BindTexture(self.kind as GLenum, self.handle); }
 
@@ -167,7 +167,7 @@ impl GLTexture {
     pub fn load_empty(&mut self, width: usize, height: usize,
                       format: GLenum,
                       internal_format: GLenum) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         let dims = self.kind.dimensions();
 
@@ -194,11 +194,11 @@ impl GLTexture {
     }
 
     pub fn load_from_file<P: AsRef<Path>>(&mut self, path: P, face: Option<GLCubemapFace>) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
-        let texture: DynamicImage = try!(image::open(path));
+        let texture: DynamicImage = try_throw!(image::open(path));
 
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         let (width, height) = texture.dimensions();
 
@@ -269,7 +269,7 @@ impl GLTexture {
     }
 
     pub fn generate_mipmap(&mut self) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         unsafe { GenerateMipmap(self.kind as GLenum); }
 
@@ -279,7 +279,7 @@ impl GLTexture {
     }
 
     pub fn get_max_anisotropy(&mut self) -> GLResult<f32> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         let mut max_anisoptopy: GLfloat = 0.0;
 
@@ -291,7 +291,7 @@ impl GLTexture {
     }
 
     pub fn set_anisotropy(&mut self, value: f32) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         unsafe { TexParameterf(self.kind as GLenum, TEXTURE_MAX_ANISOTROPY_EXT, value); }
 
@@ -301,7 +301,7 @@ impl GLTexture {
     }
 
     pub fn set_filter(&mut self, filter: GLTextureFilter, mipmap: Option<GLTextureFilter>) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         let min_filter;
         let mag_filter;
@@ -339,14 +339,14 @@ impl GLTexture {
 
     pub fn set_wrap(&mut self, mode: GLTextureWrap) -> GLResult<()> {
         for dim in 0..self.kind.dimensions() {
-            try!(self.set_wrap_dim(mode, dim));
+            try_rethrow!(self.set_wrap_dim(mode, dim));
         }
 
         Ok(())
     }
 
     pub fn set_wrap_dim(&mut self, mode: GLTextureWrap, dim: usize) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         if dim < self.kind.dimensions() {
             unsafe {
@@ -362,7 +362,7 @@ impl GLTexture {
 
             Ok(())
         } else {
-            Err(GLError::InvalidValue)
+            throw!(GLError::InvalidValue)
         }
     }
 }

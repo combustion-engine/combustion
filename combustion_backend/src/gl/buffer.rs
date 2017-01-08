@@ -6,7 +6,7 @@ use std::mem;
 use std::ptr;
 use std::os::raw::c_void;
 
-use super::gl_error::*;
+use super::error::*;
 
 #[repr(u32)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -43,7 +43,7 @@ pub enum GLBufferUsage {
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct GLBuffer(GLuint, GLBufferTarget, usize);
 
-impl_simple_globject!(GLBuffer, IsBuffer, "GLBuffer");
+impl_simple_globject!(GLBuffer, IsBuffer);
 
 impl GLBuffer {
     /// Create a new empty OpenGL Buffer and bind it
@@ -66,7 +66,7 @@ impl GLBuffer {
     pub fn target(&self) -> GLBufferTarget { self.1 }
 
     pub fn bind(&self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { BindBuffer(self.1 as GLenum, self.0); }
 
@@ -100,9 +100,9 @@ impl GLBuffer {
     /// Buffer raw data to the `GLBuffer`
     pub unsafe fn buffer_raw(&mut self, data: *const c_void, size: usize, usage: GLBufferUsage) -> GLResult<()> {
         if data.is_null() || size == 0 {
-            Err(GLError::InvalidValue)
+            throw!(GLError::InvalidValue)
         } else {
-            try!(self.bind());
+            try_rethrow!(self.bind());
 
             BufferData(self.1 as GLenum, size as GLsizeiptr, data, usage as GLenum);
 

@@ -3,47 +3,61 @@ pub mod bindings;
 pub use self::bindings::types as types;
 
 #[macro_use]
-pub mod gl_error;
+pub mod error;
 
-pub use self::gl_error::*;
+pub use self::error::*;
 
 pub trait GLObject {
     fn raw(&self) -> types::GLuint;
     fn into_raw(self) -> types::GLuint;
     fn is_valid(&self) -> bool;
 
-    #[inline(always)]
     fn check(&self) -> GLResult<()> {
         if self.is_valid() { Ok(()) } else {
-            error!("Invalid GLObject");
-            Err(GLError::InvalidValue)
+            throw!(GLError::InvalidValue)
         }
     }
 }
 
-#[macro_use]
-pub mod macros;
+macro_rules! impl_simple_globject {
+    ($name:ident, $is:ident $(, { $extra_cond:expr } )*) => {
+        impl $crate::gl::GLObject for $name {
+            #[inline(always)]
+            fn raw(&self) -> GLuint { self.0 }
 
-pub mod gl_debug;
-pub mod gl_buffer;
-pub mod gl_vertexarray;
-pub mod gl_shader;
-pub mod gl_uniform;
-pub mod gl_shader_program;
-pub mod gl_texture;
+            #[inline(always)]
+            fn into_raw(mut self) -> GLuint {
+                ::std::mem::replace(&mut self.0, 0)
+            }
 
-pub mod gl_renderbuffer;
-pub mod gl_framebuffer;
+            #[inline(always)]
+            fn is_valid(&self) -> bool {
+                TRUE == unsafe { $crate::gl::bindings::$is(self.0) } $(|| $extra_cond(self))*
+            }
+        }
+    }
+}
 
-pub mod gl_requires;
+pub mod debug;
+pub mod requires;
 
-pub use self::gl_debug::*;
-pub use self::gl_vertexarray::*;
-pub use self::gl_buffer::*;
-pub use self::gl_shader::*;
-pub use self::gl_uniform::*;
-pub use self::gl_shader_program::*;
-pub use self::gl_texture::*;
-pub use self::gl_renderbuffer::*;
-pub use self::gl_framebuffer::*;
-pub use self::gl_requires::*;
+pub mod vertex_array;
+pub mod shader;
+pub mod shader_program;
+pub mod texture;
+pub mod renderbuffer;
+pub mod framebuffer;
+pub mod buffer;
+
+pub mod uniform;
+
+pub use self::debug::*;
+pub use self::requires::*;
+pub use self::vertex_array::*;
+pub use self::shader::*;
+pub use self::shader_program::*;
+pub use self::texture::*;
+pub use self::renderbuffer::*;
+pub use self::framebuffer::*;
+pub use self::buffer::*;
+pub use self::uniform::*;

@@ -5,15 +5,15 @@ use super::GLObject;
 use std::mem;
 use std::ptr;
 
-use super::gl_error::*;
-use super::gl_shader::*;
+use super::error::*;
+use super::shader::*;
 
 //pub enum GLRenderbufferTarget {}
 
 #[derive(Eq, PartialEq)]
 pub struct GLRenderbuffer(GLuint);
 
-impl_simple_globject!(GLRenderbuffer, IsRenderbuffer, "GLRenderBuffer");
+impl_simple_globject!(GLRenderbuffer, IsRenderbuffer);
 
 impl GLRenderbuffer {
     pub fn new() -> GLResult<GLRenderbuffer> {
@@ -39,7 +39,7 @@ impl GLRenderbuffer {
     }
 
     pub fn set_storage(&mut self, width: usize, height: usize) -> GLResult<()> {
-        try!(self.bind());
+        try_rethrow!(self.bind());
 
         unsafe {
             RenderbufferStorage(RENDERBUFFER,

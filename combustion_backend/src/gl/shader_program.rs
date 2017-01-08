@@ -6,15 +6,15 @@ use std::mem;
 use std::ptr;
 use std::ffi::CString;
 
-use super::gl_error::*;
-use super::gl_shader::*;
-use super::gl_uniform::GLUniform;
+use super::error::*;
+use super::shader::*;
+use super::uniform::GLUniform;
 
 /// `GLShaderProgram` represents a whole shader program, linked with many shaders
 #[derive(Eq, PartialEq)]
 pub struct GLShaderProgram(GLuint);
 
-impl_simple_globject!(GLShaderProgram, IsProgram, "GLShaderProgram");
+impl_simple_globject!(GLShaderProgram, IsProgram);
 
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -40,19 +40,19 @@ pub struct GLShaderProgramBuilder(GLShaderProgram);
 impl GLShaderProgramBuilder {
     #[inline(always)]
     pub fn new() -> GLResult<GLShaderProgramBuilder> {
-        Ok(GLShaderProgramBuilder(GLShaderProgram::new()?))
+        Ok(GLShaderProgramBuilder(try_rethrow!(GLShaderProgram::new())))
     }
 
     #[inline(always)]
     pub fn attach_shader(mut self, shader: GLShader) -> GLResult<GLShaderProgramBuilder> {
-        try!(self.0.attach_shader(shader));
+        try_rethrow!(self.0.attach_shader(shader));
 
         Ok(self)
     }
 
     #[inline(always)]
     pub fn link(mut self) -> GLResult<GLShaderProgramBuilder> {
-        try!(self.0.link());
+        try_rethrow!(self.0.link());
 
         Ok(self)
     }
@@ -72,7 +72,7 @@ impl GLShaderProgram {
     }
 
     pub fn use_program(&self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { UseProgram(self.0); }
 
@@ -82,7 +82,7 @@ impl GLShaderProgram {
     }
 
     pub fn attach_shader(&mut self, shader: GLShader) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
         assert!(shader.is_valid());
 
         unsafe { AttachShader(self.0, shader.into_raw()); }
@@ -93,13 +93,13 @@ impl GLShaderProgram {
     }
 
     pub fn link(&mut self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { LinkProgram(self.0); }
 
         check_gl_errors!();
 
-        let status = try!(self.get_info(GLProgramInfo::LinkStatus));
+        let status = try_rethrow!(self.get_info(GLProgramInfo::LinkStatus));
 
         if status != TRUE as GLint {
             panic!("{}", self.get_string(GLProgramString::InfoLog).unwrap());
@@ -109,7 +109,7 @@ impl GLShaderProgram {
     }
 
     pub fn get_info(&self, field: GLProgramInfo) -> GLResult<GLint> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         let mut status = FALSE as GLint;
 
@@ -121,7 +121,7 @@ impl GLShaderProgram {
     }
 
     pub fn get_string(&self, field: GLProgramString) -> GLResult<String> {
-        let len = try!(self.get_info(match field {
+        let len = try_rethrow!(self.get_info(match field {
             GLProgramString::InfoLog => GLProgramInfo::InfoLogLength
         }));
 
@@ -139,12 +139,12 @@ impl GLShaderProgram {
 
         check_gl_errors!();
 
-        Ok(String::from_utf8(buffer)?)
+        Ok(try_throw!(String::from_utf8(buffer)))
     }
 
     /// Effectively calls glGetAttachedShaders
     pub fn get_raw_shaders(&self) -> GLResult<Vec<GLuint>> {
-        let len = try!(self.get_info(GLProgramInfo::AttachedShaders));
+        let len = try_rethrow!(self.get_info(GLProgramInfo::AttachedShaders));
 
         let mut buffer: Vec<GLuint> = Vec::with_capacity(len as usize);
         let mut count: GLsizei = 0;
@@ -163,7 +163,7 @@ impl GLShaderProgram {
     }
 
     pub fn get_uniform(&self, name: &str) -> GLResult<GLUniform> {
-        let name = try!(CString::new(name));
+        let name = try_throw!(CString::new(name));
 
         let id = unsafe { GetUniformLocation(self.0, name.as_ptr() as *const GLchar) };
 
@@ -183,7 +183,7 @@ impl GLShaderProgram {
 
             //If the current program still exists, at least check if it is queued for deletion...
             if self.is_valid() {
-                let status = try!(self.get_info(GLProgramInfo::DeleteStatus));
+                let status = try_rethrow!(self.get_info(GLProgramInfo::DeleteStatus));
 
                 if status != TRUE as GLint {
                     panic!("{}", self.get_string(GLProgramString::InfoLog).unwrap());

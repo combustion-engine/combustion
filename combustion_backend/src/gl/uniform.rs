@@ -1,7 +1,7 @@
 use super::bindings::types::*;
 use super::bindings::*;
 
-use super::gl_error::*;
+use super::error::*;
 
 use nalgebra::*;
 

@@ -8,7 +8,7 @@ use std::ptr;
 use std::mem;
 use enum_primitive::FromPrimitive;
 
-use super::gl_error::*;
+use super::error::*;
 
 enum_from_primitive! {
     #[repr(u32)]
@@ -122,18 +122,18 @@ pub fn enable_debug(cb: GLDebugProc, synchronous: bool) -> GLResult<()> {
 
             check_gl_errors!();
 
-            try!(set_synchronous(synchronous));
+            try_rethrow!(set_synchronous(synchronous));
 
             DebugMessageCallback(debug_callback, cb as *mut _);
 
             check_gl_errors!();
 
-            try!(set_filter(None, None, None));
+            try_rethrow!(set_filter(None, None, None));
         }
 
         Ok(())
     } else {
-        Err(GLError::Unsupported)
+        throw!(GLError::Unsupported)
     }
 }
 
@@ -177,7 +177,7 @@ pub fn send_debug_message(id: GLuint,
                           ty: GLDebugType,
                           severity: GLDebugSeverity,
                           message: &'static str) -> GLResult<()> {
-    let c_message = try!(CString::new(message));
+    let c_message = try_throw!(CString::new(message));
 
     unsafe {
         DebugMessageInsert(DEBUG_SOURCE_APPLICATION, ty as GLenum, id, severity as GLenum, -1, c_message.as_ptr() as *const _);

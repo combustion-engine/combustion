@@ -12,14 +12,14 @@ use std::path::{Path, PathBuf};
 
 use ::common::preprocessor::*;
 
-use super::gl_error::*;
-use super::gl_shader_program::*;
+use super::error::*;
+use super::shader_program::*;
 
 /// `GLShader` represents a single shader. It is not a shader program.
 #[derive(Eq, PartialEq)]
 pub struct GLShader(GLuint);
 
-impl_simple_globject!(GLShader, IsShader, "GLShader");
+impl_simple_globject!(GLShader, IsShader);
 
 impl From<GLuint> for GLShader {
     fn from(handle: GLuint) -> GLShader {
@@ -62,26 +62,26 @@ pub struct GLShaderBuilder(GLShader);
 impl GLShaderBuilder {
     #[inline(always)]
     pub fn new(variant: GLShaderVariant) -> GLResult<GLShaderBuilder> {
-        Ok(GLShaderBuilder(try!(GLShader::new(variant))))
+        Ok(GLShaderBuilder(try_rethrow!(GLShader::new(variant))))
     }
 
     #[inline(always)]
     pub fn source(mut self, source: String) -> GLResult<Self> {
-        try!(self.0.set_source(source));
+        try_rethrow!(self.0.set_source(source));
 
         Ok(self)
     }
 
     #[inline(always)]
     pub fn file<P: AsRef<Path>>(mut self, path: P) -> GLResult<Self> {
-        try!(self.0.load_from_file(path));
+        try_rethrow!(self.0.load_from_file(path));
 
         Ok(self)
     }
 
     #[inline(always)]
     pub fn compile(mut self) -> GLResult<Self> {
-        try!(self.0.compile());
+        try_rethrow!(self.0.compile());
 
         Ok(self)
     }
@@ -92,21 +92,21 @@ impl GLShaderBuilder {
 
 impl GLShader {
     pub fn from_source(source: String, variant: GLShaderVariant) -> GLResult<GLShader> {
-        let mut shader: GLShader = try!(GLShader::new(variant));
+        let mut shader: GLShader = try_rethrow!(GLShader::new(variant));
 
-        try!(shader.set_source(source));
+        try_rethrow!(shader.set_source(source));
 
-        try!(shader.compile());
+        try_rethrow!(shader.compile());
 
         Ok(shader)
     }
 
     pub fn from_file<P: AsRef<Path>>(path: P, variant: GLShaderVariant) -> GLResult<GLShader> {
-        let mut shader: GLShader = try!(GLShader::new(variant));
+        let mut shader: GLShader = try_rethrow!(GLShader::new(variant));
 
-        try!(shader.load_from_file(path));
+        try_rethrow!(shader.load_from_file(path));
 
-        try!(shader.compile());
+        try_rethrow!(shader.compile());
 
         Ok(shader)
     }
@@ -120,7 +120,7 @@ impl GLShader {
     }
 
     pub fn set_source(&mut self, source: String) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         let source_c = CString::new(source).unwrap();
 
@@ -132,23 +132,23 @@ impl GLShader {
     }
 
     pub fn load_from_file<P: AsRef<Path>>(&mut self, path: P) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
-        let IncludeResult { source, .. } = try!(include(path));
+        let IncludeResult { source, .. } = try_throw!(include(path));
 
-        try!(self.set_source(source.clone()));
+        try_rethrow!(self.set_source(source.clone()));
 
         Ok(())
     }
 
     pub fn compile(&mut self) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { CompileShader(self.0); }
 
         check_gl_errors!();
 
-        let status = try!(self.get_info(GLShaderInfo::CompileStatus));
+        let status = try_rethrow!(self.get_info(GLShaderInfo::CompileStatus));
 
         if status != TRUE as GLint {
             panic!("{}", self.get_string(GLShaderString::InfoLog).unwrap());
@@ -159,7 +159,7 @@ impl GLShader {
 
     /// Gets a single field from the shader info
     pub fn get_info(&self, field: GLShaderInfo) -> GLResult<GLint> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         let mut status = FALSE as GLint;
 
@@ -174,7 +174,7 @@ impl GLShader {
     ///
     /// Panics if the shader returned a Non-UTF8 string
     pub fn get_string(&self, field: GLShaderString) -> GLResult<String> {
-        let len = try!(self.get_info(match field {
+        let len = try_rethrow!(self.get_info(match field {
             GLShaderString::ShaderSource => GLShaderInfo::ShaderSourceLength,
             GLShaderString::InfoLog => GLShaderInfo::InfoLogLength
         }));
@@ -196,11 +196,11 @@ impl GLShader {
 
         check_gl_errors!();
 
-        Ok(try!(String::from_utf8(buffer)))
+        Ok(try_throw!(String::from_utf8(buffer)))
     }
 
     pub fn detach(&mut self, program: &mut GLShaderProgram) -> GLResult<()> {
-        try!(self.check());
+        try_rethrow!(self.check());
 
         unsafe { DetachShader(program.raw(), self.0); }
 
@@ -218,7 +218,7 @@ impl GLShader {
 
             check_gl_errors!();
 
-            let status = try!(self.get_info(GLShaderInfo::DeleteStatus));
+            let status = try_rethrow!(self.get_info(GLShaderInfo::DeleteStatus));
 
             if status != TRUE as GLint {
                 panic!("{}", self.get_string(GLShaderString::InfoLog).unwrap());

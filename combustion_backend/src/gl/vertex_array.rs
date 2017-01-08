@@ -7,12 +7,12 @@ use std::ptr;
 use std::sync::Arc;
 use std::os::raw::c_void;
 
-use super::gl_error::*;
+use super::error::*;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct GLVertexArray(GLuint);
 
-impl_simple_globject!(GLVertexArray, IsVertexArray, "GLVertexArray");
+impl_simple_globject!(GLVertexArray, IsVertexArray);
 
 lazy_static! {
     pub static ref DEFAULT_VERTEXARRAY: GLVertexArray = GLVertexArray::default();
