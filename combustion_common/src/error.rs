@@ -8,7 +8,7 @@ use std::error::Error;
 use std::ops::Deref;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
-use backtrace::{DefaultBacktraceFmt, LineBacktrace};
+use backtrace::{BacktraceFmt, DefaultBacktraceFmt, LineBacktrace};
 
 use tinyfiledialogs::*;
 
@@ -42,6 +42,11 @@ impl<E: Error> Trace<E> {
         &*self.backtrace
     }
 
+    /// Format the error and backtrace
+    pub fn format<Fmt: BacktraceFmt>(&self, header: bool, reverse: bool) -> String {
+        format!("{}\n{}", self.description(), self.backtrace.format::<Fmt>(header, reverse))
+    }
+
     /// Convert the inner error of type `E` into type `O`
     #[inline]
     pub fn convert<O: Error>(self) -> Trace<O> where O: From<E> {
@@ -63,16 +68,7 @@ impl<E: Error> Deref for Trace<E> {
 
 impl<E: Error> Display for Trace<E> {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}\n{}", self.description(), self.backtrace.format::<DefaultBacktraceFmt>(true))
-    }
-}
-
-impl<E: Error> From<E> for Trace<E> {
-    fn from(err: E) -> Trace<E> {
-        Trace {
-            error: err,
-            backtrace: Arc::new(LineBacktrace::new(line!(), file!()))
-        }
+        write!(f, "{}", self.format::<DefaultBacktraceFmt>(true, false))
     }
 }
 

@@ -108,7 +108,7 @@ pub struct LineBacktrace {
 
 impl Debug for LineBacktrace {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "LineBacktrace {{\n    line: {},\n    file: {},\n    backtrace:\n{}}}", self.line, self.file, self.format::<DefaultBacktraceFmt>(false))
+        write!(f, "LineBacktrace {{\n    line: {},\n    file: {},\n    backtrace:\n{}}}", self.line, self.file, self.format::<DefaultBacktraceFmt>(false, false))
     }
 }
 
@@ -122,7 +122,7 @@ impl LineBacktrace {
         }
     }
 
-    pub fn format<Fmt: BacktraceFmt>(&self, header: bool) -> String {
+    pub fn format<Fmt: BacktraceFmt>(&self, header: bool, reverse: bool) -> String {
         // Ignore `backtrace::trace` call
         const IGNORE_COUNT: u32 = 1;
 
@@ -135,8 +135,16 @@ impl LineBacktrace {
 
         let mut count = 0;
 
-        for frame in self.backtrace.frames() {
-            for symbol in frame.symbols() {
+        if reverse {
+            let mut symbols = Vec::new();
+
+            for frame in self.backtrace.frames() {
+                for symbol in frame.symbols() {
+                    symbols.push(symbol);
+                }
+            }
+
+            for symbol in symbols.iter().rev() {
                 if count >= IGNORE_COUNT {
                     if let Some(name) = symbol.name() {
                         if let Some(name_str) = name.as_str() {
@@ -156,6 +164,31 @@ impl LineBacktrace {
                 }
 
                 count += 1;
+            }
+
+        } else {
+            for frame in self.backtrace.frames() {
+                for symbol in frame.symbols() {
+                    if count >= IGNORE_COUNT {
+                        if let Some(name) = symbol.name() {
+                            if let Some(name_str) = name.as_str() {
+                                // Checks for `Backtrace::new` AND `ThinBacktrace::new`
+                                if name_str.contains("Backtrace::new") {
+                                    // Ignore and don't increment `count`
+                                    continue;
+                                }
+                            }
+                        }
+
+                        traces += Fmt::format(count - IGNORE_COUNT,
+                                              symbol.name(),
+                                              symbol.addr(),
+                                              symbol.filename(),
+                                              symbol.lineno()).as_str();
+                    }
+
+                    count += 1;
+                }
             }
         }
 
