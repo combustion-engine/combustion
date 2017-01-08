@@ -3,9 +3,10 @@
 //! This crate contains most graphics API specific code.
 //!
 //! Though most of it just focuses on OpenGL, support for Vulkan and DX11 are planned... eventually.
-
+#![feature(test)]
 #![allow(unused_imports, unknown_lints)]
-#![feature(proc_macro)]
+
+extern crate test;
 
 extern crate libc;
 #[cfg(all(feature = "dx11", target_os = "windows"))]
@@ -22,6 +23,7 @@ extern crate serde;
 extern crate serde_derive;
 extern crate glfw;
 extern crate void;
+extern crate fnv;
 
 #[macro_use]
 extern crate combustion_common as common;

@@ -8,7 +8,8 @@ version = "0.1.0"
 
 [dependencies]
 enum_primitive = "0.1.0"
-image = "0.10.4"
+fnv = "1.0.5"
+image = "0.12"
 lazy_static = "0.2.2"
 libc = "0.2.17"
 serde = "0.8.19"
@@ -40,7 +41,7 @@ version = "0.2.0"
 
 [dependencies.glfw]
 features = ["all"]
-version = "0.11.0"
+version = "0.12.0"
 
 [dependencies.kernel32-sys]
 optional = true
