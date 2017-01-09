@@ -165,7 +165,6 @@ impl LineBacktrace {
 
                 count += 1;
             }
-
         } else {
             for frame in self.backtrace.frames() {
                 for symbol in frame.symbols() {

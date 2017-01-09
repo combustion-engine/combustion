@@ -12,7 +12,9 @@ pub struct Stopwatch {
 }
 
 impl Default for Stopwatch {
-    fn default() -> Stopwatch { Stopwatch::new() }
+    fn default() -> Stopwatch {
+        Stopwatch::new()
+    }
 }
 
 impl fmt::Display for Stopwatch {
@@ -50,7 +52,9 @@ impl Stopwatch {
     }
 
     #[inline(always)]
-    pub fn is_running(&self) -> bool { self.start_time.is_some() }
+    pub fn is_running(&self) -> bool {
+        self.start_time.is_some()
+    }
 
     #[inline(always)]
     pub fn elapsed(&self) -> Duration {
@@ -61,5 +65,7 @@ impl Stopwatch {
     }
 
     #[inline(always)]
-    pub fn elapsed_ms(&self) -> i64 { self.elapsed.num_milliseconds() }
+    pub fn elapsed_ms(&self) -> i64 {
+        self.elapsed.num_milliseconds()
+    }
 }

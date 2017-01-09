@@ -96,7 +96,9 @@ impl Color {
     }
 
     #[inline(always)]
-    pub fn is_opaque(&self) -> bool { is_one(&self.a) }
+    pub fn is_opaque(&self) -> bool {
+        is_one(&self.a)
+    }
 
     /// Returns true if all the components add up to near-zero
     pub fn is_none(&self) -> bool {
@@ -106,7 +108,9 @@ impl Color {
 
 impl Default for Color {
     #[inline(always)]
-    fn default() -> Color { Color::none() }
+    fn default() -> Color {
+        Color::none()
+    }
 }
 
 impl FromStr for Color {
