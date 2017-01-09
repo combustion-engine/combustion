@@ -23,6 +23,15 @@ pub struct Trace<E: Error> {
     backtrace: Arc<LineBacktrace>,
 }
 
+impl<E: Error + Clone> Clone for Trace<E> {
+    fn clone(&self) -> Trace<E> {
+        Trace {
+            error: self.error.clone(),
+            backtrace: self.backtrace.clone()
+        }
+    }
+}
+
 impl<E: Error> Trace<E> {
     /// Creates a new `Trace` from the given error and backtrace
     #[inline]
