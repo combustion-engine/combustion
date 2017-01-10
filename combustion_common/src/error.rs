@@ -3,7 +3,6 @@
 //! `Trace` and `TraceResult` should usually be used in place of `Result` using the macros
 //! `throw!`, `try_throw!`, and `try_rethrow!`
 
-use std::sync::Arc;
 use std::error::Error;
 use std::ops::Deref;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
@@ -21,13 +20,13 @@ pub type TraceResult<T, E> = Result<T, Trace<E>>;
 #[derive(Debug)]
 pub struct Trace<E: Error> {
     error: E,
-    backtrace: Arc<SourceBacktrace>,
+    backtrace: Box<SourceBacktrace>,
 }
 
 impl<E: Error> Trace<E> {
     /// Creates a new `Trace` from the given error and backtrace
     #[inline]
-    pub fn new(error: E, backtrace: Arc<SourceBacktrace>) -> Trace<E> {
+    pub fn new(error: E, backtrace: Box<SourceBacktrace>) -> Trace<E> {
         Trace { error: error, backtrace: backtrace }
     }
 
@@ -79,7 +78,7 @@ macro_rules! throw {
     ($err:expr) => {
         return ::std::result::Result::Err($crate::error::Trace::new(
             ::std::convert::From::from($err),
-            ::std::sync::Arc::new($crate::backtrace::SourceBacktrace::new(line!(), file!()))
+            ::std::boxed::Box::new($crate::backtrace::SourceBacktrace::new(line!(), file!()))
         ))
     }
 }
@@ -99,7 +98,7 @@ macro_rules! try_throw {
 
 #[doc(hidden)]
 #[inline(always)]
-pub fn _assert_traceable_result<T, E: Error>(res: TraceResult<T, E>) -> TraceResult<T, E> {
+pub fn _assert_trace_result<T, E: Error>(res: TraceResult<T, E>) -> TraceResult<T, E> {
     res
 }
 
@@ -109,7 +108,7 @@ pub fn _assert_traceable_result<T, E: Error>(res: TraceResult<T, E>) -> TraceRes
 /// similarly to `try!`
 #[macro_export]
 macro_rules! try_rethrow {
-    ($res:expr) => (match $crate::error::_assert_traceable_result($res) {
+    ($res:expr) => (match $crate::error::_assert_trace_result($res) {
         ::std::result::Result::Ok(val) => val,
         ::std::result::Result::Err(err) => {
             return ::std::result::Result::Err(err.convert())
