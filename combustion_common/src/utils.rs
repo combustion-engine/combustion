@@ -2,9 +2,6 @@
 
 use num_traits::Num;
 
-pub mod stopwatch;
-pub mod humanize;
-
 /// Generic min function for any `PartialOrd`
 ///
 /// ```

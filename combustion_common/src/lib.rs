@@ -11,6 +11,7 @@ extern crate vec_map;
 extern crate num_traits;
 #[macro_use]
 extern crate lazy_static;
+
 #[macro_use(o, slog_log, slog_trace, slog_debug, slog_info, slog_warn, slog_error)]
 #[macro_reexport(o, slog_log, slog_trace, slog_debug, slog_info, slog_warn, slog_error)]
 extern crate slog;
@@ -20,6 +21,7 @@ extern crate slog_stream;
 #[macro_reexport(crit, error, warn, info, debug, trace)]
 extern crate slog_scope;
 extern crate slog_atomic;
+
 extern crate nalgebra;
 extern crate tinyfiledialogs;
 extern crate palette;
@@ -39,6 +41,8 @@ pub mod macros;
 pub mod compression;
 pub mod preprocessor;
 pub mod utils;
+pub mod stopwatch;
+pub mod humanize;
 pub mod structures;
 pub mod log;
 pub mod backtrace;
