@@ -8,17 +8,44 @@ use std::mem;
 
 use bt::*;
 
-/// Trait to define formats for backtraces
+/// Trait to define formatting for backtrace symbols
 pub trait BacktraceFmt {
     /// Formats backtrace symbol components in some way
-    fn format(count: u32, name: Option<SymbolName>, addr: Option<*mut c_void>, filename: Option<&Path>, lineno: Option<u32>) -> String;
+    fn format(count: u32, symbol: &Symbol) -> String;
+
+    /// Same as `BacktraceFmt::format`, but accepts a captured `BacktraceSymbol` instead
+    fn format_captured(count: u32, symbol: &BacktraceSymbol) -> String;
 }
 
 /// Default backtrace formatter that tries to resemble rustc panic backtraces somewhat
+///
+/// Example:
+///
+/// ```text
+/// Stack backtrace for task "<main>" at line 47 of "examples\backtrace.rs":
+///    0:     0x7ff703417000 - backtrace::test
+///                         at E:\...\examples\backtrace.rs:47
+///    1:     0x7ff703417120 - backtrace::main
+///                         at E:\...\examples\backtrace.rs:53
+///    2:     0x7ff70343bb10 - panic_unwind::__rust_maybe_catch_panic
+///                         at C:\...\libpanic_unwind\lib.rs:98
+///    3:     0x7ff70343b240 - std::rt::lang_start
+///                         at C:\...\libstd\rt.rs:51
+///    4:     0x7ff7034171a0 - main
+///                         at <anonymous>
+///    5:     0x7ff70344d61c - __scrt_common_main_seh
+///                         at f:\...\exe_common.inl:253
+///    6:     0x7ffead558350 - BaseThreadInitThunk
+///                         at <anonymous>
+/// ```
 pub struct DefaultBacktraceFmt;
 
-impl BacktraceFmt for DefaultBacktraceFmt {
-    fn format(count: u32, name: Option<SymbolName>, addr: Option<*mut c_void>, filename: Option<&Path>, lineno: Option<u32>) -> String {
+impl DefaultBacktraceFmt {
+    fn real_format(count: u32,
+                   name: Option<SymbolName>,
+                   addr: Option<*mut c_void>,
+                   filename: Option<&Path>,
+                   lineno: Option<u32>) -> String {
         let ptr_width = mem::size_of::<usize>() * 2 + 2;
 
         let name = name.and_then(|name| { name.as_str() }).unwrap_or("<unknown>");
@@ -38,6 +65,19 @@ impl BacktraceFmt for DefaultBacktraceFmt {
         };
 
         begin + end.as_str()
+    }
+}
+
+impl BacktraceFmt for DefaultBacktraceFmt {
+    #[inline]
+    fn format(count: u32, symbol: &Symbol) -> String {
+        DefaultBacktraceFmt::real_format(count, symbol.name(), symbol.addr(), symbol.filename(), symbol.lineno())
+    }
+
+    #[inline]
+    fn format_captured(count: u32, symbol: &BacktraceSymbol) -> String {
+        // Could just use format!("{:?}", symbol) since BacktraceSymbol has a debug format specifier, but eh, I like mine better
+        DefaultBacktraceFmt::real_format(count, symbol.name(), symbol.addr(), symbol.filename(), symbol.lineno())
     }
 }
 
@@ -66,11 +106,7 @@ pub fn format_trace<Fmt: BacktraceFmt>(header: bool, line: u32, file: &str) -> S
             let before = count;
 
             resolve(frame.ip(), |symbol| {
-                traces += Fmt::format(count - IGNORE_COUNT,
-                                      symbol.name(),
-                                      symbol.addr(),
-                                      symbol.filename(),
-                                      symbol.lineno()).as_str();
+                traces += Fmt::format(count - IGNORE_COUNT, &symbol).as_str();
 
                 count += 1;
             });
@@ -79,11 +115,7 @@ pub fn format_trace<Fmt: BacktraceFmt>(header: bool, line: u32, file: &str) -> S
             if count == before {
                 // If `symbol_address` doesn't work, oh well.
                 resolve(frame.symbol_address(), |symbol| {
-                    traces += Fmt::format(count - IGNORE_COUNT,
-                                          symbol.name(),
-                                          symbol.addr(),
-                                          symbol.filename(),
-                                          symbol.lineno()).as_str();
+                    traces += Fmt::format(count - IGNORE_COUNT, &symbol).as_str();
 
                     count += 1;
                 });
@@ -100,26 +132,45 @@ pub fn format_trace<Fmt: BacktraceFmt>(header: bool, line: u32, file: &str) -> S
 /// Backtrace that also contains the exact line and file in which it originated from.
 ///
 /// Usually created in a macro using the `line!()` and `file!()` macros
-pub struct LineBacktrace {
+#[derive(Clone)]
+pub struct SourceBacktrace {
     backtrace: Backtrace,
     line: u32,
     file: &'static str,
 }
 
-impl Debug for LineBacktrace {
+impl Debug for SourceBacktrace {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "LineBacktrace {{\n    line: {},\n    file: {},\n    backtrace:\n{}}}", self.line, self.file, self.format::<DefaultBacktraceFmt>(false, false))
+        write!(f, "SourceBacktrace {{\n    line: {},\n    file: {},\n    backtrace:\n{}}}", self.line, self.file, self.format::<DefaultBacktraceFmt>(false, false))
     }
 }
 
-impl LineBacktrace {
-    /// Create a new `LineBacktrace` if you know the file and file
-    pub fn new(line: u32, file: &'static str) -> LineBacktrace {
-        LineBacktrace {
+impl SourceBacktrace {
+    /// Create a new `SourceBacktrace` if you know the file and file
+    pub fn new(line: u32, file: &'static str) -> SourceBacktrace {
+        SourceBacktrace {
             backtrace: Backtrace::new(),
             line: line,
             file: file,
         }
+    }
+
+    /// Get a reference to the raw `Backtrace` instance
+    #[inline]
+    pub fn raw(&self) -> &Backtrace {
+        &self.backtrace
+    }
+
+    /// Get the line at which this backtrace originated from
+    #[inline]
+    pub fn line(&self) -> u32 {
+        self.line
+    }
+
+    /// Get the file path (as a `&'static str`) in which this backtrace originated from
+    #[inline]
+    pub fn file(&self) -> &'static str {
+        self.file
     }
 
     /// Format this backtrace with the given formatter and the given options
@@ -157,11 +208,7 @@ impl LineBacktrace {
                         }
                     }
 
-                    traces += Fmt::format(count - IGNORE_COUNT,
-                                          symbol.name(),
-                                          symbol.addr(),
-                                          symbol.filename(),
-                                          symbol.lineno()).as_str();
+                    traces += Fmt::format_captured(count - IGNORE_COUNT, symbol).as_str();
                 }
 
                 count += 1;
@@ -180,11 +227,7 @@ impl LineBacktrace {
                             }
                         }
 
-                        traces += Fmt::format(count - IGNORE_COUNT,
-                                              symbol.name(),
-                                              symbol.addr(),
-                                              symbol.filename(),
-                                              symbol.lineno()).as_str();
+                        traces += Fmt::format_captured(count - IGNORE_COUNT, symbol).as_str();
                     }
 
                     count += 1;
@@ -196,9 +239,9 @@ impl LineBacktrace {
     }
 }
 
-impl From<Backtrace> for LineBacktrace {
-    fn from(backtrace: Backtrace) -> LineBacktrace {
-        LineBacktrace { line: line!(), file: file!(), backtrace: backtrace }
+impl From<Backtrace> for SourceBacktrace {
+    fn from(backtrace: Backtrace) -> SourceBacktrace {
+        SourceBacktrace { line: line!(), file: file!(), backtrace: backtrace }
     }
 }
 

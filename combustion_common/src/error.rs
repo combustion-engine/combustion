@@ -8,7 +8,7 @@ use std::error::Error;
 use std::ops::Deref;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
-use backtrace::{BacktraceFmt, DefaultBacktraceFmt, LineBacktrace};
+use backtrace::{BacktraceFmt, DefaultBacktraceFmt, SourceBacktrace};
 
 use tinyfiledialogs::*;
 
@@ -21,22 +21,13 @@ pub type TraceResult<T, E> = Result<T, Trace<E>>;
 #[derive(Debug)]
 pub struct Trace<E: Error> {
     error: E,
-    backtrace: Arc<LineBacktrace>,
-}
-
-impl<E: Error + Clone> Clone for Trace<E> {
-    fn clone(&self) -> Trace<E> {
-        Trace {
-            error: self.error.clone(),
-            backtrace: self.backtrace.clone()
-        }
-    }
+    backtrace: Arc<SourceBacktrace>,
 }
 
 impl<E: Error> Trace<E> {
     /// Creates a new `Trace` from the given error and backtrace
     #[inline]
-    pub fn new(error: E, backtrace: Arc<LineBacktrace>) -> Trace<E> {
+    pub fn new(error: E, backtrace: Arc<SourceBacktrace>) -> Trace<E> {
         Trace { error: error, backtrace: backtrace }
     }
 
@@ -48,7 +39,7 @@ impl<E: Error> Trace<E> {
 
     /// Get a reference to the inner backtrace
     #[inline]
-    pub fn backtrace(&self) -> &LineBacktrace {
+    pub fn backtrace(&self) -> &SourceBacktrace {
         &*self.backtrace
     }
 
@@ -88,7 +79,7 @@ macro_rules! throw {
     ($err:expr) => {
         return ::std::result::Result::Err($crate::error::Trace::new(
             ::std::convert::From::from($err),
-            ::std::sync::Arc::new($crate::backtrace::LineBacktrace::new(line!(), file!()))
+            ::std::sync::Arc::new($crate::backtrace::SourceBacktrace::new(line!(), file!()))
         ))
     }
 }
@@ -112,16 +103,16 @@ pub fn _assert_traceable_result<T, E: Error>(res: TraceResult<T, E>) -> TraceRes
     res
 }
 
-/// Like `try_throw!`, but designed for expression that are `TraceResult`s already,
-/// as it keeps the previous trace.
+/// Like `try_throw!`, but designed for `TraceResult`s, as it keeps the previous trace.
 ///
-/// This macro will try to call `From::from` on the error to convert it if necessary, just like `try!`
+/// This macro will try to call `Trace::convert` on the trace to convert the inner error if necessary,
+/// similarly to `try!`
 #[macro_export]
 macro_rules! try_rethrow {
     ($res:expr) => (match $crate::error::_assert_traceable_result($res) {
         ::std::result::Result::Ok(val) => val,
-        ::std::result::Result::Err(traceable_err) => {
-            return ::std::result::Result::Err(traceable_err.convert())
+        ::std::result::Result::Err(err) => {
+            return ::std::result::Result::Err(err.convert())
         }
     })
 }
