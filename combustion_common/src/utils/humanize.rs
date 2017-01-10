@@ -2,7 +2,10 @@
 
 use std::cmp;
 
+/// SI units (base-10)
 pub const SI_UNITS: [&'static str; 9] = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+/// IEC units (base-2)
 pub const IEC_UNITS: [&'static str; 9] = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
 
 /// Humanize with SI units

@@ -1,4 +1,10 @@
+//! Common stuff for the Combustion engine.
+//!
+//! "Stuff", in this case, being assorted tools, data structures,
+//! and macros that don't belong in any single crate yet are used often in the engine.
+
 #![feature(macro_reexport)]
+#![deny(missing_docs)]
 
 extern crate regex;
 extern crate vec_map;

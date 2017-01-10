@@ -1,3 +1,5 @@
+//! Macros
+
 #[macro_export]
 macro_rules! err {
     ($($arg:tt)*) => {{

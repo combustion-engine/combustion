@@ -122,6 +122,7 @@ impl LineBacktrace {
         }
     }
 
+    /// Format this backtrace with the given formatter and the given options
     pub fn format<Fmt: BacktraceFmt>(&self, header: bool, reverse: bool) -> String {
         // Ignore `backtrace::trace` call
         const IGNORE_COUNT: u32 = 1;

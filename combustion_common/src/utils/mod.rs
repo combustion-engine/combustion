@@ -55,6 +55,7 @@ pub fn round_multiple<T: Num + Copy>(num: T, multiple: T) -> T {
 /// assert!(0.4f32.clamp(1.5, 3.0) > 1.0)
 /// ```
 pub trait ClampExt {
+    /// Clamps the value to `min` and `max` bounds.
     fn clamp(&self, min: Self, max: Self) -> Self;
 }
 

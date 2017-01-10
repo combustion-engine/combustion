@@ -57,8 +57,11 @@ impl<W: Write> Drop for AutoEncoder<W> {
 /// Generic options for in-memory compression
 #[derive(Debug, Clone, Copy)]
 pub struct CompressionOptions {
+    /// Blockmode for the compressed stream
     pub blockmode: BlockMode,
+    /// Blocksize for the compressed stream
     pub blocksize: BlockSize,
+    /// Compression level of the compressed stream
     pub level: u32
 }
 

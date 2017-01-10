@@ -12,6 +12,7 @@ use backtrace::{BacktraceFmt, DefaultBacktraceFmt, LineBacktrace};
 
 use tinyfiledialogs::*;
 
+/// Alias to aid in usage with `Result`
 pub type TraceResult<T, E> = Result<T, Trace<E>>;
 
 /// Trace error that encapsulates a backtrace alongside an error value.
@@ -53,7 +54,7 @@ impl<E: Error> Trace<E> {
 
     /// Format the error and backtrace
     pub fn format<Fmt: BacktraceFmt>(&self, header: bool, reverse: bool) -> String {
-        format!("{}\n{}", self.description(), self.backtrace.format::<Fmt>(header, reverse))
+        format!("{}\n{}", self.error, self.backtrace.format::<Fmt>(header, reverse))
     }
 
     /// Convert the inner error of type `E` into type `O`
@@ -137,8 +138,11 @@ fn expect_failed(msg: &str) -> ! {
     panic!("{}", msg)
 }
 
+/// Extensions to the `Result` type that add extra logging or OS message box alerts
 pub trait ResultExt<T, E> {
+    /// Logs failed `expect` with `error!`
     fn expect_logged(self, msg: &str) -> T;
+    /// Logs failed `expect` with `error!` and spawns an OS message box dialog with the given message
     fn expect_logged_box(self, msg: &str) -> T;
 }
 
@@ -168,8 +172,11 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: Debug {
     }
 }
 
+/// Extensions to the `Option` type that add extra logging or OS message box alerts
 pub trait OptionExt<T> {
+    /// Logs failed `expect` with `error!`
     fn expect_logged(self, msg: &str) -> T;
+    /// Logs failed `expect` with `error!` and spawns an OS message box dialog with the given message
     fn expect_logged_box(self, msg: &str) -> T;
 }
 

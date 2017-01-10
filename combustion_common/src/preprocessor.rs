@@ -23,8 +23,10 @@ lazy_static! {
     };
 }
 
+/// Processed source code
 #[derive(Debug)]
 pub struct IncludeResult {
+    /// Final source
     pub source: String,
 }
 
@@ -75,6 +77,7 @@ fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, String>) -> Result
     }
 }
 
+/// TODO
 pub fn include<P: AsRef<Path>>(path: P) -> Result<IncludeResult, io::Error> {
     let mut cache = HashMap::new();
 

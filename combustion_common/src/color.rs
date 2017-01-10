@@ -95,12 +95,32 @@ impl Color {
         Color::new(0.0, 0.0, 0.0, 1.0)
     }
 
+    /// Returns true if the alpha channel value is approximately one.
+    ///
+    /// E.g.,
+    ///
+    /// ```
+    /// use combustion_common::color::*;
+    ///
+    /// assert!(Color::white().is_opaque());
+    /// assert!(!Color::none().is_opaque());
+    /// ```
     #[inline(always)]
     pub fn is_opaque(&self) -> bool {
         is_one(&self.a)
     }
 
     /// Returns true if all the components add up to near-zero
+    ///
+    /// E.g.,
+    ///
+    /// ```
+    /// use combustion_common::color::*;
+    ///
+    /// assert!(Color::none().is_none());
+    /// assert!(Color::new(0.0, 0.0, 0.0, 0.0).is_none());
+    /// assert!(!Color::black().is_none());
+    /// ```
     pub fn is_none(&self) -> bool {
         (self.r + self.g + self.b + self.a) <= EPSILON
     }
@@ -214,12 +234,13 @@ impl_from_pixel!([f32; 3]);
 impl_from_pixel!([u8;  3]);
 
 pub mod de {
-    //! Custom deserialization for colors, allowing them to be deserialized by name or RGBA values
+    //! Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
     use serde::de::{self, Deserialize, Deserializer};
     use void::Void;
     use std::str::FromStr;
     use std::marker::PhantomData;
 
+    /// Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
     pub fn from_name_or_value<T, D>(d: &mut D) -> Result<T, D::Error>
                                     where T: Deserialize + FromStr<Err = Void>,
                                           D: Deserializer {
