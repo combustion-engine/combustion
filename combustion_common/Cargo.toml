@@ -4,7 +4,7 @@ exclude = ["*.png"]
 include = ["Cargo.toml", "src/**/*.rs"]
 license = "MIT"
 name = "combustion_common"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 backtrace = "0.3.0"
