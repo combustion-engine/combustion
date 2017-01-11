@@ -9,6 +9,7 @@ pub type EventResult<T> = TraceResult<T, EventError>;
 #[derive(Debug)]
 pub enum EventError {
     Any(Box<Any>),
+    Unspecified,
 }
 
 impl Display for EventError {
@@ -20,7 +21,8 @@ impl Display for EventError {
 impl Error for EventError {
     fn description(&self) -> &str {
         match *self {
-            EventError::Any(_) => "Any error"
+            EventError::Any(_) => "Any error",
+            EventError::Unspecified => "Unspecified error",
         }
     }
 }
