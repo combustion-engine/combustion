@@ -5,7 +5,7 @@ use fnv::FnvHashMap;
 
 pub mod error;
 
-use self::error::*;
+pub use self::error::*;
 
 /// Define the internal callback type, which is a boxed closure that accepts optional arguments
 type Callback = Box<FnMut(Option<&Box<Any>>) -> EventResult<()>>;
@@ -231,6 +231,7 @@ impl<'a> AbstractEventEmitter for EventEmitterProxy<'a> {
 #[cfg(test)]
 mod test {
     use super::*;
+
     use test::Bencher;
 
     #[test]
@@ -341,10 +342,52 @@ mod test {
         });
     }
 
+    #[test]
+    fn backtrace() {
+        // This should print out something like:
+        //
+        // Unspecified error
+        // Stack backtrace for task "<event_emitter::test::backtrace>" at line 350 of "src\event_emitter/mod.rs":
+        //    0:     0x7ff6f2f9a930 - combustion_events::event_emitter::test::backtrace::{{closure}}
+        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:350
+        //    1:     0x7ff6f2f95820 - combustion_events::event_emitter::{{impl}}::add_listener::{{closure}}<&str>
+        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:68
+        //    2:     0x7ff6f2f960b0 - combustion_events::event_emitter::{{impl}}::emit<&str>
+        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:153
+        //    3:     0x7ff6f2f9a620 - combustion_events::event_emitter::test::backtrace
+        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:353
+        //    4:     0x7ff6f2fac0b0 - test::{{impl}}::call_box<(),closure>
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libtest\lib.rs:140
+        //    5:     0x7ff6f30071b0 - panic_unwind::__rust_maybe_catch_panic
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libpanic_unwind\lib.rs:98
+        //    6:     0x7ff6f2f9dfe0 - std::panicking::try::do_call<std::panic::AssertUnwindSafe<closure>,()>
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libstd\panicking.rs:456
+        //    7:     0x7ff6f30071b0 - panic_unwind::__rust_maybe_catch_panic
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libpanic_unwind\lib.rs:98
+        //    8:     0x7ff6f2fa6890 - alloc::boxed::{{impl}}::call_box<(),closure>
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\liballoc\boxed.rs:605
+        //    9:     0x7ff6f3001670 - std::sys::imp::thread::{{impl}}::new::thread_start
+        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libstd\sys\windows\thread.rs:50
+        //    10:     0x7ffead558350 - BaseThreadInitThunk
+        //                          at <anonymous>
+
+        let mut emitter = EventEmitter::new();
+
+        emitter.add_listener("test", box || {
+            throw!(EventError::Unspecified);
+        });
+
+        match emitter.emit("test") {
+            Err(trace) => {
+                println!("{}", trace);
+            },
+            Ok(_) => panic!("Expected an error")
+        }
+    }
+
     #[bench]
     fn bench_emit(b: &mut Bencher) {
         let mut emitter = EventEmitter::new();
-
 
         for i in 0..1000 {
             emitter.add_listener(format!("test{}", i), box || {
