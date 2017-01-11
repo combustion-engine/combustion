@@ -13,7 +13,7 @@ pub const IEC_UNITS: [&'static str; 9] = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::utils::humanize::humanize_si;
+/// use combustion_common::humanize::humanize_si;
 ///
 /// assert_eq!(humanize_si(0.1), "0.1 B");
 /// assert_eq!(humanize_si(10.0), "10.00 B");
@@ -44,7 +44,7 @@ pub fn humanize_si(num: f64) -> String {
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::utils::humanize::humanize_iec;
+/// use combustion_common::humanize::humanize_iec;
 ///
 /// assert_eq!(humanize_iec(0.1), "0.1 B");
 /// assert_eq!(humanize_iec(10.0), "10.00 B");
