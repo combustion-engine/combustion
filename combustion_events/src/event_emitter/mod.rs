@@ -3,8 +3,12 @@ use std::any::Any;
 // Use a fast hashing algorithm for the event lookup table
 use fnv::FnvHashMap;
 
+pub mod error;
+
+use self::error::*;
+
 /// Define the internal callback type, which is a boxed closure that accepts optional arguments
-type Callback = Box<FnMut(Option<&Box<Any>>)>;
+type Callback = Box<FnMut(Option<&Box<Any>>) -> EventResult<()>>;
 
 /// Stores the listener callback and its ID value
 struct EventListener {
@@ -23,9 +27,9 @@ impl EventListener {
 /// Defines methods for emitting events
 pub trait AbstractEventEmitter {
     /// Emit an event, invoked all the listeners for that event.
-    fn emit<E: Into<String>>(&mut self, event: E) -> usize;
+    fn emit<E: Into<String>>(&mut self, event: E) -> EventResult<usize>;
     /// Emit an event, invoked all the listeners for that event, and passing the given value to them.
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> usize;
+    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize>;
 }
 
 /// Standard Event Emitter
@@ -60,15 +64,15 @@ impl EventEmitter {
     ///
     /// The return value of this is a unique ID for that listener, which can later be used to remove it if desired.
     #[inline]
-    pub fn add_listener<E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut()>) -> u64 {
-        self.add_listener_impl(event.into(), Box::new(move |_| { cb() }))
+    pub fn add_listener<E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut() -> EventResult<()>>) -> u64 {
+        self.add_listener_impl(event.into(), Box::new(move |_| -> EventResult<()> { cb() }))
     }
 
     /// Add a listener that can accept a reference to a value passed via `emit`
     ///
     /// The return value of this is a unique ID for that listener, which can later be used to remove it if desired.
-    pub fn add_listener_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut(Option<&T>)>) -> u64 {
-        self.add_listener_impl(event.into(), Box::new(move |arg| {
+    pub fn add_listener_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut(Option<&T>) -> EventResult<()>>) -> u64 {
+        self.add_listener_impl(event.into(), Box::new(move |arg| -> EventResult<()> {
             if let Some(arg) = arg.as_ref() { cb(arg.downcast_ref::<T>()) } else { cb(None) }
         }))
     }
@@ -135,38 +139,71 @@ pub struct EventEmitterProxy<'a> {
 impl<'a> EventEmitterProxy<'a> {
     /// Get the associated event for this proxy
     #[inline]
-    pub fn event(&self) -> &String { &self.event }
+    pub fn event(&self) -> &String {
+        &self.event
+    }
 }
 
 impl AbstractEventEmitter for EventEmitter {
-    fn emit<E: Into<String>>(&mut self, event: E) -> usize {
+    fn emit<E: Into<String>>(&mut self, event: E) -> EventResult<usize> {
         if let Some(mut listeners) = self.events.get_mut(&event.into()) {
-            listeners.iter_mut().map(|listener| (listener.cb)(None)).count()
-        } else { 0 }
+            let mut count = 0;
+
+            for listener in listeners.iter_mut() {
+                try_rethrow!((listener.cb)(None));
+
+                count += 1;
+            }
+
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
 
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> usize {
+    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
         if let Some(mut listeners) = self.events.get_mut(&event.into()) {
             // Box `T` and cast `T` to `Any` here
             let boxed: Option<Box<Any>> = Some(Box::new(value));
             // Cast `Option<Box<Any>>` to `Option<&Box<Any>>`
             let boxed_ref = boxed.as_ref();
-            // Only use a reference to the boxed value in the loop for performance
-            listeners.iter_mut().map(|listener| (listener.cb)(boxed_ref)).count()
-        } else { 0 }
+
+            let mut count = 0;
+
+            for listener in listeners.iter_mut() {
+                // Only use a reference to the boxed value in the loop for performance
+                try_rethrow!((listener.cb)(boxed_ref));
+
+                count += 1;
+            }
+
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
 }
 
 impl<'a> AbstractEventEmitter for EventEmitterProxy<'a> {
-    fn emit<E: Into<String>>(&mut self, event: E) -> usize {
+    fn emit<E: Into<String>>(&mut self, event: E) -> EventResult<usize> {
         let event = event.into();
 
         if event == self.event {
-            self.listeners.iter_mut().map(|listener| (listener.cb)(None)).count()
-        } else { 0 }
+            let mut count = 0;
+
+            for listener in self.listeners.iter_mut() {
+                try_rethrow!((listener.cb)(None));
+
+                count += 1;
+            }
+
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
 
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> usize {
+    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
         let event = event.into();
 
         if event == self.event {
@@ -174,9 +211,20 @@ impl<'a> AbstractEventEmitter for EventEmitterProxy<'a> {
             let boxed: Option<Box<Any>> = Some(Box::new(value));
             // Cast `Option<Box<Any>>` to `Option<&Box<Any>>`
             let boxed_ref = boxed.as_ref();
-            // Only use a reference to the boxed value in the loop for performance
-            self.listeners.iter_mut().map(|listener| (listener.cb)(boxed_ref)).count()
-        } else { 0 }
+
+            let mut count = 0;
+
+            for listener in self.listeners.iter_mut() {
+                // Only use a reference to the boxed value in the loop for performance
+                try_rethrow!((listener.cb)(boxed_ref));
+
+                count += 1;
+            }
+
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
 }
 
@@ -193,10 +241,12 @@ mod test {
 
         emitter.add_listener("Test", box move || {
             println!("Test: {}", test);
+            Ok(())
         });
 
         emitter.add_listener_value::<i32, _>("Test", box |arg| {
             println!("{:?}", arg);
+            Ok(())
         });
     }
 
@@ -204,19 +254,23 @@ mod test {
     fn test_emit() {
         let mut emitter = EventEmitter::new();
 
-        emitter.add_listener("test", box || {});
+        emitter.add_listener("test", box || {
+            Ok(())
+        });
 
         emitter.add_listener_value::<i32, _>("test", box |arg| {
             println!("{:?}", arg);
+            Ok(())
         });
 
         emitter.add_listener_value::<&str, _>("test", box |arg| {
             println!("{:?}", arg);
+            Ok(())
         });
 
-        assert_eq!(emitter.emit("test"), 3);
-        assert_eq!(emitter.emit_value("test", 10), 3);
-        assert_eq!(emitter.emit_value("test", "test"), 3);
+        assert_eq!(emitter.emit("test").unwrap(), 3);
+        assert_eq!(emitter.emit_value("test", 10).unwrap(), 3);
+        assert_eq!(emitter.emit_value("test", "test").unwrap(), 3);
     }
 
     #[test]
@@ -224,58 +278,67 @@ mod test {
         let mut emitter = EventEmitter::new();
 
         let a = emitter.add_listener("test", box || {
-            println!("A")
+            println!("A");
+            Ok(())
         });
 
         let b = emitter.add_listener_value::<i32, _>("test", box |arg| {
             println!("B {:?}", arg);
+            Ok(())
         });
 
         emitter.add_listener_value::<&str, _>("test", box |arg| {
             println!("C {:?}", arg);
+            Ok(())
         });
 
-        assert_eq!(emitter.emit("test"), 3);
-        assert_eq!(emitter.emit_value("test", 10), 3);
-        assert_eq!(emitter.emit_value("test", "test"), 3);
+        assert_eq!(emitter.emit("test").unwrap(), 3);
+        assert_eq!(emitter.emit_value("test", 10).unwrap(), 3);
+        assert_eq!(emitter.emit_value("test", "test").unwrap(), 3);
 
         emitter.remove_listener("test", b);
 
-        assert_eq!(emitter.emit("test"), 2);
-        assert_eq!(emitter.emit_value("test", 10), 2);
-        assert_eq!(emitter.emit_value("test", "test"), 2);
+        assert_eq!(emitter.emit("test").unwrap(), 2);
+        assert_eq!(emitter.emit_value("test", 10).unwrap(), 2);
+        assert_eq!(emitter.emit_value("test", "test").unwrap(), 2);
 
         emitter.remove_listener("test", a);
 
-        assert_eq!(emitter.emit("test"), 1);
-        assert_eq!(emitter.emit_value("test", 10), 1);
-        assert_eq!(emitter.emit_value("test", "test"), 1);
+        assert_eq!(emitter.emit("test").unwrap(), 1);
+        assert_eq!(emitter.emit_value("test", 10).unwrap(), 1);
+        assert_eq!(emitter.emit_value("test", "test").unwrap(), 1);
     }
 
     #[test]
     fn test_proxy() {
         let mut emitter = EventEmitter::new();
 
-        emitter.add_listener("test", box || {});
+        emitter.add_listener("test", box || {
+            Ok(())
+        });
 
         emitter.add_listener_value::<i32, _>("test", box |arg| {
             println!("{:?}", arg);
+            Ok(())
         });
 
         emitter.add_listener_value::<&str, _>("test", box |arg| {
             println!("{:?}", arg);
+            Ok(())
         });
 
         {
             let mut proxy = emitter.proxy("test");
 
-            assert_eq!(proxy.emit("test"), 3);
-            assert_eq!(proxy.emit_value("test", 10), 3);
-            assert_eq!(proxy.emit_value("test", "test"), 3);
+            assert_eq!(proxy.emit("test").unwrap(), 3);
+            assert_eq!(proxy.emit_value("test", 10).unwrap(), 3);
+            assert_eq!(proxy.emit_value("test", "test").unwrap(), 3);
         }
 
         // Compile time test to see if the proxy lifetime ended
-        emitter.add_listener("test", box || {});
+        emitter.add_listener("test", box || {
+            Ok(())
+        });
     }
 
     #[bench]
@@ -284,10 +347,12 @@ mod test {
 
 
         for i in 0..1000 {
-            emitter.add_listener(format!("test{}", i), box || {});
+            emitter.add_listener(format!("test{}", i), box || {
+                Ok(())
+            });
         }
 
-        b.iter(|| emitter.emit("test"))
+        b.iter(|| emitter.emit("test").unwrap())
     }
 
     #[bench]
@@ -295,11 +360,13 @@ mod test {
         let mut emitter = EventEmitter::new();
 
         for i in 0..1000 {
-            emitter.add_listener(format!("test{}", i), box || {});
+            emitter.add_listener(format!("test{}", i), box || {
+                Ok(())
+            });
         }
 
         let mut proxy = emitter.proxy("test");
 
-        b.iter(|| proxy.emit("test"))
+        b.iter(|| proxy.emit("test").unwrap())
     }
 }
