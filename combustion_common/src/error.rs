@@ -2,14 +2,89 @@
 //!
 //! `Trace` and `TraceResult` should usually be used in place of `Result` using the macros
 //! `throw!`, `try_throw!`, and `try_rethrow!`
+//!
+//! Example:
+//!
+//! ```no_run
+//! #[macro_use]
+//! extern crate combustion_common as common;
+//!
+//! use std::error::Error;
+//! use std::fmt::{Display, Formatter, Result as FmtResult};
+//! use std::io;
+//! use std::fs::File;
+//!
+//! use common::error::*;
+//!
+//! pub type MyResultType<T> = TraceResult<T, MyErrorType>;
+//!
+//! #[derive(Debug)]
+//! pub enum MyErrorType {
+//!     Io(io::Error),
+//!     ErrorOne,
+//!     ErrorTwo,
+//!     //etc
+//! }
+//!
+//! impl Display for MyErrorType {
+//!     fn fmt(&self, f: &mut Formatter) -> FmtResult {
+//!         write!(f, "{}", self.description())
+//!     }
+//! }
+//!
+//! impl Error for MyErrorType {
+//!     fn description(&self) -> &str {
+//!         match *self {
+//!             MyErrorType::Io(ref err) => err.description(),
+//!             MyErrorType::ErrorOne => "Error One",
+//!             MyErrorType::ErrorTwo => "Error Two",
+//!         }
+//!     }
+//! }
+//!
+//! impl From<io::Error> for MyErrorType {
+//!     fn from(err: io::Error) -> MyErrorType {
+//!         MyErrorType::Io(err)
+//!     }
+//! }
+//!
+//! fn basic() -> MyResultType<i32> {
+//!     //Something may throw
+//!     throw!(MyErrorType::ErrorOne);
+//!
+//!     // Or return an Ok value
+//!     Ok(42)
+//! }
+//!
+//! fn example() -> MyResultType<()> {
+//!     // Note the use of try_rethrow! for TraceResult results
+//!     let meaning = try_rethrow!(basic());
+//!
+//!     // Prints 42 if `basic` succeeds
+//!     println!("{}", meaning);
+//!
+//!     // Note the use of try_throw! for non-TraceResult results
+//!     let some_file = try_throw!(File::open("example.txt"));
+//!
+//!     Ok(())
+//! }
+//!
+//! fn main() {
+//!     match example() {
+//!         Ok(_) => println!("Success!"),
+//!         // Here, err is the Trace<E>, which can be printed normally,
+//!         // showing both the error and the backtrace.
+//!         Err(err) => println!("Error: {}", err)
+//!     }
+//! }
+//!
+//! ```
 
 use std::error::Error;
 use std::ops::Deref;
-use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use backtrace::{BacktraceFmt, DefaultBacktraceFmt, SourceBacktrace};
-
-use tinyfiledialogs::*;
 
 /// Alias to aid in usage with `Result`
 pub type TraceResult<T, E> = Result<T, Trace<E>>;
@@ -114,83 +189,4 @@ macro_rules! try_rethrow {
             return ::std::result::Result::Err(err.convert())
         }
     })
-}
-
-#[inline(never)]
-#[cold]
-fn unwrap_failed<E: Debug>(msg: &str, error: E) -> ! {
-    panic!("{}: {:?}", msg, error)
-}
-
-#[inline(never)]
-#[cold]
-fn expect_failed(msg: &str) -> ! {
-    panic!("{}", msg)
-}
-
-/// Extensions to the `Result` type that add extra logging or OS message box alerts
-pub trait ResultExt<T, E> {
-    /// Logs failed `expect` with `error!`
-    fn expect_logged(self, msg: &str) -> T;
-    /// Logs failed `expect` with `error!` and spawns an OS message box dialog with the given message
-    fn expect_logged_box(self, msg: &str) -> T;
-}
-
-impl<T, E> ResultExt<T, E> for Result<T, E> where E: Debug {
-    #[inline]
-    fn expect_logged(self, msg: &str) -> T {
-        match self {
-            Ok(t) => t,
-            Err(e) => {
-                error!("{}\n\n\nDetails:\n\n{:?}", msg, e);
-                unwrap_failed(msg, e)
-            },
-        }
-    }
-
-    #[inline]
-    fn expect_logged_box(self, msg: &str) -> T {
-        match self {
-            Ok(t) => t,
-            Err(e) => {
-                let formatted = format!("{}\n\n\nDetails:\n\n{:?}", msg, e);
-                error!(formatted);
-                message_box(MessageBox::Ok, "Combustion Error", formatted.as_str(), Some(Icon::Error), None);
-                unwrap_failed(msg, e)
-            },
-        }
-    }
-}
-
-/// Extensions to the `Option` type that add extra logging or OS message box alerts
-pub trait OptionExt<T> {
-    /// Logs failed `expect` with `error!`
-    fn expect_logged(self, msg: &str) -> T;
-    /// Logs failed `expect` with `error!` and spawns an OS message box dialog with the given message
-    fn expect_logged_box(self, msg: &str) -> T;
-}
-
-impl<T> OptionExt<T> for Option<T> {
-    #[inline]
-    fn expect_logged(self, msg: &str) -> T {
-        match self {
-            Some(val) => val,
-            None => {
-                error!(msg);
-                expect_failed(msg)
-            },
-        }
-    }
-
-    #[inline]
-    fn expect_logged_box(self, msg: &str) -> T {
-        match self {
-            Some(val) => val,
-            None => {
-                error!(msg);
-                let _ = message_box(MessageBox::Ok, "Combustion Error", msg, Some(Icon::Error), Some(BoxButton::OkYes));
-                expect_failed(msg)
-            },
-        }
-    }
 }

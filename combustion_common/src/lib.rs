@@ -48,3 +48,4 @@ pub mod log;
 pub mod backtrace;
 pub mod error;
 pub mod color;
+pub mod ext;
