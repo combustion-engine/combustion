@@ -147,6 +147,17 @@ impl<E: Error> Display for Trace<E> {
     }
 }
 
+#[cfg(feature = "parallel")]
+pub mod parallel {
+    //! Extensions and type aliases to make parallel and future operations easier with traces
+
+    use futures::Future;
+    use super::*;
+
+    /// Future type with a `Trace<E>` error
+    pub type TraceFuture<T, E> = Future<Item = T, Error = Trace<E>>;
+}
+
 /// Creates a new `Result::Err(Trace<E>)` and immediately returns it
 #[macro_export]
 macro_rules! throw {

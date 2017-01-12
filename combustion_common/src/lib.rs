@@ -36,6 +36,9 @@ extern crate serde_derive;
 extern crate lz4;
 extern crate rand;
 
+#[cfg(feature = "parallel")]
+extern crate futures;
+
 pub mod macros;
 
 pub mod compression;
