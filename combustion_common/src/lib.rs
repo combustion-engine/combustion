@@ -40,7 +40,7 @@ pub mod macros;
 
 pub mod compression;
 pub mod preprocessor;
-pub mod utils;
+pub mod num_utils;
 pub mod stopwatch;
 pub mod humanize;
 pub mod structures;

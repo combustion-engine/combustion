@@ -1,11 +1,11 @@
-//! Generic utilities
+//! Numeric utilities
 
 use num_traits::Num;
 
 /// Generic min function for any `PartialOrd`
 ///
 /// ```
-/// use combustion_common::utils::min;
+/// use combustion_common::num_utils::min;
 ///
 /// assert_eq!(min(1, 2), 1);
 /// ```
@@ -17,7 +17,7 @@ pub fn min<T: PartialOrd>(a: T, b: T) -> T {
 /// Generic max function for any `PartialOrd`
 ///
 /// ```
-/// use combustion_common::utils::max;
+/// use combustion_common::num_utils::max;
 ///
 /// assert_eq!(max(1, 2), 2);
 /// ```
@@ -31,7 +31,7 @@ pub fn max<T: PartialOrd>(a: T, b: T) -> T {
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::utils::round_multiple;
+/// use combustion_common::num_utils::round_multiple;
 ///
 /// assert_eq!(round_multiple(43, 5), 45)
 /// ```
@@ -45,7 +45,7 @@ pub fn round_multiple<T: Num + Copy>(num: T, multiple: T) -> T {
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::utils::*;
+/// use combustion_common::num_utils::*;
 ///
 /// assert_eq!(15u32.clamp(0, 5), 5);
 /// assert!(3.14f32.clamp(0.0, 1.0) < 2.0);
@@ -90,7 +90,7 @@ impl_clamp!(f64);
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::utils::*;
+/// use combustion_common::num_utils::*;
 ///
 /// assert!(5.12345f32.almost_eq(5.12, 0.1));
 /// assert!(0.00000001f32.almost_eq(0.0, 0.0000001));

@@ -18,7 +18,7 @@ pub mod palette {
 
 use self::palette::*;
 
-use utils::AlmostEqExt;
+use num_utils::AlmostEqExt;
 
 #[inline(always)]
 fn is_zero(value: &f32) -> bool {
