@@ -29,6 +29,10 @@ void = "1.0"
 optional = true
 version = "0.1.8"
 
+[dependencies.crossbeam]
+optional = true
+version = "0.2.10"
+
 [dependencies.lz4]
 path = "../deps/lz4-rs"
 
@@ -42,5 +46,4 @@ git = "git://github.com/Ogeon/palette.git"
 path = "../deps/tinyfiledialogs"
 
 [features]
-default = ["parallel"]
-parallel = ["futures"]
+parallel = ["futures", "crossbeam"]

@@ -132,6 +132,10 @@ impl<E: Error> Trace<E> {
     }
 }
 
+unsafe impl<E: Error> Send for Trace<E> where E: Send {}
+
+unsafe impl<E: Error> Sync for Trace<E> where E: Sync {}
+
 impl<E: Error> Deref for Trace<E> {
     type Target = E;
 
@@ -145,17 +149,6 @@ impl<E: Error> Display for Trace<E> {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "{}", self.format::<DefaultBacktraceFmt>(true, false))
     }
-}
-
-#[cfg(feature = "parallel")]
-pub mod parallel {
-    //! Extensions and type aliases to make parallel and future operations easier with traces
-
-    use futures::Future;
-    use super::*;
-
-    /// Future type with a `Trace<E>` error
-    pub type TraceFuture<T, E> = Future<Item = T, Error = Trace<E>>;
 }
 
 /// Creates a new `Result::Err(Trace<E>)` and immediately returns it

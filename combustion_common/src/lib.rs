@@ -3,7 +3,7 @@
 //! "Stuff", in this case, being assorted tools, data structures,
 //! and macros that don't belong in any single crate yet are used often in the engine.
 
-#![feature(macro_reexport)]
+#![feature(macro_reexport, associated_type_defaults)]
 #![deny(missing_docs)]
 
 extern crate regex;
@@ -39,6 +39,9 @@ extern crate rand;
 #[cfg(feature = "parallel")]
 extern crate futures;
 
+#[cfg(feature = "parallel")]
+extern crate crossbeam;
+
 pub mod macros;
 
 pub mod compression;
@@ -52,3 +55,6 @@ pub mod backtrace;
 pub mod error;
 pub mod color;
 pub mod ext;
+
+#[cfg(feature = "parallel")]
+pub mod parallel;
