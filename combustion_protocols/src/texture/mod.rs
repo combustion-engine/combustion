@@ -2,7 +2,7 @@
 
 use capnp;
 
-use common::error::*;
+use common::ext::*;
 
 pub mod protocol;
 pub mod gl;

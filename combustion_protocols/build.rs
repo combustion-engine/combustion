@@ -10,7 +10,7 @@ use walkdir::*;
 use std::process::Command;
 use std::env;
 
-use common::error::*;
+use common::ext::*;
 
 /// Visit directories, find .capnp files, compile them, then replace absolute module references with `super` in the output code.
 fn compile_capnprotos() {
