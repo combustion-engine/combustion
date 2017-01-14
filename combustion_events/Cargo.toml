@@ -5,7 +5,22 @@ version = "0.1.0"
 
 [dependencies]
 fnv = "1.0.5"
-smallvec = "0.3.1"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
+
+[dependencies.futures]
+optional = true
+version = "0.1.8"
+
+[dependencies.futures-cpupool]
+optional = true
+version = "0.1.2"
+
+[dev-dependencies]
+thread-id = "3.0.0"
+
+[features]
+default = ["parallel"]
+parallel = ["futures", "futures-cpupool"]
+bugs = ["default"]

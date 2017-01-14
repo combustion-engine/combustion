@@ -1,8 +1,14 @@
-#![feature(box_syntax, test)]
+//! Event handling
 
-extern crate test;
+#![feature(conservative_impl_trait)]
+#![deny(missing_docs)]
+
 extern crate fnv;
-extern crate smallvec;
+
+#[cfg(feature = "parallel")]
+extern crate futures;
+#[cfg(feature = "parallel")]
+extern crate futures_cpupool;
 
 #[macro_use]
 extern crate combustion_common as common;
