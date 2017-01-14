@@ -1,9 +1,16 @@
-// Use std::any for type erasure
+//! Event emitter implementation
+
 use std::any::Any;
-// Use a fast hashing algorithm for the event lookup table
+
 use fnv::FnvHashMap;
 
 pub mod error;
+
+#[cfg(feature = "parallel")]
+pub mod parallel;
+
+#[cfg(feature = "parallel")]
+pub use self::parallel::*;
 
 pub use self::error::*;
 
@@ -26,10 +33,10 @@ impl EventListener {
 
 /// Defines methods for emitting events
 pub trait AbstractEventEmitter {
-    /// Emit an event, invoked all the listeners for that event.
+    /// Emit an event, invoking all the listeners for that event.
     fn emit<E: Into<String>>(&mut self, event: E) -> EventResult<usize>;
-    /// Emit an event, invoked all the listeners for that event, and passing the given value to them.
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize>;
+    /// Emit an event, invoking all the listeners for that event, and passing the given value to them.
+    fn emit_value<T: Any, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize>;
 }
 
 /// Standard Event Emitter
@@ -71,7 +78,7 @@ impl EventEmitter {
     /// Add a listener that can accept a reference to a value passed via `emit`
     ///
     /// The return value of this is a unique ID for that listener, which can later be used to remove it if desired.
-    pub fn add_listener_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut(Option<&T>) -> EventResult<()>>) -> u64 {
+    pub fn add_listener_value<T: Any, E: Into<String>>(&mut self, event: E, mut cb: Box<FnMut(Option<&T>) -> EventResult<()>>) -> u64 {
         self.add_listener_impl(event.into(), Box::new(move |arg| -> EventResult<()> {
             if let Some(arg) = arg.as_ref() { cb(arg.downcast_ref::<T>()) } else { cb(None) }
         }))
@@ -161,7 +168,7 @@ impl AbstractEventEmitter for EventEmitter {
         }
     }
 
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
+    fn emit_value<T: Any, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
         if let Some(mut listeners) = self.events.get_mut(&event.into()) {
             // Box `T` and cast `T` to `Any` here
             let boxed: Option<Box<Any>> = Some(Box::new(value));
@@ -203,7 +210,7 @@ impl<'a> AbstractEventEmitter for EventEmitterProxy<'a> {
         }
     }
 
-    fn emit_value<T: 'static + Copy, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
+    fn emit_value<T: Any, E: Into<String>>(&mut self, event: E, value: T) -> EventResult<usize> {
         let event = event.into();
 
         if event == self.event {
@@ -225,191 +232,5 @@ impl<'a> AbstractEventEmitter for EventEmitterProxy<'a> {
         } else {
             Ok(0)
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    use test::Bencher;
-
-    #[test]
-    fn test_add_listener() {
-        let mut emitter = EventEmitter::new();
-
-        let test = 10;
-
-        emitter.add_listener("Test", box move || {
-            println!("Test: {}", test);
-            Ok(())
-        });
-
-        emitter.add_listener_value::<i32, _>("Test", box |arg| {
-            println!("{:?}", arg);
-            Ok(())
-        });
-    }
-
-    #[test]
-    fn test_emit() {
-        let mut emitter = EventEmitter::new();
-
-        emitter.add_listener("test", box || {
-            Ok(())
-        });
-
-        emitter.add_listener_value::<i32, _>("test", box |arg| {
-            println!("{:?}", arg);
-            Ok(())
-        });
-
-        emitter.add_listener_value::<&str, _>("test", box |arg| {
-            println!("{:?}", arg);
-            Ok(())
-        });
-
-        assert_eq!(emitter.emit("test").unwrap(), 3);
-        assert_eq!(emitter.emit_value("test", 10).unwrap(), 3);
-        assert_eq!(emitter.emit_value("test", "test").unwrap(), 3);
-    }
-
-    #[test]
-    fn test_remove_listener() {
-        let mut emitter = EventEmitter::new();
-
-        let a = emitter.add_listener("test", box || {
-            println!("A");
-            Ok(())
-        });
-
-        let b = emitter.add_listener_value::<i32, _>("test", box |arg| {
-            println!("B {:?}", arg);
-            Ok(())
-        });
-
-        emitter.add_listener_value::<&str, _>("test", box |arg| {
-            println!("C {:?}", arg);
-            Ok(())
-        });
-
-        assert_eq!(emitter.emit("test").unwrap(), 3);
-        assert_eq!(emitter.emit_value("test", 10).unwrap(), 3);
-        assert_eq!(emitter.emit_value("test", "test").unwrap(), 3);
-
-        emitter.remove_listener("test", b);
-
-        assert_eq!(emitter.emit("test").unwrap(), 2);
-        assert_eq!(emitter.emit_value("test", 10).unwrap(), 2);
-        assert_eq!(emitter.emit_value("test", "test").unwrap(), 2);
-
-        emitter.remove_listener("test", a);
-
-        assert_eq!(emitter.emit("test").unwrap(), 1);
-        assert_eq!(emitter.emit_value("test", 10).unwrap(), 1);
-        assert_eq!(emitter.emit_value("test", "test").unwrap(), 1);
-    }
-
-    #[test]
-    fn test_proxy() {
-        let mut emitter = EventEmitter::new();
-
-        emitter.add_listener("test", box || {
-            Ok(())
-        });
-
-        emitter.add_listener_value::<i32, _>("test", box |arg| {
-            println!("{:?}", arg);
-            Ok(())
-        });
-
-        emitter.add_listener_value::<&str, _>("test", box |arg| {
-            println!("{:?}", arg);
-            Ok(())
-        });
-
-        {
-            let mut proxy = emitter.proxy("test");
-
-            assert_eq!(proxy.emit("test").unwrap(), 3);
-            assert_eq!(proxy.emit_value("test", 10).unwrap(), 3);
-            assert_eq!(proxy.emit_value("test", "test").unwrap(), 3);
-        }
-
-        // Compile time test to see if the proxy lifetime ended
-        emitter.add_listener("test", box || {
-            Ok(())
-        });
-    }
-
-    #[test]
-    fn backtrace() {
-        // This should print out something like:
-        //
-        // Unspecified error
-        // Stack backtrace for task "<event_emitter::test::backtrace>" at line 350 of "src\event_emitter/mod.rs":
-        //    0:     0x7ff6f2f9a930 - combustion_events::event_emitter::test::backtrace::{{closure}}
-        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:350
-        //    1:     0x7ff6f2f95820 - combustion_events::event_emitter::{{impl}}::add_listener::{{closure}}<&str>
-        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:68
-        //    2:     0x7ff6f2f960b0 - combustion_events::event_emitter::{{impl}}::emit<&str>
-        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:153
-        //    3:     0x7ff6f2f9a620 - combustion_events::event_emitter::test::backtrace
-        //                          at E:\code\projects\Combustion\combustion_events\src\event_emitter\mod.rs:353
-        //    4:     0x7ff6f2fac0b0 - test::{{impl}}::call_box<(),closure>
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libtest\lib.rs:140
-        //    5:     0x7ff6f30071b0 - panic_unwind::__rust_maybe_catch_panic
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libpanic_unwind\lib.rs:98
-        //    6:     0x7ff6f2f9dfe0 - std::panicking::try::do_call<std::panic::AssertUnwindSafe<closure>,()>
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libstd\panicking.rs:456
-        //    7:     0x7ff6f30071b0 - panic_unwind::__rust_maybe_catch_panic
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libpanic_unwind\lib.rs:98
-        //    8:     0x7ff6f2fa6890 - alloc::boxed::{{impl}}::call_box<(),closure>
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\liballoc\boxed.rs:605
-        //    9:     0x7ff6f3001670 - std::sys::imp::thread::{{impl}}::new::thread_start
-        //                          at C:\bot\slave\nightly-dist-rustc-win-msvc-64\build\src\libstd\sys\windows\thread.rs:50
-        //    10:     0x7ffead558350 - BaseThreadInitThunk
-        //                          at <anonymous>
-
-        let mut emitter = EventEmitter::new();
-
-        emitter.add_listener("test", box || {
-            throw!(EventError::Unspecified);
-        });
-
-        match emitter.emit("test") {
-            Err(trace) => {
-                println!("{}", trace);
-            },
-            Ok(_) => panic!("Expected an error")
-        }
-    }
-
-    #[bench]
-    fn bench_emit(b: &mut Bencher) {
-        let mut emitter = EventEmitter::new();
-
-        for i in 0..1000 {
-            emitter.add_listener(format!("test{}", i), box || {
-                Ok(())
-            });
-        }
-
-        b.iter(|| emitter.emit("test").unwrap())
-    }
-
-    #[bench]
-    fn bench_proxy(b: &mut Bencher) {
-        let mut emitter = EventEmitter::new();
-
-        for i in 0..1000 {
-            emitter.add_listener(format!("test{}", i), box || {
-                Ok(())
-            });
-        }
-
-        let mut proxy = emitter.proxy("test");
-
-        b.iter(|| proxy.emit("test").unwrap())
     }
 }
