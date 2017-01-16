@@ -36,6 +36,12 @@ extern crate serde_derive;
 extern crate lz4;
 extern crate rand;
 
+#[macro_use]
+#[macro_reexport(backtrace, backtrace_noheader, throw, try_throw, try_rethrow)]
+pub extern crate trace_error;
+
+pub use trace_error as error;
+
 #[cfg(feature = "parallel")]
 extern crate futures;
 
@@ -51,8 +57,6 @@ pub mod stopwatch;
 pub mod humanize;
 pub mod structures;
 pub mod log;
-pub mod backtrace;
-pub mod error;
 pub mod color;
 pub mod ext;
 
