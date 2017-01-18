@@ -25,7 +25,6 @@ struct EventListener {
 
 impl EventListener {
     /// Create a new `EventListener` from an id and callback
-    #[inline(always)]
     fn new(id: u64, cb: Callback) -> EventListener {
         EventListener { id: id, cb: cb }
     }
@@ -43,6 +42,7 @@ pub trait AbstractEventEmitter {
 ///
 /// Holds type-erased callbacks that are associated with an event `String`.
 /// When an event is emitted, callbacks associated with it are invoked.
+#[derive(Default)]
 pub struct EventEmitter {
     events: FnvHashMap<String, Vec<EventListener>>,
     counter: u64,
@@ -56,7 +56,7 @@ impl EventEmitter {
 
     // The "real" implementation of add_listener that generates the IDs and inserts it into the table
     fn add_listener_impl(&mut self, event: String, cb: Callback) -> u64 {
-        let mut listeners = self.events.entry(event).or_insert_with(|| Vec::new());
+        let mut listeners = self.events.entry(event).or_insert_with(Vec::new);
 
         let id = self.counter;
 
@@ -107,7 +107,7 @@ impl EventEmitter {
     ///
     /// `false` is returned if it was not found.
     pub fn remove_any_listener(&mut self, id: u64) -> bool {
-        for (_, mut listeners) in self.events.iter_mut() {
+        for mut listeners in &mut self.events.values_mut() {
             let index = listeners.binary_search_by_key(&id, |listener| listener.id);
 
             if let Ok(index) = index {
@@ -123,10 +123,10 @@ impl EventEmitter {
     /// Create a short-lived proxy object for a single event.
     ///
     /// This avoids hash table lookups for every call to `emit`
-    pub fn proxy<'a, E: Into<String>>(&'a mut self, event: E) -> EventEmitterProxy<'a> {
+    pub fn proxy<E: Into<String>>(&mut self, event: E) -> EventEmitterProxy {
         let event = event.into();
 
-        let mut listeners = self.events.entry(event.clone()).or_insert_with(|| Vec::new());
+        let mut listeners = self.events.entry(event.clone()).or_insert_with(Vec::new);
 
         EventEmitterProxy {
             event: event,

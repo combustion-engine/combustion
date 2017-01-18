@@ -1,6 +1,6 @@
-//! Parallel `PooledEventEmitter`
+//! Parallel `ParallelEventEmitter`
 //!
-//! The `PooledEventEmitter` object allows for event emitter listeners
+//! The `ParallelEventEmitter` object allows for event emitter listeners
 //! to be invoked in a thread pool concurrently.
 //!
 //! Which is nice.
@@ -20,10 +20,19 @@ use common::error::Trace;
 
 use super::*;
 
+/// This allows callbacks to take both values and references depending on the situation
+enum ArcCowish {
+    Owned(Box<Any>),
+    Borrowed(Arc<Box<Any>>),
+}
+
+/// Variation of `Callback` that uses `ArcCowish` instead of the normal `Box<Any>`
+type SyncCallback = Box<FnMut(Option<ArcCowish>) -> EventResult<()>>;
+
 /// Stores the listener callback and its ID value
 struct SyncEventListener {
     id: u64,
-    cb: RwLock<Callback>,
+    cb: RwLock<SyncCallback>,
 }
 
 unsafe impl Send for SyncEventListener {}
@@ -32,8 +41,7 @@ unsafe impl Sync for SyncEventListener {}
 
 impl SyncEventListener {
     /// Create a new `SyncEventListener` from an id and callback
-    #[inline(always)]
-    fn new(id: u64, cb: Callback) -> Arc<SyncEventListener> {
+    fn new(id: u64, cb: SyncCallback) -> Arc<SyncEventListener> {
         Arc::new(SyncEventListener { id: id, cb: RwLock::new(cb) })
     }
 }
@@ -46,7 +54,7 @@ type SyncListenersLock = Arc<RwLock<Vec<SyncEventListenerLock>>>;
 ///
 /// It behaves essentially like the standard `EventEmitter`,
 /// but listeners are invoked in parallel in a thread pool.
-pub struct PooledEventEmitter {
+pub struct ParallelEventEmitter {
     inner: Arc<Inner>,
 }
 
@@ -60,17 +68,24 @@ unsafe impl Send for Inner {}
 
 unsafe impl Sync for Inner {}
 
-impl PooledEventEmitter {
-    /// Creates a new `PooledEventEmitter` with the default `CpuPool`
-    pub fn new() -> PooledEventEmitter {
-        PooledEventEmitter::with_pool(CpuPool::new_num_cpus())
+impl Default for ParallelEventEmitter {
+    fn default() -> ParallelEventEmitter {
+        ParallelEventEmitter::new()
+    }
+}
+
+
+impl ParallelEventEmitter {
+    /// Creates a new `ParallelEventEmitter` with the default `CpuPool`
+    pub fn new() -> ParallelEventEmitter {
+        ParallelEventEmitter::with_pool(CpuPool::new_num_cpus())
     }
 
-    /// Creates a new `PooledEventEmitter` with an already existing `CpuPool` instance.
+    /// Creates a new `ParallelEventEmitter` with an already existing `CpuPool` instance.
     ///
     /// This allows for custom thread preferences and lifecycle hooks.
-    pub fn with_pool(pool: CpuPool) -> PooledEventEmitter {
-        PooledEventEmitter {
+    pub fn with_pool(pool: CpuPool) -> ParallelEventEmitter {
+        ParallelEventEmitter {
             inner: Arc::new(Inner {
                 events: RwLock::new(FnvHashMap::default()),
                 counter: AtomicUsize::new(0),
@@ -79,7 +94,7 @@ impl PooledEventEmitter {
         }
     }
 
-    fn add_listener_impl(&mut self, event: String, cb: Callback) -> EventResult<u64> {
+    fn add_listener_impl(&mut self, event: String, cb: SyncCallback) -> EventResult<u64> {
         match try_throw!(self.inner.events.write()).entry(event) {
             Entry::Occupied(listeners_lock) => {
                 let mut listeners = try_throw!(listeners_lock.get().write());
@@ -112,24 +127,64 @@ impl PooledEventEmitter {
         self.add_listener_impl(event.into(), Box::new(move |_| -> EventResult<()> { cb() }))
     }
 
-    /// Add a listener that can accept a reference to a value passed via `emit`
+    /// Add a listener that can accept a value passed via `emit_value` or `emit_value_sync` if `T` is `Clone`
     ///
     /// The return value of this is a unique ID for that listener, which can later be used to remove it if desired.
-    pub fn add_listener_value<T: Any + Clone, E: Into<String>>(&mut self, event: E, cb: Box<Fn(Option<&T>) -> EventResult<()>>) -> EventResult<u64> where T: Send {
-        self.add_listener_impl(event.into(), Box::new(move |arg| -> EventResult<()> {
-            if let Some(arg) = arg.as_ref() { cb(arg.downcast_ref::<T>()) } else { cb(None) }
+    pub fn add_listener_value<T: Any + Clone, E: Into<String>>(&mut self, event: E, cb: Box<Fn(Option<T>) -> EventResult<()>>) -> EventResult<u64> where T: Send {
+        self.add_listener_impl(event.into(), Box::new(move |arg: Option<ArcCowish>| -> EventResult<()> {
+            if let Some(arg) = arg {
+                match arg {
+                    ArcCowish::Borrowed(value) => {
+                        // If the value is borrowed, but T is Clone, we can clone a unique value
+                        if let Some(value) = value.downcast_ref::<T>() {
+                            return cb(Some(value.clone()));
+                        }
+                    }
+                    ArcCowish::Owned(value) => {
+                        // If it's owned, we just dereference it directly.
+                        if let Ok(value) = value.downcast::<T>() {
+                            return cb(Some(*value));
+                        }
+                    }
+                }
+            }
+
+            cb(None)
         }))
     }
 
-    /// Variation of `add_listener_value` that accepts `Sync` types, where intermediate copies on `emit` are unnecessary.
+    /// Variation of `add_listener_value` that accepts `Sync` types,
+    /// where intermediate copies on `emit*` are unnecessary.
+    ///
+    /// This will attempt to use a reference to the original
+    /// value passed to `emit_value_sync`. If a value of `T` was passed via `emit_value`,
+    /// the callback will be invoked with the `Clone`d copy.
     ///
     /// There is nothing statically forcing the use of this instead of `add_listener_value`,
-    /// but it is here just in case your type `T` is `Sync` but might not implement `Clone`
+    /// but it is here just in case your type `T` is `Sync` but might not implement `Clone`,
+    /// or if you want to avoid cloning values all over the place.
     ///
     /// The return value of this is a unique ID for that listener, which can later be used to remove it if desired.
     pub fn add_listener_sync<T: Any, E: Into<String>>(&mut self, event: E, cb: Box<Fn(Option<&T>) -> EventResult<()>>) -> EventResult<u64> where T: Send + Sync {
-        self.add_listener_impl(event.into(), Box::new(move |arg| -> EventResult<()> {
-            if let Some(arg) = arg.as_ref() { cb(arg.downcast_ref::<T>()) } else { cb(None) }
+        self.add_listener_impl(event.into(), Box::new(move |arg: Option<ArcCowish>| -> EventResult<()> {
+            if let Some(arg) = arg {
+                match arg {
+                    ArcCowish::Borrowed(value) => {
+                        // If the value is borrowed, return return a reference to the local copy
+                        if let Some(value) = value.downcast_ref::<T>() {
+                            return cb(Some(&*value));
+                        }
+                    }
+                    ArcCowish::Owned(value) => {
+                        // If it's owned, do the same thing, although it'll reference the original copy
+                        if let Some(value) = value.downcast_ref::<T>() {
+                            return cb(Some(&*value));
+                        }
+                    }
+                }
+            }
+
+            cb(None)
         }))
     }
 
@@ -243,11 +298,8 @@ impl PooledEventEmitter {
                         let listener_future = inner.pool.spawn_fn(move || -> EventResult<()> {
                             let mut cb_guard = try_throw!(listener_lock.cb.write());
 
-                            // Use let binding to coerce value into Any
-                            let opt: Option<Box<Any>> = Some(Box::new(value));
-
                             // Force a mutable reference to the callback
-                            try_rethrow!((&mut *cb_guard)(opt.as_ref()));
+                            try_rethrow!((&mut *cb_guard)(Some(ArcCowish::Owned(Box::new(value)))));
 
                             Ok(())
                         });
@@ -283,17 +335,16 @@ impl PooledEventEmitter {
                 if listeners.len() > 0 {
                     let mut listener_futures = Vec::with_capacity(listeners.len());
 
-                    // We know T is Send + Sync, and Box<Any> is really just Box<T>, so it is Send + Sync as well
+                    // We know T is Send, and Box<Any> is really just Box<T>, so it is Send as well
                     #[derive(Clone)]
-                    struct SyncWrapper {
-                        inner: Arc<Option<Box<Any>>>
+                    struct SendWrapper {
+                        inner: Arc<Box<Any>>
                     }
 
-                    unsafe impl Send for SyncWrapper {}
-                    unsafe impl Sync for SyncWrapper {}
+                    unsafe impl Send for SendWrapper {}
 
                     // Use let binding to coerce value into Any
-                    let wrapper = SyncWrapper { inner: Arc::new(Some(Box::new(value))) };
+                    let wrapper = SendWrapper { inner: Arc::new(Box::new(value)) };
 
                     for listener_lock in listeners.iter() {
                         // Clone a local copy of the listener_lock that can be sent to the spawn
@@ -305,7 +356,7 @@ impl PooledEventEmitter {
                             let mut cb_guard = try_throw!(listener_lock.cb.write());
 
                             // Force a mutable reference to the callback
-                            try_rethrow!((&mut *cb_guard)((*wrapper.inner).as_ref()));
+                            try_rethrow!((&mut *cb_guard)(Some(ArcCowish::Borrowed(wrapper.inner))));
 
                             Ok(())
                         });

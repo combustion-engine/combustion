@@ -20,7 +20,7 @@ use events::event_emitter::parallel::*;
 
 #[test]
 fn test_pooled_emit() {
-    let mut emitter = PooledEventEmitter::new();
+    let mut emitter = ParallelEventEmitter::new();
 
     emitter.add_listener("test", box || {
         thread::sleep_ms(1000);
