@@ -5,6 +5,7 @@
 
 #![feature(macro_reexport, associated_type_defaults)]
 #![deny(missing_docs)]
+#![allow(unknown_lints, inline_always)]
 
 extern crate regex;
 extern crate vec_map;

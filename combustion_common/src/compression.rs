@@ -43,13 +43,10 @@ impl<W: Write> Write for AutoEncoder<W> {
 
 impl<W: Write> Drop for AutoEncoder<W> {
     fn drop(&mut self) {
-        match self.0.take() {
-            Some(encoder) => {
-                let (_, result) = encoder.finish();
+        if let Some(encoder) = self.0.take() {
+            let (_, result) = encoder.finish();
 
-                result.expect("Error finishing compressed stream");
-            }
-            None => {}
+            result.expect("Error finishing compressed stream");
         }
     }
 }
@@ -133,9 +130,16 @@ impl CompressedMemory {
         self.data.get_ref().len()
     }
 
+    /// Check if buffer is empty
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.data.get_ref().is_empty()
+    }
+
     /// Create a reader that decompresses the data on the fly.
     ///
     /// The lifetime of the reader shall not exceed the lifetime of the `CompressedMemory` instance.
+    #[allow(needless_lifetimes)]
     pub fn create_reader<'a>(&'a self) -> io::Result<Box<Read + 'a>> {
         let cursor: io::Cursor<&'a [u8]> = io::Cursor::new(self.data.get_ref().as_slice());
 

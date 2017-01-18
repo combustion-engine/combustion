@@ -45,7 +45,7 @@ fn real_include(path: &Path, mut cache: &mut HashMap<PathBuf, String>) -> Result
             //let pos = captures.pos(1).unwrap();
             let included_path = captures.get(1).unwrap().as_str();
 
-            let parent = path.parent().unwrap_or(Path::new("./"));
+            let parent = path.parent().unwrap_or_else(|| Path::new("./"));
 
             let full_path = parent.join(included_path);
 
