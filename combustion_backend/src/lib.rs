@@ -3,10 +3,8 @@
 //! This crate contains most graphics API specific code.
 //!
 //! Though most of it just focuses on OpenGL, support for Vulkan and DX11 are planned... eventually.
-#![feature(test)]
-#![allow(unused_imports, unknown_lints)]
-
-extern crate test;
+#![feature(trace_macros)]
+#![allow(unused_imports, unknown_lints, inline_always)]
 
 extern crate libc;
 #[cfg(all(feature = "dx11", target_os = "windows"))]

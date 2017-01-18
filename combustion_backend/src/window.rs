@@ -72,7 +72,7 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
     /// a list of fallback window configurations to try initializing with.
     /// For details, see `create()`.
     pub fn try_hints(mut self, hints: &[WindowHint]) -> WindowBuilder<'title, 'monitor> {
-        self.try_hints.push(hints.iter().map(|&x| x).collect());
+        self.try_hints.push(hints.iter().cloned().collect());
         self
     }
 
@@ -92,7 +92,7 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
     /// a list of fallback window configurations to try initializing with.
     /// For details, see `create()`.
     pub fn common_hints(mut self, hints: &[WindowHint]) -> WindowBuilder<'title, 'monitor> {
-        self.common_hints.extend(hints.iter().map(|&x| x));
+        self.common_hints.extend(hints.iter().cloned());
         self
     }
 
@@ -142,14 +142,14 @@ impl<'title, 'monitor> WindowBuilder<'title, 'monitor> {
         #[cfg(target = "macos")]
         glfw.window_hint(WindowHint::OpenGlForwardCompat(true));
 
-        for setup in try_hints.iter() {
+        for setup in &try_hints {
             glfw.default_window_hints();
 
-            for hint in common_hints.iter() {
+            for hint in &common_hints {
                 glfw.window_hint(*hint);
             }
 
-            for hint in setup.iter() {
+            for hint in setup {
                 glfw.window_hint(*hint);
             }
 

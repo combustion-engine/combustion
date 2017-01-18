@@ -85,12 +85,6 @@ impl GLBuffer {
     #[inline(always)]
     pub fn num_elements<T>(&self) -> usize { self.2 / mem::size_of::<T>() }
 
-    /// Buffer a `Vec<T>` of elements `T` to the `GLBuffer`
-    #[inline]
-    pub fn buffer_elements<T>(&mut self, data: &Vec<T>, usage: GLBufferUsage) -> GLResult<()> {
-        unsafe { self.buffer_raw(data.as_ptr() as *const c_void, data.len() * mem::size_of::<T>(), usage) }
-    }
-
     /// Buffer a slice of `T` to the `GLBuffer`
     #[inline]
     pub fn buffer_slice<T>(&mut self, data: &[T], usage: GLBufferUsage) -> GLResult<()> {

@@ -40,10 +40,7 @@ macro_rules! impl_matrix_uniform {
     ($glFunc:ident:$rustType:ty as $glType:ty => $name:ident($field:ident)) => {
         pub fn $name(&mut self, mat: &$field<$rustType>, transpose: bool) -> GLResult<()> {
             unsafe {
-                $glFunc(self.0, 1, match transpose {
-                    true => TRUE,
-                    false => FALSE
-                }, mat.as_ref() as *const _ as *const $glType);
+                $glFunc(self.0, 1, if transpose { TRUE } else { FALSE }, mat.as_ref() as *const _ as *const $glType);
             }
 
             check_gl_errors!();

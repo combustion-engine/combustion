@@ -41,6 +41,7 @@ pub enum GLError {
     PoisonError,
     InvalidInstance,
     AlreadyInitialized,
+    UnsupportedExtension(String),
 }
 
 static mut CHECK_DISABLED: AtomicBool = ATOMIC_BOOL_INIT;
@@ -170,6 +171,7 @@ impl Error for GLError {
             GLError::PoisonError => "Poison Error",
             GLError::InvalidInstance => "Invalid Instance",
             GLError::AlreadyInitialized => "Already Initialized",
+            GLError::UnsupportedExtension(_) => "Unsupported Extension"
         }
     }
 }
