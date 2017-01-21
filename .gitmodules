@@ -10,9 +10,6 @@
 [submodule "deps/capnpc-rust"]
 	path = deps/capnpc-rust
 	url = git@gitlab.com:combustion/capnpc-rust.git
-[submodule "deps/tinyfiledialogs"]
-	path = deps/tinyfiledialogs
-	url = git@gitlab.com:combustion/tinyfiledialogs.git
 [submodule "deps/nalgebra"]
 	path = deps/nalgebra
 	url = git@gitlab.com:combustion/nalgebra.git

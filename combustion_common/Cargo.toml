@@ -44,7 +44,7 @@ path = "../deps/nalgebra"
 git = "git://github.com/Ogeon/palette.git"
 
 [dependencies.tinyfiledialogs]
-path = "../deps/tinyfiledialogs"
+git = "https://github.com/novacrazy/tinyfiledialogs-rs"
 
 [features]
 parallel = ["futures", "crossbeam"]
