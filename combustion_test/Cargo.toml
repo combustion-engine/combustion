@@ -2,6 +2,7 @@
 name = "combustion_test"
 version = "0.1.0"
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
+publish = false
 
 [dependencies.combustion_macros]
 path = "../combustion_macros"

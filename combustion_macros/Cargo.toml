@@ -2,6 +2,7 @@
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_macros"
 version = "0.1.0"
+publish = false
 
 [dependencies]
 matches = "0.1.4"

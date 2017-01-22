@@ -3,6 +3,7 @@ name = "combustion_core"
 authors = ["novacrazy <novacrazy@gmail.com>"]
 include = ["Cargo.toml", "src/**/*.rs"]
 version = "0.1.0"
+publish = false
 
 [lib]
 path = "src/lib.rs"

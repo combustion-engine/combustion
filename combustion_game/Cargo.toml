@@ -3,6 +3,7 @@ name = "combustion_game"
 authors = ["novacrazy <novacrazy@gmail.com>"]
 include = ["Cargo.toml", "src/**/*.rs"]
 version = "0.1.0"
+publish = false
 
 [[bin]]
 name = "test"

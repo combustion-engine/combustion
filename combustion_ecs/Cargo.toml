@@ -2,6 +2,7 @@
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_ecs"
 version = "0.1.0"
+publish = false
 
 [dependencies]
 fnv = "1.0.5"

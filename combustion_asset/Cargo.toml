@@ -2,6 +2,7 @@
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_asset"
 version = "0.1.0"
+publish = false
 
 [dependencies]
 capnp = "0.7.5"
