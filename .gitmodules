@@ -22,9 +22,6 @@
 [submodule "deps/lazy"]
 	path = deps/lazy
 	url = git@gitlab.com:combustion/lazy.git
-[submodule "deps/lz4-rs"]
-	path = deps/lz4-rs
-	url = git@gitlab.com:combustion/lz4-rs.git
 [submodule "deps/luajit-sys"]
 	path = deps/luajit-sys
 	url = git@gitlab.com:combustion/luajit-sys.git
