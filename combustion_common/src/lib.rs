@@ -43,14 +43,7 @@ pub extern crate trace_error;
 
 pub use trace_error as error;
 
-#[cfg(feature = "parallel")]
-extern crate futures;
-
-#[cfg(feature = "parallel")]
-extern crate crossbeam;
-
 pub mod macros;
-
 pub mod compression;
 pub mod preprocessor;
 pub mod num_utils;
@@ -60,6 +53,3 @@ pub mod structures;
 pub mod log;
 pub mod color;
 pub mod ext;
-
-#[cfg(feature = "parallel")]
-pub mod parallel;

@@ -27,14 +27,6 @@ trace-error = "0.1.2"
 vec_map = "0.6.0"
 void = "1.0"
 
-[dependencies.crossbeam]
-optional = true
-version = "0.2.10"
-
-[dependencies.futures]
-optional = true
-version = "0.1.8"
-
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
 
@@ -46,6 +38,3 @@ git = "git://github.com/Ogeon/palette.git"
 
 [dependencies.tinyfiledialogs]
 git = "https://github.com/novacrazy/tinyfiledialogs-rs"
-
-[features]
-parallel = ["futures", "crossbeam"]
