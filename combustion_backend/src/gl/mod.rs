@@ -32,7 +32,7 @@ macro_rules! impl_simple_globject {
 
             #[inline(always)]
             fn is_valid(&self) -> bool {
-                TRUE == unsafe { $crate::gl::bindings::$is(self.0) } $(|| $extra_cond(self))*
+                $($extra_cond(self) ||)* TRUE == unsafe { $crate::gl::bindings::$is(self.0) }
             }
         }
     }
