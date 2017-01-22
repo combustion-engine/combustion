@@ -26,7 +26,7 @@ path = "../combustion_common"
 path = "../combustion_protocols"
 
 [dependencies.lz4]
-path = "../deps/lz4-rs"
+git = "https://github.com/novacrazy/lz4-rs"
 
 [dependencies.nalgebra]
 path = "../deps/nalgebra"
