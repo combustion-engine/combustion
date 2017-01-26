@@ -16,9 +16,6 @@ extern crate serde_derive;
 extern crate combustion_common as common;
 
 #[macro_use]
-extern crate combustion_backend as backend;
-
-#[macro_use]
 pub mod named;
 
 /// Utility structures used within the protocols

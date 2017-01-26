@@ -29,9 +29,6 @@ serde_derive = "0.9"
 [dependencies.capnpc]
 path = "../deps/capnpc-rust"
 
-[dependencies.combustion_backend]
-path = "../combustion_backend"
-
 [dependencies.combustion_common]
 path = "../combustion_common/"
 

@@ -4,6 +4,7 @@
 //!
 //! Though most of it just focuses on OpenGL, support for Vulkan and DX11 are planned... eventually.
 #![feature(trace_macros)]
+#![feature(never_type)]
 #![allow(unused_imports, unknown_lints, inline_always)]
 
 extern crate libc;
@@ -25,6 +26,12 @@ extern crate fnv;
 
 #[macro_use]
 extern crate combustion_common as common;
+
+#[macro_use]
+extern crate combustion_macros;
+
+#[macro_use]
+extern crate combustion_protocols as protocols;
 
 pub mod window;
 

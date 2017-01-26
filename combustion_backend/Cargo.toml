@@ -23,6 +23,9 @@ path = "../combustion_common/"
 [dependencies.combustion_macros]
 path = "../combustion_macros/"
 
+[dependencies.combustion_protocols]
+path = "../combustion_protocols/"
+
 [dependencies.d3d11-sys]
 optional = true
 version = "0.2.0"
