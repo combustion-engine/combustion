@@ -21,6 +21,7 @@ extern crate combustion_backend as backend;
 #[macro_use]
 pub mod named;
 
+/// Utility structures used within the protocols
 pub mod utils {
     pub mod protocol {
         include!(concat!(env!("OUT_DIR"), "/protocols/utils_capnp.rs"));
@@ -28,6 +29,7 @@ pub mod utils {
 }
 
 pub mod math;
+pub mod mesh;
 pub mod model;
 pub mod scene;
 pub mod texture;
