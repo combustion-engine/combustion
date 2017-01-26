@@ -34,7 +34,7 @@ fn compile_capnprotos() {
 
         info!("Attempting to generate: {:?} as Rust", entry.path());
 
-        capnpc::CompilerCommand::new().file(entry.path()).include("protocols").run().expect_logged("Failed to compile protocol");
+        capnpc::CompilerCommand::new().file(entry.path()).import_path("protocols").run().expect_logged("Failed to compile protocol");
 
         #[cfg(feature = "cpp")]
         {
