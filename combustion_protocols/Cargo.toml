@@ -23,8 +23,8 @@ path = "../combustion_common"
 capnp = "0.8"
 phf = "0.7.20"
 phf_macros = "0.7.20"
-serde = "0.8.19"
-serde_derive = "0.8.19"
+serde = "0.9"
+serde_derive = "0.9"
 
 [dependencies.capnpc]
 path = "../deps/capnpc-rust"
@@ -42,7 +42,7 @@ git = "https://github.com/novacrazy/lz4-rs"
 path = "../deps/nalgebra"
 
 [dev-dependencies]
-serde_json = "0.8.4"
+serde_json = "0.9"
 serde_yaml = "0.5.0"
 
 [features]

@@ -8,17 +8,20 @@ version = "0.1.0"
 publish = false
 
 [dependencies]
-enum_primitive = "0.1.0"
-fnv = "1.0.5"
+enum_primitive = "0.1"
+fnv = "1"
 image = "0.12"
-lazy_static = "0.2.2"
-libc = "0.2.17"
-serde = "0.8.19"
-serde_derive = "0.8.19"
-void = "1.0.2"
+lazy_static = "0.2"
+libc = "0.2"
+serde = "0.9"
+serde_derive = "0.9"
+void = "1"
 
 [dependencies.combustion_common]
 path = "../combustion_common/"
+
+[dependencies.combustion_macros]
+path = "../combustion_macros/"
 
 [dependencies.d3d11-sys]
 optional = true
