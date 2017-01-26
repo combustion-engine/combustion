@@ -7,3 +7,9 @@ struct Option(Type) {
         some @1: Type;
     }
 }
+
+# Equivalent to C++ std::pair
+struct Pair(FirstType, SecondType) {
+    first @0: FirstType;
+    second @1: SecondType;
+}
