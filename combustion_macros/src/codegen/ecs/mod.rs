@@ -1,1 +1,1 @@
-pub mod component_derive;
+pub mod derive_component;

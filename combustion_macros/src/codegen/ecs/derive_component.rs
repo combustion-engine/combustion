@@ -7,7 +7,7 @@ struct ECSComponentProperties {
     ecs_path: Option<syn::Path>,
 }
 
-pub fn expand_derive(ast: &syn::MacroInput) -> Result<quote::Tokens, String> {
+pub fn expand(ast: &syn::MacroInput) -> Result<quote::Tokens, String> {
     let mut props = ECSComponentProperties {
         storage_path: None,
         builtin_storage: true,

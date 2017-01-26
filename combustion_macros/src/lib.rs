@@ -15,7 +15,7 @@ pub fn derive_ecs_component(input: TokenStream) -> TokenStream {
 
     let ast = syn::parse_macro_input(&input).unwrap();
 
-    codegen::ecs::component_derive::expand_derive(&ast)
+    codegen::ecs::derive_component::expand(&ast)
         .expect("Failed to run codegen")
         .parse()
         .expect("Failed to generate code")
