@@ -15,6 +15,7 @@ namespace capnp {
 namespace schemas {
 
 CAPNP_DECLARE_SCHEMA(b17d86024218444d);
+CAPNP_DECLARE_SCHEMA(a18e1acd5ce2427c);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -39,6 +40,25 @@ struct Option {
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
     static constexpr ::capnp::_::RawBrandedSchema const* brand = ::capnp::_::ChooseBrand<_capnpPrivate, Type>::brand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename FirstType = ::capnp::AnyPointer, typename SecondType = ::capnp::AnyPointer>
+struct Pair {
+  Pair() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(a18e1acd5ce2427c, 0, 2)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = ::capnp::_::ChooseBrand<_capnpPrivate, FirstType, SecondType>::brand;
     #endif  // !CAPNP_LITE
   };
 };
@@ -133,6 +153,104 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+template <typename FirstType, typename SecondType>
+class Pair<FirstType, SecondType>::Reader {
+public:
+  typedef Pair Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasFirst() const;
+  inline  ::capnp::ReaderFor<FirstType> getFirst() const;
+
+  inline bool hasSecond() const;
+  inline  ::capnp::ReaderFor<SecondType> getSecond() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename FirstType, typename SecondType>
+class Pair<FirstType, SecondType>::Builder {
+public:
+  typedef Pair Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasFirst();
+  inline  ::capnp::BuilderFor<FirstType> getFirst();
+  inline void setFirst( ::capnp::ReaderFor<FirstType> value);
+  inline  ::capnp::BuilderFor<FirstType> initFirst();
+  inline  ::capnp::BuilderFor<FirstType> initFirst(unsigned int size);
+  inline void adoptFirst(::capnp::Orphan<FirstType>&& value);
+  inline ::capnp::Orphan<FirstType> disownFirst();
+
+  inline bool hasSecond();
+  inline  ::capnp::BuilderFor<SecondType> getSecond();
+  inline void setSecond( ::capnp::ReaderFor<SecondType> value);
+  inline  ::capnp::BuilderFor<SecondType> initSecond();
+  inline  ::capnp::BuilderFor<SecondType> initSecond(unsigned int size);
+  inline void adoptSecond(::capnp::Orphan<SecondType>&& value);
+  inline ::capnp::Orphan<SecondType> disownSecond();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+class Pair<FirstType, SecondType>::Pipeline {
+public:
+  typedef Pair Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::capnp::PipelineFor<FirstType> getFirst();
+  inline  ::capnp::PipelineFor<SecondType> getSecond();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -277,6 +395,138 @@ const ::capnp::_::RawBrandedSchema::Binding Option<Type>::_capnpPrivate::brandBi
 template <typename Type>
 const ::capnp::_::RawBrandedSchema Option<Type>::_capnpPrivate::specificBrand = {
   &::capnp::schemas::s_b17d86024218444d, brandScopes, nullptr,
+  sizeof(brandScopes) / sizeof(brandScopes[0]), 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+template <typename FirstType, typename SecondType>
+inline bool Pair<FirstType, SecondType>::Reader::hasFirst() const {
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+template <typename FirstType, typename SecondType>
+inline bool Pair<FirstType, SecondType>::Builder::hasFirst() {
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::ReaderFor<FirstType> Pair<FirstType, SecondType>::Reader::getFirst() const {
+  return ::capnp::_::PointerHelpers<FirstType>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<FirstType> Pair<FirstType, SecondType>::Builder::getFirst() {
+  return ::capnp::_::PointerHelpers<FirstType>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+inline  ::capnp::PipelineFor<FirstType> Pair<FirstType, SecondType>::Pipeline::getFirst() {
+  return  ::capnp::PipelineFor<FirstType>(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+inline void Pair<FirstType, SecondType>::Builder::setFirst( ::capnp::ReaderFor<FirstType> value) {
+  ::capnp::_::PointerHelpers<FirstType>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<FirstType> Pair<FirstType, SecondType>::Builder::initFirst() {
+  return ::capnp::_::PointerHelpers<FirstType>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<FirstType> Pair<FirstType, SecondType>::Builder::initFirst(unsigned int size) {
+  return ::capnp::_::PointerHelpers<FirstType>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS), size);
+}
+template <typename FirstType, typename SecondType>
+inline void Pair<FirstType, SecondType>::Builder::adoptFirst(
+    ::capnp::Orphan<FirstType>&& value) {
+  ::capnp::_::PointerHelpers<FirstType>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+template <typename FirstType, typename SecondType>
+inline ::capnp::Orphan<FirstType> Pair<FirstType, SecondType>::Builder::disownFirst() {
+  return ::capnp::_::PointerHelpers<FirstType>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+
+template <typename FirstType, typename SecondType>
+inline bool Pair<FirstType, SecondType>::Reader::hasSecond() const {
+  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+template <typename FirstType, typename SecondType>
+inline bool Pair<FirstType, SecondType>::Builder::hasSecond() {
+  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::ReaderFor<SecondType> Pair<FirstType, SecondType>::Reader::getSecond() const {
+  return ::capnp::_::PointerHelpers<SecondType>::get(
+      _reader.getPointerField(1 * ::capnp::POINTERS));
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<SecondType> Pair<FirstType, SecondType>::Builder::getSecond() {
+  return ::capnp::_::PointerHelpers<SecondType>::get(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+inline  ::capnp::PipelineFor<SecondType> Pair<FirstType, SecondType>::Pipeline::getSecond() {
+  return  ::capnp::PipelineFor<SecondType>(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+inline void Pair<FirstType, SecondType>::Builder::setSecond( ::capnp::ReaderFor<SecondType> value) {
+  ::capnp::_::PointerHelpers<SecondType>::set(
+      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<SecondType> Pair<FirstType, SecondType>::Builder::initSecond() {
+  return ::capnp::_::PointerHelpers<SecondType>::init(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+template <typename FirstType, typename SecondType>
+inline  ::capnp::BuilderFor<SecondType> Pair<FirstType, SecondType>::Builder::initSecond(unsigned int size) {
+  return ::capnp::_::PointerHelpers<SecondType>::init(
+      _builder.getPointerField(1 * ::capnp::POINTERS), size);
+}
+template <typename FirstType, typename SecondType>
+inline void Pair<FirstType, SecondType>::Builder::adoptSecond(
+    ::capnp::Orphan<SecondType>&& value) {
+  ::capnp::_::PointerHelpers<SecondType>::adopt(
+      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
+}
+template <typename FirstType, typename SecondType>
+inline ::capnp::Orphan<SecondType> Pair<FirstType, SecondType>::Builder::disownSecond() {
+  return ::capnp::_::PointerHelpers<SecondType>::disown(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+
+// Pair<FirstType, SecondType>
+#ifndef _MSC_VER
+template <typename FirstType, typename SecondType>
+constexpr uint16_t Pair<FirstType, SecondType>::_capnpPrivate::dataWordSize;
+template <typename FirstType, typename SecondType>
+constexpr uint16_t Pair<FirstType, SecondType>::_capnpPrivate::pointerCount;
+#endif
+#if !CAPNP_LITE
+template <typename FirstType, typename SecondType>
+constexpr ::capnp::Kind Pair<FirstType, SecondType>::_capnpPrivate::kind;
+template <typename FirstType, typename SecondType>
+constexpr ::capnp::_::RawSchema const* Pair<FirstType, SecondType>::_capnpPrivate::schema;
+template <typename FirstType, typename SecondType>
+constexpr ::capnp::_::RawBrandedSchema const* Pair<FirstType, SecondType>::_capnpPrivate::brand;
+template <typename FirstType, typename SecondType>
+const ::capnp::_::RawBrandedSchema::Scope Pair<FirstType, SecondType>::_capnpPrivate::brandScopes[] = {
+  { 0xa18e1acd5ce2427c, brandBindings + 0, 2, false},
+};
+template <typename FirstType, typename SecondType>
+const ::capnp::_::RawBrandedSchema::Binding Pair<FirstType, SecondType>::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<FirstType>(),
+  ::capnp::_::brandBindingFor<SecondType>(),
+};
+template <typename FirstType, typename SecondType>
+const ::capnp::_::RawBrandedSchema Pair<FirstType, SecondType>::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_a18e1acd5ce2427c, brandScopes, nullptr,
   sizeof(brandScopes) / sizeof(brandScopes[0]), 0, nullptr
 };
 #endif  // !CAPNP_LITE
