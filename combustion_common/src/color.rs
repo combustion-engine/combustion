@@ -237,26 +237,29 @@ pub mod de {
     //! Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
     use serde::de::{self, Deserialize, Deserializer};
     use void::Void;
+    use std::fmt;
     use std::str::FromStr;
     use std::marker::PhantomData;
 
     /// Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
-    pub fn from_name_or_value<T, D>(d: &mut D) -> Result<T, D::Error>
-                                    where T: Deserialize + FromStr<Err = Void>,
-                                          D: Deserializer {
+    pub fn from_name_or_value<T, D>(d: D) -> Result<T, D::Error>
+        where T: Deserialize + FromStr<Err = Void>,
+              D: Deserializer {
         struct NameOrValue<T>(PhantomData<T>);
 
         impl<T> de::Visitor for NameOrValue<T> where T: Deserialize + FromStr<Err = Void> {
             type Value = T;
 
-            fn visit_str<E>(&mut self, value: &str) -> Result<T, E> where E: de::Error {
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "Color name or struct value")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<T, E> where E: de::Error {
                 Ok(FromStr::from_str(value).unwrap())
             }
 
-            fn visit_map<M>(&mut self, visitor: M) -> Result<T, M::Error> where M: de::MapVisitor {
-                let mut mvd = de::value::MapVisitorDeserializer::new(visitor);
-
-                Deserialize::deserialize(&mut mvd)
+            fn visit_map<M>(self, visitor: M) -> Result<T, M::Error> where M: de::MapVisitor {
+                Deserialize::deserialize(de::value::MapVisitorDeserializer::new(visitor))
             }
         }
 
