@@ -1,17 +1,20 @@
 @0xf53f070a70eb22d7;
 
+# Simple 3D Vector structure
 struct Vector3 {
     x @0: Float32;
     y @1: Float32;
     z @2: Float32;
 }
 
+# Simple 3D Point structure
 struct Point3 {
     x @0: Float32;
     y @1: Float32;
     z @2: Float32;
 }
 
+# 4x4 square matrix structure
 struct Matrix4 {
     m11 @0: Float32;
     m21 @1: Float32;
@@ -31,6 +34,7 @@ struct Matrix4 {
     m44 @15: Float32;
 }
 
+# Union of potential 3D transforms
 struct Transform {
     transform: union {
         translate @0: Vector3;
