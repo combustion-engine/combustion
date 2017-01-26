@@ -5,7 +5,6 @@ use capnp;
 use common::ext::*;
 
 pub mod protocol;
-pub mod gl;
 
 /// File extension to Combustion texture files
 pub const EXTENSION: &'static str = "ctex";

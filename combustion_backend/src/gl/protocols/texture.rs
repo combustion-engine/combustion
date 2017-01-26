@@ -1,10 +1,9 @@
 //! OpenGL specific texture components
+use ::gl::bindings as glb;
+use ::gl::types::*;
 
-use backend::gl::types::*;
-use backend::gl::bindings as glb;
-
-use super::protocol::{BlockSize, Bptc, Rgtc, S3tc};
-use super::{Channels, Which, GenericFormat, SpecificFormat};
+use protocols::texture::protocol::{Raw, BlockSize, Bptc, Rgtc, S3tc};
+use protocols::texture::{Channels, Which, GenericFormat, SpecificFormat};
 
 /// OpenGL extension to `SpecificFormat` to convert raw `GLenum` texture formats into the symbolic `SpecificFormat`
 pub trait GLSpecificFormatExt {
@@ -115,8 +114,6 @@ pub trait GLCompressedSpecificFormats {
 
 impl GLCompressedSpecificFormats for SpecificFormat {
     fn specific(&self) -> GLuint {
-        use super::protocol::*;
-
         match self.which {
             Which::None(raw) => {
                 match raw {
