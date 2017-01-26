@@ -30,7 +30,6 @@ extern crate time;
 extern crate chrono;
 extern crate statrs;
 extern crate void;
-extern crate backtrace as bt;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
