@@ -32,14 +32,16 @@ impl Default for MaterialAnisotropy {
 pub mod de {
     use serde::de::{self, Deserialize, Deserializer};
 
+    use std::fmt;
+
     use super::*;
 
-    pub fn from_num_or_value<D>(d: &mut D) -> Result<MaterialAnisotropy, D::Error> where D: Deserializer {
+    pub fn from_num_or_value<D>(d: D) -> Result<MaterialAnisotropy, D::Error> where D: Deserializer {
         struct NumOrAnisotropyVisitor;
 
         macro_rules! impl_visit_num {
             ($name:ident, $t:ty) => {
-                fn $name<E>(&mut self, value: $t) -> Result<MaterialAnisotropy, E> where E: de::Error {
+                fn $name<E>(self, value: $t) -> Result<MaterialAnisotropy, E> where E: de::Error {
                     Ok(MaterialAnisotropy::from_amount(value as f32))
                 }
             }
@@ -48,18 +50,17 @@ pub mod de {
         impl de::Visitor for NumOrAnisotropyVisitor {
             type Value = MaterialAnisotropy;
 
-            fn visit_map<M>(&mut self, visitor: M) -> Result<Self::Value, M::Error> where M: de::MapVisitor {
-                let mut mvd = de::value::MapVisitorDeserializer::new(visitor);
-                Deserialize::deserialize(&mut mvd)
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "number or anisotropy structure")
             }
 
-            fn visit_seq<V>(&mut self, visitor: V) -> Result<Self::Value, V::Error> where V: de::SeqVisitor {
-                let mut svd = de::value::SeqVisitorDeserializer::new(visitor);
-                Deserialize::deserialize(&mut svd)
+            fn visit_map<M>(self, visitor: M) -> Result<Self::Value, M::Error> where M: de::MapVisitor {
+                Deserialize::deserialize(de::value::MapVisitorDeserializer::new(visitor))
             }
 
-            impl_visit_num!(visit_isize, isize);
-            impl_visit_num!(visit_usize, usize);
+            fn visit_seq<V>(self, visitor: V) -> Result<Self::Value, V::Error> where V: de::SeqVisitor {
+                Deserialize::deserialize(de::value::SeqVisitorDeserializer::new(visitor))
+            }
 
             impl_visit_num!(visit_i8, i8);
             impl_visit_num!(visit_u8, u8);
