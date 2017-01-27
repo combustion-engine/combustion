@@ -11,20 +11,18 @@ extern crate nalgebra;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate trace_error;
 
 #[macro_use]
 extern crate combustion_common as common;
 
+pub mod error;
+
 #[macro_use]
 pub mod named;
 
-/// Utility structures used within the protocols
-pub mod utils {
-    pub mod protocol {
-        include!(concat!(env!("OUT_DIR"), "/protocols/utils_capnp.rs"));
-    }
-}
-
+pub mod utils;
 pub mod math;
 pub mod mesh;
 pub mod model;

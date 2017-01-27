@@ -1,5 +1,18 @@
 use nalgebra::{Vector3, Point3, Matrix4};
 
+/// 3D Transformations
+pub enum Transform {
+    /// translation
+    Translate(Vector3<f32>),
+    /// rotation (using Euler angles)
+    Rotation(Vector3<f32>),
+    /// scale on each axis
+    Scale(Vector3<f32>),
+    /// Arbitrary matrix transform
+    Matrix(Matrix4<f32>),
+}
+
+/// Protocol for math objects
 pub mod protocol {
     include!(concat!(env!("OUT_DIR"), "/protocols/math_capnp.rs"));
 }
@@ -28,22 +41,10 @@ impl<'a> protocol::matrix4::Builder<'a> {
 impl<'a> protocol::matrix4::Reader<'a> {
     pub fn get_matrix(&self) -> Matrix4<f32> {
         Matrix4::new(
-            self.get_m11(),
-            self.get_m21(),
-            self.get_m31(),
-            self.get_m41(),
-            self.get_m12(),
-            self.get_m22(),
-            self.get_m32(),
-            self.get_m42(),
-            self.get_m13(),
-            self.get_m23(),
-            self.get_m33(),
-            self.get_m43(),
-            self.get_m14(),
-            self.get_m24(),
-            self.get_m34(),
-            self.get_m44(),
+            self.get_m11(), self.get_m21(), self.get_m31(), self.get_m41(),
+            self.get_m12(), self.get_m22(), self.get_m32(), self.get_m42(),
+            self.get_m13(), self.get_m23(), self.get_m33(), self.get_m43(),
+            self.get_m14(), self.get_m24(), self.get_m34(), self.get_m44(),
         )
     }
 }
