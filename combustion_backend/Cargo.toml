@@ -4,8 +4,8 @@ exclude = ["*.png"]
 include = ["Cargo.toml", "src/**/*.rs"]
 license = "MIT"
 name = "combustion_backend"
-version = "0.1.0"
 publish = false
+version = "0.1.0"
 
 [dependencies]
 enum_primitive = "0.1"
@@ -15,13 +15,11 @@ lazy_static = "0.2"
 libc = "0.2"
 serde = "0.9"
 serde_derive = "0.9"
+trace-error = "0.1"
 void = "1"
 
 [dependencies.combustion_common]
 path = "../combustion_common/"
-
-[dependencies.combustion_macros]
-path = "../combustion_macros/"
 
 [dependencies.combustion_protocols]
 path = "../combustion_protocols/"

@@ -10,7 +10,7 @@ use std::sync::atomic::{Ordering, AtomicBool, ATOMIC_BOOL_INIT};
 
 use image::ImageError;
 
-use common::error::TraceResult;
+use trace_error::TraceResult;
 
 pub type GLResult<T> = TraceResult<T, GLError>;
 
