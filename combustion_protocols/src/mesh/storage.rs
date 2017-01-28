@@ -247,7 +247,7 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
 
         match mesh.vertices {
             data::MeshVertices::Discrete(ref vertices) if raw == false => {
-                let mut discrete_vertices_builder = vertices_builder.borrow().init_discrete();
+                let mut discrete_vertices_builder = vertices_builder.init_discrete();
 
                 // build positions
                 {
@@ -292,7 +292,7 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
                 }
             },
             data::MeshVertices::Interleaved(ref vertices) if raw == false => {
-                let mut interleaved_vertices_builder = vertices_builder.borrow().init_interleaved(vertices.len() as u32);
+                let mut interleaved_vertices_builder = vertices_builder.init_interleaved(vertices.len() as u32);
 
                 for (i, vertex) in vertices.iter().enumerate() {
                     let mut vertex_builder = interleaved_vertices_builder.borrow().get(i as u32);
@@ -326,12 +326,12 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
                 }
             },
             data::MeshVertices::Discrete(ref vertices) if raw == true => {
-                let mut discrete_raw_vertices_builder = vertices_builder.borrow().init_discrete_raw();
+                let mut discrete_raw_vertices_builder = vertices_builder.init_discrete_raw();
 
                 {
-                    let position_bytes_len = vertices.positions.len() * mem::size_of::<Point3<f32>>();
-
-                    let mut positions_data_builder = discrete_raw_vertices_builder.borrow().init_positions(position_bytes_len as u32);
+                    discrete_raw_vertices_builder.borrow().set_positions(unsafe {
+                        slice::from_raw_parts(vertices.positions.as_ptr() as *const u8, vertices.positions.len() * mem::size_of::<Point3<f32>>())
+                    });
                 }
 
                 {
@@ -361,7 +361,7 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
                 }
             },
             data::MeshVertices::Interleaved(ref vertices) if raw == true => {
-                vertices_builder.borrow().set_interleaved_raw(unsafe {
+                vertices_builder.set_interleaved_raw(unsafe {
                     slice::from_raw_parts(vertices.as_ptr() as *const u8, vertices.len() * mem::size_of::<data::Vertex>())
                 });
             },
