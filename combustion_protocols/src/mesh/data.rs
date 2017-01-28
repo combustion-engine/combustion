@@ -2,7 +2,7 @@
 
 use nalgebra::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Mesh {
     /// Vertex data
     pub vertices: MeshVertices,
@@ -13,7 +13,7 @@ pub struct Mesh {
 }
 
 /// Enum for different vertex layouts
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum MeshVertices {
     /// Represents vertices as multiple discrete arrays of data.
     ///
@@ -33,7 +33,7 @@ pub enum MeshVertices {
 }
 
 /// UV-coordinate structure
-#[derive(Default, Copy, Clone, Debug)]
+#[derive(Default, Copy, Clone, Debug, Serialize, Deserialize)]
 #[repr(C)]
 pub struct TexCoord {
     pub u: f32,
@@ -44,7 +44,7 @@ pub struct TexCoord {
 ///
 /// This struct is marked as `repr(C)` so it can
 /// be passed directly to the GPU in a single buffer
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[repr(C)]
 pub struct Vertex {
     pub position: Point3<f32>,
@@ -65,7 +65,7 @@ impl Default for Vertex {
 /// Structure for many vertices with non-interleaved data
 ///
 /// Data from this must be passed though multiple buffers
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Vertices {
     pub positions: Vec<Point3<f32>>,
     pub normals: Option<Vec<Vector3<f32>>>,

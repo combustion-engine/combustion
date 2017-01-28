@@ -1,6 +1,7 @@
 use nalgebra::{Vector3, Matrix4};
 
 /// 3D Transformations
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Transform {
     /// translation
     Translation(Vector3<f32>),
