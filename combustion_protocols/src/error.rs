@@ -10,6 +10,7 @@ pub type ProtocolResult<T> = TraceResult<T, ProtocolError>;
 #[derive(Debug)]
 pub enum ProtocolError {
     Unsupported,
+    InvalidLength,
     CapnpError(CapnpError),
     NotInSchema(NotInSchema),
 }
@@ -24,6 +25,7 @@ impl Error for ProtocolError {
     fn description(&self) -> &str {
         match *self {
             ProtocolError::Unsupported => "Unsupported protocol",
+            ProtocolError::InvalidLength => "Length of data is invalid",
             ProtocolError::CapnpError(ref err) => err.description(),
             ProtocolError::NotInSchema(ref err) => err.description(),
         }
