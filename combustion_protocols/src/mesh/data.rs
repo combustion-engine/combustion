@@ -33,7 +33,7 @@ pub enum MeshVertices {
 }
 
 /// UV-coordinate structure
-#[derive(Copy, Clone, Debug)]
+#[derive(Default, Copy, Clone, Debug)]
 #[repr(C)]
 pub struct TexCoord {
     pub u: f32,
@@ -48,8 +48,18 @@ pub struct TexCoord {
 #[repr(C)]
 pub struct Vertex {
     pub position: Point3<f32>,
-    pub normal: Option<Vector3<f32>>,
-    pub uv: Option<TexCoord>,
+    pub normal: Vector3<f32>,
+    pub uv: TexCoord,
+}
+
+impl Default for Vertex {
+    fn default() -> Vertex {
+        Vertex {
+            position: Point3::new(0.0, 0.0, 0.0),
+            normal: Vector3::new(0.0, 0.0, 0.0),
+            uv: TexCoord::default(),
+        }
+    }
 }
 
 /// Structure for many vertices with non-interleaved data

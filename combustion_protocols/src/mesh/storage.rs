@@ -14,7 +14,7 @@ use super::data;
 /// This is expensive for non-raw meshes, but is safe. It basically has to iterate through every single number.
 ///
 /// This is cheap for raw meshes, but is unsafe, obviously. It basically just casts the pointers and copy the data directly.
-pub fn load_mesh_from_reader(mesh_reader: &protocol::mesh::Reader) -> ProtocolResult<data::Mesh> {
+pub fn load_mesh_from_reader(mesh_reader: protocol::mesh::Reader) -> ProtocolResult<data::Mesh> {
     let vertices_reader = mesh_reader.get_vertices();
 
     let indices_option = try_throw!(mesh_reader.get_indices());
@@ -47,27 +47,8 @@ pub fn load_mesh_from_reader(mesh_reader: &protocol::mesh::Reader) -> ProtocolRe
 
                 interleaved.push(data::Vertex {
                     position: position.get_point(),
-                    normal: {
-                        match try_throw!(normal.which()) {
-                            utils::protocol::option::Some(normal) => {
-                                Some(try_throw!(normal).get_vector())
-                            },
-                            _ => None,
-                        }
-                    },
-                    uv: {
-                        match try_throw!(uv.which()) {
-                            utils::protocol::option::Some(uv) => {
-                                let uv = try_throw!(uv);
-
-                                Some(data::TexCoord {
-                                    u: uv.get_u(),
-                                    v: uv.get_v(),
-                                })
-                            },
-                            _ => None
-                        }
-                    }
+                    normal: normal.get_vector(),
+                    uv: uv.get_texcoord(),
                 })
             }
 
@@ -114,10 +95,7 @@ pub fn load_mesh_from_reader(mesh_reader: &protocol::mesh::Reader) -> ProtocolRe
                             let mut uvs = Vec::with_capacity(raw_uvs.len() as usize);
 
                             for uv in raw_uvs.iter() {
-                                uvs.push(data::TexCoord {
-                                    u: uv.get_u(),
-                                    v: uv.get_v(),
-                                })
+                                uvs.push(uv.get_texcoord())
                             }
 
                             Some(uvs)
@@ -219,7 +197,7 @@ pub fn load_mesh_from_reader(mesh_reader: &protocol::mesh::Reader) -> ProtocolRe
 }
 
 /// Save a `Mesh` to a mesh `Builder`
-pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &data::Mesh, raw: bool) -> ProtocolResult<()> {
+pub fn save_mesh_to_builder(mut mesh_builder: protocol::mesh::Builder, mesh: &data::Mesh, raw: bool) -> ProtocolResult<()> {
     {
         let mut indices_option_builder = mesh_builder.borrow().init_indices();
 
@@ -281,10 +259,7 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
                         let mut uvs_builder = uvs_list_option_builder.initn_some(uvs.len() as u32);
 
                         for (i, uv) in uvs.iter().enumerate() {
-                            let mut tex_coord_builder = uvs_builder.borrow().get(i as u32);
-
-                            tex_coord_builder.set_u(uv.u);
-                            tex_coord_builder.set_v(uv.v);
+                            uvs_builder.borrow().get(i as u32).set_texcoord(uv);
                         }
                     } else {
                         uvs_list_option_builder.set_none(());
@@ -297,32 +272,11 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
                 for (i, vertex) in vertices.iter().enumerate() {
                     let mut vertex_builder = interleaved_vertices_builder.borrow().get(i as u32);
 
-                    {
-                        vertex_builder.borrow().init_position().set_point(&vertex.position);
-                    }
+                    { vertex_builder.borrow().init_position().set_point(&vertex.position); }
 
-                    {
-                        let mut normal_option_builder = vertex_builder.borrow().init_normal();
+                    { vertex_builder.borrow().init_normal().set_vector(&vertex.normal); }
 
-                        if let Some(ref normal) = vertex.normal {
-                            normal_option_builder.init_some().set_vector(normal);
-                        } else {
-                            normal_option_builder.set_none(());
-                        }
-                    }
-
-                    {
-                        let mut uv_option_builder = vertex_builder.borrow().init_uv();
-
-                        if let Some(ref uv) = vertex.uv {
-                            let mut tex_coord_builder = uv_option_builder.init_some();
-
-                            tex_coord_builder.set_u(uv.u);
-                            tex_coord_builder.set_v(uv.v);
-                        } else {
-                            uv_option_builder.set_none(());
-                        }
-                    }
+                    { vertex_builder.borrow().init_uv().set_texcoord(&vertex.uv); }
                 }
             },
             data::MeshVertices::Discrete(ref vertices) if raw == true => {
@@ -330,7 +284,8 @@ pub fn save_mesh_to_builder(mesh_builder: &mut protocol::mesh::Builder, mesh: &d
 
                 {
                     discrete_raw_vertices_builder.borrow().set_positions(unsafe {
-                        slice::from_raw_parts(vertices.positions.as_ptr() as *const u8, vertices.positions.len() * mem::size_of::<Point3<f32>>())
+                        slice::from_raw_parts(vertices.positions.as_ptr() as *const u8,
+                                              vertices.positions.len() * mem::size_of::<Point3<f32>>())
                     });
                 }
 

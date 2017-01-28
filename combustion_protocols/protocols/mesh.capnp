@@ -12,8 +12,8 @@ struct TexCoord {
 # Describes a single interleaved vertex
 struct Vertex {
     position @0: Math.Point3;
-    normal @1: Util.Option(Math.Vector3);
-    uv @2: Util.Option(TexCoord);
+    normal @1: Math.Vector3;
+    uv @2: TexCoord;
 }
 
 # Describes discrete vertex data, where data is NOT interleaved

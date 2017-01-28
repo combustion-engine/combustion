@@ -1,10 +1,10 @@
 @0xa32f1c68bcd121ee;
 
 # Equivalent to Rust's Option enum
-struct Option(Type) {
+struct Option(SomeType) {
     union {
         none @0: Void;
-        some @1: Type;
+        some @1: SomeType;
     }
 }
 
