@@ -37,7 +37,7 @@ struct Matrix4 {
 # Union of potential 3D transforms
 struct Transform {
     transform: union {
-        translate @0: Vector3;
+        translation @0: Vector3;
         rotation @1: Vector3;
         scale @2: Vector3;
         matrix @3: Matrix4;
