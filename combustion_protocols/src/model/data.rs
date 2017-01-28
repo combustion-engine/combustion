@@ -1,13 +1,12 @@
 use ::named::Named;
 
 use ::mesh::data::Mesh;
-
-use ::math::Transform;
+use ::math::data::Transform;
 
 pub struct Model {
     pub root: Node,
     pub meshes: Vec<Mesh>,
-    materials: Vec<String>,
+    pub materials: Vec<String>,
 }
 
 pub struct Node {
