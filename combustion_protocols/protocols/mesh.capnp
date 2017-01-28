@@ -26,6 +26,13 @@ struct Vertices {
     uvs @2: Util.Option(List(TexCoord));
 }
 
+# Like Vertices, but isn't type-safe
+struct VerticesRaw {
+    positions @0: Data;
+    normals @1: Util.Option(Data);
+    uvs @2: Util.Option(Data);
+}
+
 # The Mesh structure, which defines materials, vertex data and optionally vertex indices.
 struct Mesh {
     # List of materials for the given mesh. Materials are layered in the order given.
@@ -33,8 +40,17 @@ struct Mesh {
     materials @0: List(UInt32);
 
     vertices: union {
+        # Interleaved type-safe vertex data
         interleaved @1: List(Vertex);
+
+        # Discrete type-safe vertex data
         discrete @2: Vertices;
+
+        # Interleaved UNSAFE vertex data
+        interleavedRaw @4: Data;
+
+        # Discrete UNSAFE vertex data
+        discreteRaw @5: VerticesRaw;
     }
 
     indices @3: Util.Option(List(UInt32));
