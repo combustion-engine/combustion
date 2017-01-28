@@ -11,9 +11,14 @@ pub enum Primitive {
     QuadList,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub enum Command {
-    BindProgram,
+    /// Batches together many commands on the same thread, maintaining their order.
+    Batch(Vec<Command>),
+    /// Locks all other command processing threads for the duration of this command
+    Exclusive(Box<Command>),
+
+    BindProgram(()),
     BindVao,
     SetViewport,
     GenerateMipmap,
