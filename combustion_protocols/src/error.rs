@@ -11,13 +11,16 @@ pub type ProtocolResult<T> = TraceResult<T, ProtocolError>;
 pub enum ProtocolError {
     Unsupported,
     InvalidLength,
+    InvalidFormat,
+    NotPresent,
+    Other(&'static str),
     CapnpError(CapnpError),
     NotInSchema(NotInSchema),
 }
 
 impl Display for ProtocolError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.description())
+        f.write_str(self.description())
     }
 }
 
@@ -26,6 +29,9 @@ impl Error for ProtocolError {
         match *self {
             ProtocolError::Unsupported => "Unsupported protocol",
             ProtocolError::InvalidLength => "Length of data is invalid",
+            ProtocolError::InvalidFormat => "Invalid format",
+            ProtocolError::NotPresent => "Value is not present",
+            ProtocolError::Other(description) => description,
             ProtocolError::CapnpError(ref err) => err.description(),
             ProtocolError::NotInSchema(ref err) => err.description(),
         }
