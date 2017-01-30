@@ -39,6 +39,7 @@ extern crate rand;
 #[macro_use]
 extern crate trace_error;
 
+pub mod traits;
 pub mod macros;
 pub mod compression;
 pub mod preprocessor;
