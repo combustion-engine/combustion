@@ -55,39 +55,23 @@ impl BlockSize {
     }
 }
 
-impl ::std::fmt::Debug for BlockSize {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.write_str(self.to_str())
-    }
-}
-
 impl ::std::fmt::Display for BlockSize {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         write!(f, "{} BlockSize", self.to_str())
     }
 }
 
-macro_rules! impl_enum_fmt {
+macro_rules! impl_protocol_enum {
     ($target:ident { $($key:ident => $msg:expr,)* }) => {
         impl ::std::fmt::Display for $target {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                f.write_str(match *self {
-                    $($target::$key => $msg),*
-                })
-            }
-        }
-
-        impl ::std::fmt::Debug for $target {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                write!(f, "{} {}", stringify!($target), match *self {
-                    $($target::$key => stringify!($key)),*
-                })
+                f.write_str(match *self { $($target::$key => $msg),* })
             }
         }
     }
 }
 
-impl_enum_fmt!(DataType {
+impl_protocol_enum!(DataType {
     UnsignedByte          => "UNSIGNED_BYTE",
     Byte                  => "BYTE",
     UnsignedShort         => "UNSIGNED_SHORT",
@@ -110,34 +94,34 @@ impl_enum_fmt!(DataType {
     Unspecified           => "Unspecified",
 });
 
-impl_enum_fmt!(Channels {
+impl_protocol_enum!(Channels {
     R     => "Red Channel",
     Rg    => "Red-green Channels",
     Rgb   => "Rgb Channels",
     Rgba  => "Rgba Channels",
 });
 
-impl_enum_fmt!(Rgtc {
+impl_protocol_enum!(Rgtc {
     Red       => "Unsigned normalized 1-component",
     RedSigned => "Signed normalized   1-component",
     Rg        => "Unsigned normalized 2-component",
     RgSigned  => "Signed normalized   2-component",
 });
 
-impl_enum_fmt!(Bptc {
+impl_protocol_enum!(Bptc {
     Rgba             => "RGBA",
     RgbFloatSigned   => "RGB Float Signed",
     RgbFloatUnsigned => "RGB Float Unsigned",
 });
 
-impl_enum_fmt!(S3tc {
+impl_protocol_enum!(S3tc {
     Rgb1  => "DXT1 RGB",
     Rgba1 => "DXT1 RGBA",
     Rgba3 => "DXT3 RGBA",
     Rgba5 => "DXT5 RGBA",
 });
 
-impl_enum_fmt!(TextureKind {
+impl_protocol_enum!(TextureKind {
     Texture1D => "1D Texture",
     Texture2D => "2D Texture",
     Texture3D => "3D Texture",

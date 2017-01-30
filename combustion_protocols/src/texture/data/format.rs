@@ -2,7 +2,7 @@ use ::error::{ProtocolResult, ProtocolError};
 
 use ::texture::protocol::{self, Channels, DataType};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Uncompressed {
     pub format: Channels,
     pub data_type: DataType,
@@ -20,7 +20,7 @@ impl Channels {
 }
 
 /// Represents a non-sRGB compression format in symbolic form
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Which {
     /// Uncompressed raw pixel data
     None(Uncompressed),
@@ -121,7 +121,7 @@ impl Which {
 /// Structure to store random properties until it needs to be converted into a `SpecificFormat`
 ///
 /// Can be used to build up formats
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GenericFormat {
     pub channels: Channels,
     pub srgb: bool,
@@ -255,7 +255,7 @@ impl GenericFormat {
 
 /// Represents a specific compression format in symbolic form. As in, there are no
 /// OpenGL, DirectX or whatever enum values associated with it.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct SpecificFormat {
     pub which: Which,
     pub srgb: bool,
