@@ -10,7 +10,7 @@ quote = "0.3"
 
 [dependencies.syn]
 features = ["default"]
-version = "0.10"
+version = "0.11"
 
 [lib]
 proc-macro = true
