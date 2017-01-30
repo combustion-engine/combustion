@@ -62,6 +62,14 @@ pub fn load_model_from_reader(model_reader: protocol::model::Reader) -> Protocol
     Ok(model)
 }
 
+pub fn load_model_from_root_reader(root_model_reader: protocol::root_model::Reader) -> ProtocolResult<data::Model> {
+    let model_reader = try_throw!(root_model_reader.get_model());
+
+    load_model_from_reader(model_reader)
+}
+
+////////////////////////////////////
+
 pub fn save_node_to_builder(mut node_builder: protocol::node::Builder, node: &data::Node) -> ProtocolResult<()> {
     {
         let mut children_list_builder = node_builder.borrow().init_children(node.children.len() as u32);
@@ -118,4 +126,10 @@ pub fn save_model_to_builder(mut model_builder: protocol::model::Builder, model:
     }
 
     Ok(())
+}
+
+pub fn save_model_to_root_builder(root_model_builder: protocol::root_model::Builder, model: &data::Model, raw: bool) -> ProtocolResult<()> {
+    let model_builder = root_model_builder.init_model();
+
+    save_model_to_builder(model_builder, model, raw)
 }

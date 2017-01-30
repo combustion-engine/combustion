@@ -5,6 +5,10 @@ using Util = import "/utils.capnp";
 
 using Mesh = import "/mesh.capnp".Mesh;
 
+struct RootModel {
+    model @0: Model;
+}
+
 struct Model {
     # Root node
     root @0: Node;
