@@ -54,3 +54,91 @@ impl BlockSize {
         }
     }
 }
+
+impl ::std::fmt::Debug for BlockSize {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.write_str(self.to_str())
+    }
+}
+
+impl ::std::fmt::Display for BlockSize {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{} BlockSize", self.to_str())
+    }
+}
+
+macro_rules! impl_enum_fmt {
+    ($target:ident { $($key:ident => $msg:expr,)* }) => {
+        impl ::std::fmt::Display for $target {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                f.write_str(match *self {
+                    $($target::$key => $msg),*
+                })
+            }
+        }
+
+        impl ::std::fmt::Debug for $target {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                write!(f, "{} {}", stringify!($target), match *self {
+                    $($target::$key => stringify!($key)),*
+                })
+            }
+        }
+    }
+}
+
+impl_enum_fmt!(DataType {
+    UnsignedByte          => "UNSIGNED_BYTE",
+    Byte                  => "BYTE",
+    UnsignedShort         => "UNSIGNED_SHORT",
+    Short                 => "SHORT",
+    UnsignedInt           => "UNSIGNED_INT",
+    Int                   => "INT",
+    Float                 => "FLOAT",
+    UnsignedByte332       => "UNSIGNED_BYTE_3_3_2",
+    UnsignedByte233Rev    => "UNSIGNED_BYTE_2_3_3_REV",
+    UnsignedShort565      => "UNSIGNED_SHORT_5_6_5",
+    UnsignedShort565Rev   => "UNSIGNED_SHORT_5_6_5_REV",
+    UnsignedShort4444     => "UNSIGNED_SHORT_4_4_4_4",
+    UnsignedShort4444Rev  => "UNSIGNED_SHORT_4_4_4_4_REV",
+    UnsignedShort5551     => "UNSIGNED_SHORT_5_5_5_1",
+    UnsignedShort1555Rev  => "UNSIGNED_SHORT_1_5_5_5_REV",
+    UnsignedInt8888       => "UNSIGNED_INT_8_8_8_8",
+    UnsignedInt8888Rev    => "UNSIGNED_INT_8_8_8_8_REV",
+    UnsignedInt1010102    => "UNSIGNED_INT_10_10_10_2",
+    UnsignedInt2101010Rev => "UNSIGNED_INT_2_10_10_10_REV",
+    Unspecified           => "Unspecified",
+});
+
+impl_enum_fmt!(Channels {
+    R     => "Red Channel",
+    Rg    => "Red-green Channels",
+    Rgb   => "Rgb Channels",
+    Rgba  => "Rgba Channels",
+});
+
+impl_enum_fmt!(Rgtc {
+    Red       => "Unsigned normalized 1-component",
+    RedSigned => "Signed normalized   1-component",
+    Rg        => "Unsigned normalized 2-component",
+    RgSigned  => "Signed normalized   2-component",
+});
+
+impl_enum_fmt!(Bptc {
+    Rgba             => "RGBA",
+    RgbFloatSigned   => "RGB Float Signed",
+    RgbFloatUnsigned => "RGB Float Unsigned",
+});
+
+impl_enum_fmt!(S3tc {
+    Rgb1  => "DXT1 RGB",
+    Rgba1 => "DXT1 RGBA",
+    Rgba3 => "DXT3 RGBA",
+    Rgba5 => "DXT5 RGBA",
+});
+
+impl_enum_fmt!(TextureKind {
+    Texture1D => "1D Texture",
+    Texture2D => "2D Texture",
+    Texture3D => "3D Texture",
+});
