@@ -313,9 +313,9 @@ impl<'a> Storage<'a> for Mesh {
 
                         if let Some(ref normals) = vertices.normals {
                             try_throw!(normals_data_option_builder.set_some(unsafe {
-                            slice::from_raw_parts(normals.as_ptr() as *const u8,
-                                                  normals.len() * mem::size_of::<Vector3<f32>>())
-                        }));
+                                slice::from_raw_parts(normals.as_ptr() as *const u8,
+                                                      normals.len() * mem::size_of::<Vector3<f32>>())
+                            }));
                         } else {
                             normals_data_option_builder.set_none(());
                         }
@@ -326,9 +326,9 @@ impl<'a> Storage<'a> for Mesh {
 
                         if let Some(ref uvs) = vertices.uvs {
                             try_throw!(uvs_data_option_builder.set_some(unsafe {
-                            slice::from_raw_parts(uvs.as_ptr() as *const u8,
-                                                  uvs.len() * mem::size_of::<TexCoord>())
-                        }));
+                                slice::from_raw_parts(uvs.as_ptr() as *const u8,
+                                                      uvs.len() * mem::size_of::<TexCoord>())
+                            }));
                         } else {
                             uvs_data_option_builder.set_none(());
                         }

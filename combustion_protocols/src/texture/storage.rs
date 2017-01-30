@@ -107,7 +107,7 @@ impl<'a> Storage<'a> for RootTexture {
             protocol::root_texture::texture::Single(texture_reader) => {
                 let texture_reader = try_throw!(texture_reader);
 
-                let texture = try_rethrow!(Texture::load_from_reader(texture_reader));
+                let texture = Texture::load_from_reader(texture_reader)?;
 
                 Ok(RootTexture::Single(texture))
             },
@@ -122,12 +122,12 @@ impl<'a> Storage<'a> for RootTexture {
                 let front_reader = try_throw!(cubemap_reader.get_front());
 
                 Ok(RootTexture::Cubemap(texture::Cubemap {
-                    right: try_rethrow!(Texture::load_from_reader(right_reader)),
-                    left: try_rethrow!(Texture::load_from_reader(left_reader)),
-                    top: try_rethrow!(Texture::load_from_reader(top_reader)),
-                    bottom: try_rethrow!(Texture::load_from_reader(bottom_reader)),
-                    back: try_rethrow!(Texture::load_from_reader(back_reader)),
-                    front: try_rethrow!(Texture::load_from_reader(front_reader)),
+                    right: Texture::load_from_reader(right_reader)?,
+                    left: Texture::load_from_reader(left_reader)?,
+                    top: Texture::load_from_reader(top_reader)?,
+                    bottom: Texture::load_from_reader(bottom_reader)?,
+                    back: Texture::load_from_reader(back_reader)?,
+                    front: Texture::load_from_reader(front_reader)?,
                 }))
             },
         }

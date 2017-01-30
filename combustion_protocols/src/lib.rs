@@ -19,10 +19,16 @@ extern crate combustion_common as common;
 pub mod error;
 
 pub mod traits;
-pub mod utils;
+
 pub mod math;
 pub mod mesh;
 pub mod model;
 pub mod scene;
 pub mod texture;
 pub mod material;
+
+pub mod utils {
+    pub mod protocol {
+        include!(concat!(env!("OUT_DIR"), "/protocols/utils_capnp.rs"));
+    }
+}

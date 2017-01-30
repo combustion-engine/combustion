@@ -17,9 +17,7 @@ pub struct ModelSaveArgs {
 
 impl Default for ModelSaveArgs {
     fn default() -> ModelSaveArgs {
-        ModelSaveArgs {
-            mesh_args: MeshSaveArgs::default()
-        }
+        ModelSaveArgs { mesh_args: MeshSaveArgs::default() }
     }
 }
 
@@ -39,13 +37,13 @@ impl<'a> Storage<'a> for Node {
         let mut children = Vec::with_capacity(raw_children.len() as usize);
 
         for child_reader in raw_children.iter() {
-            children.push(try_rethrow!(Node::load_from_reader(child_reader)));
+            children.push(Node::load_from_reader(child_reader)?);
         }
 
         let mut transforms = Vec::with_capacity(raw_transforms.len() as usize);
 
         for transform_reader in raw_transforms.iter() {
-            transforms.push(try_rethrow!(Transform::load_from_reader(transform_reader)))
+            transforms.push(Transform::load_from_reader(transform_reader)?)
         }
 
         let node = Node {
@@ -108,10 +106,10 @@ impl<'a> Storage<'a> for Model {
         let mut meshes = Vec::with_capacity(raw_meshes.len() as usize);
 
         for mesh_reader in raw_meshes.iter() {
-            meshes.push(try_rethrow!(Mesh::load_from_reader(mesh_reader)));
+            meshes.push(Mesh::load_from_reader(mesh_reader)?);
         }
 
-        let root = try_rethrow!(Node::load_from_reader(raw_root));
+        let root = Node::load_from_reader(raw_root)?;
 
         let mut materials = Vec::with_capacity(raw_materials.len() as usize);
 
