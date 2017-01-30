@@ -1,7 +1,8 @@
-use super::*;
-use ::named::*;
-
 use std::iter::{Iterator, repeat};
+
+use ::traits::*;
+
+use super::*;
 
 pub fn generate_named<T: Named + Default + Clone>(name: &'static str, len: usize) -> impl Iterator<Item = T> {
     repeat(T::default()).take(len).enumerate().map(move |(i, mut item)| {
@@ -19,8 +20,8 @@ pub fn sample() -> Scene {
         root: Node {
             children: vec![],
             transform: vec![
-            NodeTransform::Transform(Matrix4::new_identity(4)),
-            NodeTransform::Translate(Vector3::new(1.2, -0.251, 0.1456))
+                NodeTransform::Transform(Matrix4::new_identity(4)),
+                NodeTransform::Translate(Vector3::new(1.2, -0.251, 0.1456))
             ]
         }
     }

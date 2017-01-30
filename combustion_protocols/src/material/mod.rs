@@ -28,12 +28,16 @@ impl Deref for MaterialMap {
     type Target = HashMap<String, Material>;
 
     #[inline(always)]
-    fn deref(&self) -> &Self::Target { &self.materials }
+    fn deref(&self) -> &Self::Target {
+        &self.materials
+    }
 }
 
 impl DerefMut for MaterialMap {
     #[inline(always)]
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.materials }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.materials
+    }
 }
 
 /// Represents a certain material for an object in a scene.

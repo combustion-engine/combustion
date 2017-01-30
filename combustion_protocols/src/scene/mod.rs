@@ -5,10 +5,11 @@ use nalgebra::*;
 use common::color::Color;
 use common::color::de as color_de;
 
+pub use ::traits::*;
+
 pub mod defaults;
 pub mod sample;
 
-pub use super::named::*;
 pub use self::defaults::*;
 
 #[derive(Debug, Serialize, Deserialize)]

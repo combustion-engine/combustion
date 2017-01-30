@@ -3,22 +3,28 @@
 use std::collections::HashMap;
 
 use nalgebra::*;
-use ::named::*;
+use ::traits::*;
 
 use common::color::Color;
 
 use super::*;
 
 impl DefaultName for Scene {
-    fn default_name() -> String { "Untitled Scene".to_string() }
+    fn default_name() -> String {
+        "Untitled Scene".to_string()
+    }
 }
 
 impl DefaultName for Light {
-    fn default_name() -> String { "Untitled Light".to_string() }
+    fn default_name() -> String {
+        "Untitled Light".to_string()
+    }
 }
 
 impl DefaultName for Material {
-    fn default_name() -> String { "Untitled Material".to_string() }
+    fn default_name() -> String {
+        "Untitled Material".to_string()
+    }
 }
 
 pub trait DefaultMaterial {}
@@ -27,28 +33,44 @@ impl DefaultMaterial for Material {}
 
 pub trait DefaultLight {
     #[inline(always)]
-    fn default_zdistance() -> (f32, f32) { (0.0, 1000.0) }
+    fn default_zdistance() -> (f32, f32) {
+        (0.0, 1000.0)
+    }
 
     #[inline(always)]
-    fn default_position() -> Point3<f32> { Point3::new(0.0, 1.0, 0.0) }
+    fn default_position() -> Point3<f32> {
+        Point3::new(0.0, 1.0, 0.0)
+    }
 
     #[inline(always)]
-    fn default_direction() -> Vector3<f32> { Vector3::new(0.0, -1.0, 0.0) }
+    fn default_direction() -> Vector3<f32> {
+        Vector3::new(0.0, -1.0, 0.0)
+    }
 
     #[inline(always)]
-    fn default_kind() -> LightKind { LightKind::Spotlight }
+    fn default_kind() -> LightKind {
+        LightKind::Spotlight
+    }
 
     #[inline(always)]
-    fn default_effect_radius() -> f32 { 1000.0 }
+    fn default_effect_radius() -> f32 {
+        1000.0
+    }
 
     #[inline(always)]
-    fn default_inner_cone() -> f32 { 0.0 }
+    fn default_inner_cone() -> f32 {
+        0.0
+    }
 
     #[inline(always)]
-    fn default_outer_cone() -> f32 { 15.0 }
+    fn default_outer_cone() -> f32 {
+        15.0
+    }
 
     #[inline(always)]
-    fn default_intensity() -> f32 { 1.0 }
+    fn default_intensity() -> f32 {
+        1.0
+    }
 }
 
 impl DefaultLight for Light {}
