@@ -7,9 +7,6 @@ extern crate walkdir;
 
 use walkdir::*;
 
-use std::process::Command;
-use std::env;
-
 use common::ext::*;
 
 /// Visit directories, find .capnp files, compile them, then replace absolute module references with `super` in the output code.
@@ -71,6 +68,9 @@ fn compile_capnprotos() {
 
 #[cfg(feature = "cpp")]
 fn build_cpp() {
+    use std::process::Command;
+    use std::env;
+
     let out_dir = env::var("OUT_DIR").unwrap();
     let src_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
