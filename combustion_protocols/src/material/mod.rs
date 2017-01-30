@@ -10,8 +10,10 @@ use common::color::Color;
 use common::color::de as color_de;
 
 pub mod defaults;
-pub mod sample;
 pub mod anisotropy;
+
+#[cfg(feature = "sample")]
+pub mod sample;
 
 pub use self::defaults::*;
 pub use self::anisotropy::MaterialAnisotropy;

@@ -3,11 +3,18 @@
 use std::collections::HashMap;
 
 use nalgebra::*;
-use ::traits::*;
+
+use common::traits::DefaultName;
 
 use common::color::Color;
 
 use super::*;
+
+impl DefaultName for Node {
+    fn default_name() -> String {
+        "Untitled Node".to_string()
+    }
+}
 
 impl DefaultName for Scene {
     fn default_name() -> String {

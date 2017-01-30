@@ -4,15 +4,18 @@ use nalgebra::*;
 
 use common::color::Color;
 use common::color::de as color_de;
+use common::traits::named::DefaultName;
 
-pub use ::traits::*;
+use ::math::data::Transform;
 
 pub mod defaults;
+
+#[cfg(feature = "sample")]
 pub mod sample;
 
 pub use self::defaults::*;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Named, Serialize, Deserialize)]
 pub struct Scene {
     #[serde(default = "Scene::default_name")]
     pub name: String,
@@ -23,31 +26,17 @@ pub struct Scene {
     pub root: Node,
 }
 
-impl_named!(Scene);
-
-/// Transforms that are applicable to a scene node. Most are pretty obvious.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum NodeTransform {
-    #[serde(rename = "translate")]
-    Translate(Vector3<f32>),
-    /// Rotation as Euler angles
-    #[serde(rename = "rotate")]
-    Rotate(Vector3<f32>),
-    #[serde(rename = "scale")]
-    Scale(Vector3<f32>),
-    #[serde(rename = "transform")]
-    Transform(Matrix4<f32>),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Named, Serialize, Deserialize)]
 pub struct Node {
+    #[serde(default = "Node::default_name")]
+    name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
     pub children: Vec<Node>,
     /// Transforms to apply to node children, in applied order
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
-    pub transform: Vec<NodeTransform>
+    pub transform: Vec<Transform>
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -60,7 +49,7 @@ pub enum LightKind {
     Spotlight,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Named, Clone, Serialize, Deserialize)]
 pub struct Light {
     #[serde(default = "Light::default_name")]
     pub name: String,
@@ -98,12 +87,8 @@ pub struct Light {
     pub properties: HashMap<String, String>,
 }
 
-impl_named!(Light);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Named, Clone, Serialize, Deserialize)]
 pub struct Material {
     #[serde(default = "Material::default_name")]
     pub name: String,
 }
-
-impl_named!(Material);

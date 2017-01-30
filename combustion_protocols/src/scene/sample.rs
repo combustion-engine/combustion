@@ -1,6 +1,8 @@
 use std::iter::{Iterator, repeat};
 
-use ::traits::*;
+use common::traits::Named;
+
+use ::math::data::Transform;
 
 use super::*;
 
@@ -18,10 +20,11 @@ pub fn sample() -> Scene {
         lights: generate_named("Untitled Light", 2).collect(),
         materials: generate_named("Untitled Material", 2).collect(),
         root: Node {
+            name: "Test node".into(),
             children: vec![],
             transform: vec![
-                NodeTransform::Transform(Matrix4::new_identity(4)),
-                NodeTransform::Translate(Vector3::new(1.2, -0.251, 0.1456))
+                Transform::Matrix(Matrix4::new_identity(4)),
+                Transform::Translation(Vector3::new(1.2, -0.251, 0.1456))
             ]
         }
     }

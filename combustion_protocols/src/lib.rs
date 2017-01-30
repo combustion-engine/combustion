@@ -4,10 +4,8 @@
 
 extern crate capnp;
 extern crate capnpc;
-#[macro_use]
 extern crate phf;
 extern crate nalgebra;
-#[macro_use]
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -15,13 +13,12 @@ extern crate serde_derive;
 extern crate trace_error;
 
 #[macro_use]
+extern crate combustion_macros;
 extern crate combustion_common as common;
 
 pub mod error;
 
-#[macro_use]
-pub mod named;
-
+pub mod traits;
 pub mod utils;
 pub mod math;
 pub mod mesh;

@@ -33,6 +33,9 @@ path = "../deps/capnpc-rust"
 [dependencies.combustion_common]
 path = "../combustion_common/"
 
+[dependencies.combustion_macros]
+path = "../combustion_macros/"
+
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
 
@@ -44,5 +47,6 @@ serde_json = "0.9"
 serde_yaml = "0.5.0"
 
 [features]
-default = []
+default = ["sample"]
 cpp = []
+sample = []

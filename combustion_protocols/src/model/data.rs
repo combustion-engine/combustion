@@ -1,5 +1,3 @@
-use ::named::Named;
-
 use ::mesh::data::Mesh;
 use ::math::data::Transform;
 
@@ -10,12 +8,10 @@ pub struct Model {
     pub materials: Vec<String>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Named, Serialize, Deserialize)]
 pub struct Node {
     pub name: String,
     pub meshes: Vec<u32>,
     pub children: Vec<Node>,
     pub transforms: Vec<Transform>,
 }
-
-impl_named!(Node);
