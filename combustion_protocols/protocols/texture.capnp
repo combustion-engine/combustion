@@ -87,26 +87,30 @@ enum TextureKind {
 }
 
 struct Texture {
+    kind @0: TextureKind = texture2D; # 1D, 2D, 3D, etc
+
     # Dimensions of the texture
-    width   @0: UInt32 = 0;
-    height  @1: UInt32 = 0;
+    dimensions: group {
+        width   @1: UInt32 = 0;
+        height  @2: UInt32 = 0;
+        depth   @3: UInt32 = 0; # Depth for 3D textures
+    }
+
+    srgb @4: Bool; # sRGB support
 
     # Compression method
     compression: union {
-        none @2: Uncompressed;  # Uncompressed
-        rgtc @3: Rgtc;          # Compressed using RGTC
-        bptc @4: Bptc;          # Compressed using BPTC
-        astc @5: BlockSize;     # Compressed using ASTC
-        s3tc @6: S3tc;          # Compressed using S3TC/DXT
+        none @5: Uncompressed;  # Uncompressed
+        rgtc @6: Rgtc;          # Compressed using RGTC
+        bptc @7: Bptc;          # Compressed using BPTC
+        astc @8: BlockSize;     # Compressed using ASTC
+        s3tc @9: S3tc;          # Compressed using S3TC/DXT
     }
 
-    data  @7: Data;                     # Binary texture data
-    srgb  @8: Bool;                     # sRGB support
-    depth @9: UInt32 = 0;               # Depth for 3D textures
-    kind  @10: TextureKind = texture2D; # 1D, 2D, 3D, etc
+    data @10: Data; # Binary texture data
 
     # All Mipmaps are assumed to be the same format as the original texture. Level is given by the list index plus one
-    mipmaps @11: List(Data);            # Mipmaps.
+    mipmaps @11: List(Data); # Mipmaps.
 }
 
 struct Cubemap {
