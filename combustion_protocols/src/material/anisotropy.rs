@@ -51,7 +51,7 @@ pub mod de {
             type Value = MaterialAnisotropy;
 
             fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                write!(f, "number or anisotropy structure")
+                f.write_str("number or anisotropy structure")
             }
 
             fn visit_map<M>(self, visitor: M) -> Result<Self::Value, M::Error> where M: de::MapVisitor {
