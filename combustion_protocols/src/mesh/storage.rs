@@ -216,7 +216,7 @@ impl<'a> Storage<'a> for Mesh {
         })
     }
 
-    fn save_to_builder_args(&self, mut builder: Self::Builder, args: MeshSaveArgs) -> ProtocolResult<()> {
+    fn save_to_builder_args(&self, mut builder: Self::Builder, args: Self::SaveArgs) -> ProtocolResult<()> {
         {
             let mut indices_option_builder = builder.borrow().init_indices();
 

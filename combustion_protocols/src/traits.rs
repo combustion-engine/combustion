@@ -4,8 +4,8 @@ pub trait Storage<'a> where Self: Sized {
     type Builder: 'a;
     type Reader: 'a;
 
-    type LoadArgs: Copy + 'a;
-    type SaveArgs: Copy + 'a;
+    type LoadArgs: Clone + 'a;
+    type SaveArgs: Clone + 'a;
 
     /// Load Storage from associated reader with the given arguments
     fn load_from_reader_args(reader: Self::Reader, args: Self::LoadArgs) -> ProtocolResult<Self>;

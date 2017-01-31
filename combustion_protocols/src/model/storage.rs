@@ -126,7 +126,7 @@ impl<'a> Storage<'a> for Model {
         Ok(model)
     }
 
-    fn save_to_builder_args(&self, mut builder: Self::Builder, args: ModelSaveArgs) -> ProtocolResult<()> {
+    fn save_to_builder_args(&self, mut builder: Self::Builder, args: Self::SaveArgs) -> ProtocolResult<()> {
         {
             let mut mesh_list_builder = builder.borrow().init_meshes(self.meshes.len() as u32);
 
