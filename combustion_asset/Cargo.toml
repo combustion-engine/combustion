@@ -1,23 +1,25 @@
 [package]
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
 name = "combustion_asset"
-version = "0.1.0"
 publish = false
+version = "0.1.0"
 
 [dependencies]
 capnp = "0.8"
+image = "0.12.2"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 rayon = "0.6.0"
 serde = "0.9"
 serde_derive = "0.9"
-
-[dependencies.capnpc]
-path = "../deps/capnpc-rust"
+trace-error = "0.1.3"
 
 [dependencies.assimp]
 features = ["default", "compat"]
 path = "../deps/assimp-rs"
+
+[dependencies.capnpc]
+path = "../deps/capnpc-rust"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
