@@ -32,6 +32,7 @@ extern crate combustion_common as common;
 extern crate combustion_protocols as protocols;
 
 pub mod window;
+pub mod traits;
 
 #[cfg(feature = "gl")]
 pub mod gl;
