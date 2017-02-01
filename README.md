@@ -1,6 +1,10 @@
 Combustion Game Engine
 ----------------------
 
+# WIP
+
+This protject is a total mess right now. I've been rewriting and refining everything from the bottom up. This message will be removed whenever things get a bit more stable.
+
 ## Engine Crates
 
 Most parts of the engine have been separated into multiple crates for both organizational purposes and to improve compile times.
