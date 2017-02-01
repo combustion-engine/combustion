@@ -3,7 +3,7 @@ Combustion Game Engine
 
 # WIP
 
-This protject is a total mess right now. I've been rewriting and refining everything from the bottom up. This message will be removed whenever things get a bit more stable.
+This project is a total mess right now. I've been rewriting and refining everything from the bottom up. This message will be removed whenever things get a bit more stable.
 
 ## Engine Crates
 
