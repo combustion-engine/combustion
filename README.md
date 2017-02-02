@@ -5,6 +5,25 @@ Combustion Game Engine
 
 This project is a total mess right now. I've been rewriting and refining everything from the bottom up. This message will be removed whenever things get a bit more stable.
 
+# Roadmap/Todo List
+
+Currently the engine is in the stages of going from "I got things working" to "I got things working in an organized way".
+
+That is to say, I've been splitting up functionality into crates to simplify each component and to make compiling the engine more incremental.
+
+The current todo list is as follows, in order:
+
+1. Add and implement a uniform API for loading, saving and managing assets. An asset being defined as any data that needs to be loaded into the engine for it to function and perform work (such as rendering).
+2. Design an API for the rendering backend. For every backend, I want as little application and driver overhead as possible, so although a data-oriented API like gfx-rs is nice in theory, I need to take a hybrid approach where the API has knowledge of its usage.
+    a. The backend API will be heavily based on traits, so as to have the same functionality for all backends, and trait objects will be used for higher level components. 
+    b. All resources and handles for the backends will be completely opaque or generic for engine-facing APIs. Consider the `Mesh` and `Texture` structures in the `combustion_protocols` crate.
+3. Integrating the scene graph, asset system and backend into the engine core.
+4. Create a modular shader generation pipeline
+    a. Node-based might work
+5. and 6. Rewrite all of the tooling using the engine itself
+
+After these two are done and things are looking more organized, I'll move all "todos" into organization or repo projects/issues.
+
 ## Engine Crates
 
 Most parts of the engine have been separated into multiple crates for both organizational purposes and to improve compile times.
