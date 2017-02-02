@@ -18,6 +18,12 @@ pub struct Dimensions {
     pub depth: u32,
 }
 
+impl Dimensions {
+    pub fn new(width: u32, height: u32, depth: u32) -> Dimensions {
+        Dimensions { width: width, height: height, depth: depth }
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Texture {
     /// Binary texture data
