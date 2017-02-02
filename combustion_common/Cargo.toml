@@ -30,7 +30,7 @@ void = "1.0"
 git = "https://github.com/novacrazy/lz4-rs"
 
 [dependencies.nalgebra]
-path = "../deps/nalgebra"
+git = "https://github.com/combustion-engine/nalgebra"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"

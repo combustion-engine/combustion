@@ -21,4 +21,4 @@ path = "../combustion_common"
 path = "../combustion_ecs"
 
 [dependencies.openalsoft-rs]
-path = "../deps/openalsoft-rs"
+git = "https://github.com/combustion-engine/openalsoft-rs"

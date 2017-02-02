@@ -11,7 +11,7 @@ glob = "0.2.11"
 
 [dependencies.assimp]
 features = ["default", "compat"]
-path = "../../deps/assimp-rs"
+git = "https://github.com/combustion-engine/assimp-rs"
 
 [dependencies.combustion_common]
 path = "../../combustion_common"

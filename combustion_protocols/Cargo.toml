@@ -14,7 +14,7 @@ gcc = "0.3.40"
 walkdir = "1.0.3"
 
 [build-dependencies.capnpc]
-path = "../deps/capnpc-rust"
+git = "https://github.com/combustion-engine/capnpc-rust"
 
 [build-dependencies.combustion_common]
 path = "../combustion_common"
@@ -27,20 +27,20 @@ serde = "0.9"
 serde_derive = "0.9"
 trace-error = "0.1"
 
-[dependencies.capnpc]
-path = "../deps/capnpc-rust"
-
 [dependencies.combustion_common]
 path = "../combustion_common/"
 
 [dependencies.combustion_macros]
 path = "../combustion_macros/"
 
+[dependencies.capnpc]
+git = "https://github.com/combustion-engine/capnpc-rust"
+
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
 
 [dependencies.nalgebra]
-path = "../deps/nalgebra"
+git = "https://github.com/combustion-engine/nalgebra"
 
 [dev-dependencies]
 serde_json = "0.9"

@@ -14,6 +14,3 @@ path = "../combustion_common"
 path = "../combustion_protocols"
 
 [dependencies]
-
-[dependencies.squirrel]
-path = "../deps/squirrel-rs"

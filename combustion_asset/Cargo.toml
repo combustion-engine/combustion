@@ -16,10 +16,10 @@ trace-error = "0.1.3"
 
 [dependencies.assimp]
 features = ["default", "compat"]
-path = "../deps/assimp-rs"
+git = "https://github.com/combustion-engine/assimp-rs"
 
 [dependencies.capnpc]
-path = "../deps/capnpc-rust"
+git = "https://github.com/combustion-engine/capnpc-rust"
 
 [dependencies.combustion_common]
 path = "../combustion_common"
@@ -31,4 +31,4 @@ path = "../combustion_protocols"
 git = "https://github.com/novacrazy/lz4-rs"
 
 [dependencies.nalgebra]
-path = "../deps/nalgebra"
+git = "https://github.com/combustion-engine/nalgebra"

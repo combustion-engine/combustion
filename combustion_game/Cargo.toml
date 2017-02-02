@@ -31,11 +31,8 @@ num_cpus = "1.1.0"
 time = "0.1.35"
 vec_map = "0.6.0"
 
-[dependencies.lazy]
-path = "../deps/lazy"
-
 [dependencies.nalgebra]
-path = "../deps/nalgebra"
+git = "https://github.com/combustion-engine/nalgebra"
 
 [dependencies.palette]
 git = "git://github.com/Ogeon/palette.git"
