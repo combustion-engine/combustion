@@ -5,6 +5,9 @@ extern crate cmake;
 extern crate gcc;
 extern crate walkdir;
 
+#[cfg(feature = "cpp")]
+use std::process::Command;
+
 use walkdir::*;
 
 use common::ext::*;
@@ -68,7 +71,6 @@ fn compile_capnprotos() {
 
 #[cfg(feature = "cpp")]
 fn build_cpp() {
-    use std::process::Command;
     use std::env;
 
     let out_dir = env::var("OUT_DIR").unwrap();
