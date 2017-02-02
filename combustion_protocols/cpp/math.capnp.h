@@ -92,7 +92,7 @@ struct Transform::Transform {
   class Builder;
   class Pipeline;
   enum Which: uint16_t {
-    TRANSLATE,
+    TRANSLATION,
     ROTATION,
     SCALE,
     MATRIX,
@@ -526,9 +526,9 @@ public:
 #endif  // !CAPNP_LITE
 
   inline Which which() const;
-  inline bool isTranslate() const;
-  inline bool hasTranslate() const;
-  inline  ::Vector3::Reader getTranslate() const;
+  inline bool isTranslation() const;
+  inline bool hasTranslation() const;
+  inline  ::Vector3::Reader getTranslation() const;
 
   inline bool isRotation() const;
   inline bool hasRotation() const;
@@ -571,13 +571,13 @@ public:
 #endif  // !CAPNP_LITE
 
   inline Which which();
-  inline bool isTranslate();
-  inline bool hasTranslate();
-  inline  ::Vector3::Builder getTranslate();
-  inline void setTranslate( ::Vector3::Reader value);
-  inline  ::Vector3::Builder initTranslate();
-  inline void adoptTranslate(::capnp::Orphan< ::Vector3>&& value);
-  inline ::capnp::Orphan< ::Vector3> disownTranslate();
+  inline bool isTranslation();
+  inline bool hasTranslation();
+  inline  ::Vector3::Builder getTranslation();
+  inline void setTranslation( ::Vector3::Reader value);
+  inline  ::Vector3::Builder initTranslation();
+  inline void adoptTranslation(::capnp::Orphan< ::Vector3>&& value);
+  inline ::capnp::Orphan< ::Vector3> disownTranslation();
 
   inline bool isRotation();
   inline bool hasRotation();
@@ -962,53 +962,53 @@ inline  ::Transform::Transform::Which Transform::Transform::Builder::which() {
   return _builder.getDataField<Which>(0 * ::capnp::ELEMENTS);
 }
 
-inline bool Transform::Transform::Reader::isTranslate() const {
-  return which() == Transform::Transform::TRANSLATE;
+inline bool Transform::Transform::Reader::isTranslation() const {
+  return which() == Transform::Transform::TRANSLATION;
 }
-inline bool Transform::Transform::Builder::isTranslate() {
-  return which() == Transform::Transform::TRANSLATE;
+inline bool Transform::Transform::Builder::isTranslation() {
+  return which() == Transform::Transform::TRANSLATION;
 }
-inline bool Transform::Transform::Reader::hasTranslate() const {
-  if (which() != Transform::Transform::TRANSLATE) return false;
+inline bool Transform::Transform::Reader::hasTranslation() const {
+  if (which() != Transform::Transform::TRANSLATION) return false;
   return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-inline bool Transform::Transform::Builder::hasTranslate() {
-  if (which() != Transform::Transform::TRANSLATE) return false;
+inline bool Transform::Transform::Builder::hasTranslation() {
+  if (which() != Transform::Transform::TRANSLATION) return false;
   return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-inline  ::Vector3::Reader Transform::Transform::Reader::getTranslate() const {
-  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATE,
+inline  ::Vector3::Reader Transform::Transform::Reader::getTranslation() const {
+  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATION,
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::Vector3>::get(
       _reader.getPointerField(0 * ::capnp::POINTERS));
 }
-inline  ::Vector3::Builder Transform::Transform::Builder::getTranslate() {
-  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATE,
+inline  ::Vector3::Builder Transform::Transform::Builder::getTranslation() {
+  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATION,
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::Vector3>::get(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-inline void Transform::Transform::Builder::setTranslate( ::Vector3::Reader value) {
+inline void Transform::Transform::Builder::setTranslation( ::Vector3::Reader value) {
   _builder.setDataField<Transform::Transform::Which>(
-      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATE);
+      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATION);
   ::capnp::_::PointerHelpers< ::Vector3>::set(
       _builder.getPointerField(0 * ::capnp::POINTERS), value);
 }
-inline  ::Vector3::Builder Transform::Transform::Builder::initTranslate() {
+inline  ::Vector3::Builder Transform::Transform::Builder::initTranslation() {
   _builder.setDataField<Transform::Transform::Which>(
-      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATE);
+      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATION);
   return ::capnp::_::PointerHelpers< ::Vector3>::init(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-inline void Transform::Transform::Builder::adoptTranslate(
+inline void Transform::Transform::Builder::adoptTranslation(
     ::capnp::Orphan< ::Vector3>&& value) {
   _builder.setDataField<Transform::Transform::Which>(
-      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATE);
+      0 * ::capnp::ELEMENTS, Transform::Transform::TRANSLATION);
   ::capnp::_::PointerHelpers< ::Vector3>::adopt(
       _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::Vector3> Transform::Transform::Builder::disownTranslate() {
-  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATE,
+inline ::capnp::Orphan< ::Vector3> Transform::Transform::Builder::disownTranslation() {
+  KJ_IREQUIRE(which() == Transform::Transform::TRANSLATION,
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::Vector3>::disown(
       _builder.getPointerField(0 * ::capnp::POINTERS));

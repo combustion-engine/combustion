@@ -21,7 +21,7 @@ CAPNP_DECLARE_SCHEMA(a18e1acd5ce2427c);
 }  // namespace capnp
 
 
-template <typename Type = ::capnp::AnyPointer>
+template <typename SomeType = ::capnp::AnyPointer>
 struct Option {
   Option() = delete;
 
@@ -39,7 +39,7 @@ struct Option {
     static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand = ::capnp::_::ChooseBrand<_capnpPrivate, Type>::brand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = ::capnp::_::ChooseBrand<_capnpPrivate, SomeType>::brand;
     #endif  // !CAPNP_LITE
   };
 };
@@ -65,8 +65,8 @@ struct Pair {
 
 // =======================================================================================
 
-template <typename Type>
-class Option<Type>::Reader {
+template <typename SomeType>
+class Option<SomeType>::Reader {
 public:
   typedef Option Reads;
 
@@ -89,7 +89,7 @@ public:
 
   inline bool isSome() const;
   inline bool hasSome() const;
-  inline  ::capnp::ReaderFor<Type> getSome() const;
+  inline  ::capnp::ReaderFor<SomeType> getSome() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -103,8 +103,8 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename Type>
-class Option<Type>::Builder {
+template <typename SomeType>
+class Option<SomeType>::Builder {
 public:
   typedef Option Builds;
 
@@ -127,12 +127,12 @@ public:
 
   inline bool isSome();
   inline bool hasSome();
-  inline  ::capnp::BuilderFor<Type> getSome();
-  inline void setSome( ::capnp::ReaderFor<Type> value);
-  inline  ::capnp::BuilderFor<Type> initSome();
-  inline  ::capnp::BuilderFor<Type> initSome(unsigned int size);
-  inline void adoptSome(::capnp::Orphan<Type>&& value);
-  inline ::capnp::Orphan<Type> disownSome();
+  inline  ::capnp::BuilderFor<SomeType> getSome();
+  inline void setSome( ::capnp::ReaderFor<SomeType> value);
+  inline  ::capnp::BuilderFor<SomeType> initSome();
+  inline  ::capnp::BuilderFor<SomeType> initSome(unsigned int size);
+  inline void adoptSome(::capnp::Orphan<SomeType>&& value);
+  inline ::capnp::Orphan<SomeType> disownSome();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -144,8 +144,8 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename Type>
-class Option<Type>::Pipeline {
+template <typename SomeType>
+class Option<SomeType>::Pipeline {
 public:
   typedef Option Pipelines;
 
@@ -261,139 +261,139 @@ private:
 
 // =======================================================================================
 
-template <typename Type>
-inline typename  ::Option<Type>::Which Option<Type>::Reader::which() const {
+template <typename SomeType>
+inline typename  ::Option<SomeType>::Which Option<SomeType>::Reader::which() const {
   return _reader.getDataField<Which>(0 * ::capnp::ELEMENTS);
 }
-template <typename Type>
-inline typename  ::Option<Type>::Which Option<Type>::Builder::which() {
+template <typename SomeType>
+inline typename  ::Option<SomeType>::Which Option<SomeType>::Builder::which() {
   return _builder.getDataField<Which>(0 * ::capnp::ELEMENTS);
 }
 
-template <typename Type>
-inline bool Option<Type>::Reader::isNone() const {
-  return which() == Option<Type>::NONE;
+template <typename SomeType>
+inline bool Option<SomeType>::Reader::isNone() const {
+  return which() == Option<SomeType>::NONE;
 }
-template <typename Type>
-inline bool Option<Type>::Builder::isNone() {
-  return which() == Option<Type>::NONE;
+template <typename SomeType>
+inline bool Option<SomeType>::Builder::isNone() {
+  return which() == Option<SomeType>::NONE;
 }
-template <typename Type>
-inline  ::capnp::Void Option<Type>::Reader::getNone() const {
-  KJ_IREQUIRE(which() == Option<Type>::NONE,
+template <typename SomeType>
+inline  ::capnp::Void Option<SomeType>::Reader::getNone() const {
+  KJ_IREQUIRE(which() == Option<SomeType>::NONE,
               "Must check which() before get()ing a union member.");
   return _reader.getDataField< ::capnp::Void>(
       0 * ::capnp::ELEMENTS);
 }
 
-template <typename Type>
-inline  ::capnp::Void Option<Type>::Builder::getNone() {
-  KJ_IREQUIRE(which() == Option<Type>::NONE,
+template <typename SomeType>
+inline  ::capnp::Void Option<SomeType>::Builder::getNone() {
+  KJ_IREQUIRE(which() == Option<SomeType>::NONE,
               "Must check which() before get()ing a union member.");
   return _builder.getDataField< ::capnp::Void>(
       0 * ::capnp::ELEMENTS);
 }
-template <typename Type>
-inline void Option<Type>::Builder::setNone( ::capnp::Void value) {
-  _builder.setDataField<Option<Type>::Which>(
-      0 * ::capnp::ELEMENTS, Option<Type>::NONE);
+template <typename SomeType>
+inline void Option<SomeType>::Builder::setNone( ::capnp::Void value) {
+  _builder.setDataField<Option<SomeType>::Which>(
+      0 * ::capnp::ELEMENTS, Option<SomeType>::NONE);
   _builder.setDataField< ::capnp::Void>(
       0 * ::capnp::ELEMENTS, value);
 }
 
-template <typename Type>
-inline bool Option<Type>::Reader::isSome() const {
-  return which() == Option<Type>::SOME;
+template <typename SomeType>
+inline bool Option<SomeType>::Reader::isSome() const {
+  return which() == Option<SomeType>::SOME;
 }
-template <typename Type>
-inline bool Option<Type>::Builder::isSome() {
-  return which() == Option<Type>::SOME;
+template <typename SomeType>
+inline bool Option<SomeType>::Builder::isSome() {
+  return which() == Option<SomeType>::SOME;
 }
-template <typename Type>
-inline bool Option<Type>::Reader::hasSome() const {
-  if (which() != Option<Type>::SOME) return false;
+template <typename SomeType>
+inline bool Option<SomeType>::Reader::hasSome() const {
+  if (which() != Option<SomeType>::SOME) return false;
   return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-template <typename Type>
-inline bool Option<Type>::Builder::hasSome() {
-  if (which() != Option<Type>::SOME) return false;
+template <typename SomeType>
+inline bool Option<SomeType>::Builder::hasSome() {
+  if (which() != Option<SomeType>::SOME) return false;
   return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-template <typename Type>
-inline  ::capnp::ReaderFor<Type> Option<Type>::Reader::getSome() const {
-  KJ_IREQUIRE(which() == Option<Type>::SOME,
+template <typename SomeType>
+inline  ::capnp::ReaderFor<SomeType> Option<SomeType>::Reader::getSome() const {
+  KJ_IREQUIRE(which() == Option<SomeType>::SOME,
               "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers<Type>::get(
+  return ::capnp::_::PointerHelpers<SomeType>::get(
       _reader.getPointerField(0 * ::capnp::POINTERS));
 }
-template <typename Type>
-inline  ::capnp::BuilderFor<Type> Option<Type>::Builder::getSome() {
-  KJ_IREQUIRE(which() == Option<Type>::SOME,
+template <typename SomeType>
+inline  ::capnp::BuilderFor<SomeType> Option<SomeType>::Builder::getSome() {
+  KJ_IREQUIRE(which() == Option<SomeType>::SOME,
               "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers<Type>::get(
+  return ::capnp::_::PointerHelpers<SomeType>::get(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-template <typename Type>
-inline void Option<Type>::Builder::setSome( ::capnp::ReaderFor<Type> value) {
-  _builder.setDataField<Option<Type>::Which>(
-      0 * ::capnp::ELEMENTS, Option<Type>::SOME);
-  ::capnp::_::PointerHelpers<Type>::set(
+template <typename SomeType>
+inline void Option<SomeType>::Builder::setSome( ::capnp::ReaderFor<SomeType> value) {
+  _builder.setDataField<Option<SomeType>::Which>(
+      0 * ::capnp::ELEMENTS, Option<SomeType>::SOME);
+  ::capnp::_::PointerHelpers<SomeType>::set(
       _builder.getPointerField(0 * ::capnp::POINTERS), value);
 }
-template <typename Type>
-inline  ::capnp::BuilderFor<Type> Option<Type>::Builder::initSome() {
-  _builder.setDataField<Option<Type>::Which>(
-      0 * ::capnp::ELEMENTS, Option<Type>::SOME);
-  return ::capnp::_::PointerHelpers<Type>::init(
+template <typename SomeType>
+inline  ::capnp::BuilderFor<SomeType> Option<SomeType>::Builder::initSome() {
+  _builder.setDataField<Option<SomeType>::Which>(
+      0 * ::capnp::ELEMENTS, Option<SomeType>::SOME);
+  return ::capnp::_::PointerHelpers<SomeType>::init(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-template <typename Type>
-inline  ::capnp::BuilderFor<Type> Option<Type>::Builder::initSome(unsigned int size) {
-  _builder.setDataField<Option<Type>::Which>(
-      0 * ::capnp::ELEMENTS, Option<Type>::SOME);
-  return ::capnp::_::PointerHelpers<Type>::init(
+template <typename SomeType>
+inline  ::capnp::BuilderFor<SomeType> Option<SomeType>::Builder::initSome(unsigned int size) {
+  _builder.setDataField<Option<SomeType>::Which>(
+      0 * ::capnp::ELEMENTS, Option<SomeType>::SOME);
+  return ::capnp::_::PointerHelpers<SomeType>::init(
       _builder.getPointerField(0 * ::capnp::POINTERS), size);
 }
-template <typename Type>
-inline void Option<Type>::Builder::adoptSome(
-    ::capnp::Orphan<Type>&& value) {
-  _builder.setDataField<Option<Type>::Which>(
-      0 * ::capnp::ELEMENTS, Option<Type>::SOME);
-  ::capnp::_::PointerHelpers<Type>::adopt(
+template <typename SomeType>
+inline void Option<SomeType>::Builder::adoptSome(
+    ::capnp::Orphan<SomeType>&& value) {
+  _builder.setDataField<Option<SomeType>::Which>(
+      0 * ::capnp::ELEMENTS, Option<SomeType>::SOME);
+  ::capnp::_::PointerHelpers<SomeType>::adopt(
       _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
 }
-template <typename Type>
-inline ::capnp::Orphan<Type> Option<Type>::Builder::disownSome() {
-  KJ_IREQUIRE(which() == Option<Type>::SOME,
+template <typename SomeType>
+inline ::capnp::Orphan<SomeType> Option<SomeType>::Builder::disownSome() {
+  KJ_IREQUIRE(which() == Option<SomeType>::SOME,
               "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers<Type>::disown(
+  return ::capnp::_::PointerHelpers<SomeType>::disown(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
 
-// Option<Type>
+// Option<SomeType>
 #ifndef _MSC_VER
-template <typename Type>
-constexpr uint16_t Option<Type>::_capnpPrivate::dataWordSize;
-template <typename Type>
-constexpr uint16_t Option<Type>::_capnpPrivate::pointerCount;
+template <typename SomeType>
+constexpr uint16_t Option<SomeType>::_capnpPrivate::dataWordSize;
+template <typename SomeType>
+constexpr uint16_t Option<SomeType>::_capnpPrivate::pointerCount;
 #endif
 #if !CAPNP_LITE
-template <typename Type>
-constexpr ::capnp::Kind Option<Type>::_capnpPrivate::kind;
-template <typename Type>
-constexpr ::capnp::_::RawSchema const* Option<Type>::_capnpPrivate::schema;
-template <typename Type>
-constexpr ::capnp::_::RawBrandedSchema const* Option<Type>::_capnpPrivate::brand;
-template <typename Type>
-const ::capnp::_::RawBrandedSchema::Scope Option<Type>::_capnpPrivate::brandScopes[] = {
+template <typename SomeType>
+constexpr ::capnp::Kind Option<SomeType>::_capnpPrivate::kind;
+template <typename SomeType>
+constexpr ::capnp::_::RawSchema const* Option<SomeType>::_capnpPrivate::schema;
+template <typename SomeType>
+constexpr ::capnp::_::RawBrandedSchema const* Option<SomeType>::_capnpPrivate::brand;
+template <typename SomeType>
+const ::capnp::_::RawBrandedSchema::Scope Option<SomeType>::_capnpPrivate::brandScopes[] = {
   { 0xb17d86024218444d, brandBindings + 0, 1, false},
 };
-template <typename Type>
-const ::capnp::_::RawBrandedSchema::Binding Option<Type>::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<Type>(),
+template <typename SomeType>
+const ::capnp::_::RawBrandedSchema::Binding Option<SomeType>::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<SomeType>(),
 };
-template <typename Type>
-const ::capnp::_::RawBrandedSchema Option<Type>::_capnpPrivate::specificBrand = {
+template <typename SomeType>
+const ::capnp::_::RawBrandedSchema Option<SomeType>::_capnpPrivate::specificBrand = {
   &::capnp::schemas::s_b17d86024218444d, brandScopes, nullptr,
   sizeof(brandScopes) / sizeof(brandScopes[0]), 0, nullptr
 };

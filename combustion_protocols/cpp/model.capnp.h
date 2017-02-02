@@ -16,12 +16,28 @@
 namespace capnp {
 namespace schemas {
 
+CAPNP_DECLARE_SCHEMA(c350feaae39e6368);
 CAPNP_DECLARE_SCHEMA(a691a6e78ccbfb5a);
 CAPNP_DECLARE_SCHEMA(ec677cdf82468e9b);
 
 }  // namespace schemas
 }  // namespace capnp
 
+
+struct RootModel {
+  RootModel() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c350feaae39e6368, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
 
 struct Model {
   Model() = delete;
@@ -54,6 +70,88 @@ struct Node {
 };
 
 // =======================================================================================
+
+class RootModel::Reader {
+public:
+  typedef RootModel Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasModel() const;
+  inline  ::Model::Reader getModel() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RootModel::Builder {
+public:
+  typedef RootModel Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasModel();
+  inline  ::Model::Builder getModel();
+  inline void setModel( ::Model::Reader value);
+  inline  ::Model::Builder initModel();
+  inline void adoptModel(::capnp::Orphan< ::Model>&& value);
+  inline ::capnp::Orphan< ::Model> disownModel();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RootModel::Pipeline {
+public:
+  typedef RootModel Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::Model::Pipeline getModel();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
 
 class Model::Reader {
 public:
@@ -271,6 +369,43 @@ private:
 #endif  // !CAPNP_LITE
 
 // =======================================================================================
+
+inline bool RootModel::Reader::hasModel() const {
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline bool RootModel::Builder::hasModel() {
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline  ::Model::Reader RootModel::Reader::getModel() const {
+  return ::capnp::_::PointerHelpers< ::Model>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
+}
+inline  ::Model::Builder RootModel::Builder::getModel() {
+  return ::capnp::_::PointerHelpers< ::Model>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::Model::Pipeline RootModel::Pipeline::getModel() {
+  return  ::Model::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void RootModel::Builder::setModel( ::Model::Reader value) {
+  ::capnp::_::PointerHelpers< ::Model>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+inline  ::Model::Builder RootModel::Builder::initModel() {
+  return ::capnp::_::PointerHelpers< ::Model>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void RootModel::Builder::adoptModel(
+    ::capnp::Orphan< ::Model>&& value) {
+  ::capnp::_::PointerHelpers< ::Model>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Model> RootModel::Builder::disownModel() {
+  return ::capnp::_::PointerHelpers< ::Model>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
 
 inline bool Model::Reader::hasRoot() const {
   return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();

@@ -55,24 +55,52 @@ enum class BlockSize_a5b0498648f87aab: uint16_t {
   B12X12,
 };
 CAPNP_DECLARE_ENUM(BlockSize, a5b0498648f87aab);
-CAPNP_DECLARE_SCHEMA(8315320b3b27faa1);
-enum class Raw_8315320b3b27faa1: uint16_t {
+CAPNP_DECLARE_SCHEMA(efac83628ed9c608);
+enum class Channels_efac83628ed9c608: uint16_t {
   R,
   RG,
   RGB,
   RGBA,
 };
-CAPNP_DECLARE_ENUM(Raw, 8315320b3b27faa1);
-CAPNP_DECLARE_SCHEMA(ce85a5aed9db9382);
-enum class Kind_ce85a5aed9db9382: uint16_t {
+CAPNP_DECLARE_ENUM(Channels, efac83628ed9c608);
+CAPNP_DECLARE_SCHEMA(bf40f4217973ffde);
+enum class DataType_bf40f4217973ffde: uint16_t {
+  UNSIGNED_BYTE,
+  BYTE,
+  UNSIGNED_SHORT,
+  SHORT,
+  UNSIGNED_INT,
+  INT,
+  FLOAT,
+  UNSIGNED_BYTE332,
+  UNSIGNED_BYTE233_REV,
+  UNSIGNED_SHORT565,
+  UNSIGNED_SHORT565_REV,
+  UNSIGNED_SHORT4444,
+  UNSIGNED_SHORT4444_REV,
+  UNSIGNED_SHORT5551,
+  UNSIGNED_SHORT1555_REV,
+  UNSIGNED_INT8888,
+  UNSIGNED_INT8888_REV,
+  UNSIGNED_INT1010102,
+  UNSIGNED_INT2101010_REV,
+  UNSPECIFIED,
+};
+CAPNP_DECLARE_ENUM(DataType, bf40f4217973ffde);
+CAPNP_DECLARE_SCHEMA(fac0ea8b372b50ff);
+CAPNP_DECLARE_SCHEMA(fc05632244f526d5);
+enum class TextureKind_fc05632244f526d5: uint16_t {
   TEXTURE1_D,
   TEXTURE2_D,
   TEXTURE3_D,
 };
-CAPNP_DECLARE_ENUM(Kind, ce85a5aed9db9382);
+CAPNP_DECLARE_ENUM(TextureKind, fc05632244f526d5);
 CAPNP_DECLARE_SCHEMA(c4cf8d45880f89f2);
-CAPNP_DECLARE_SCHEMA(88a85f661c059e3d);
+CAPNP_DECLARE_SCHEMA(c64972e0022dd9c5);
+CAPNP_DECLARE_SCHEMA(f81d792693e6a6f3);
 CAPNP_DECLARE_SCHEMA(9ff57f9fd9f83b0d);
+CAPNP_DECLARE_SCHEMA(8630d6be0dfe5710);
+CAPNP_DECLARE_SCHEMA(e778d2682349d8fc);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -86,9 +114,26 @@ typedef ::capnp::schemas::S3tc_b31f871133cef5fe S3tc;
 
 typedef ::capnp::schemas::BlockSize_a5b0498648f87aab BlockSize;
 
-typedef ::capnp::schemas::Raw_8315320b3b27faa1 Raw;
+typedef ::capnp::schemas::Channels_efac83628ed9c608 Channels;
 
-typedef ::capnp::schemas::Kind_ce85a5aed9db9382 Kind;
+typedef ::capnp::schemas::DataType_bf40f4217973ffde DataType;
+
+struct Uncompressed {
+  Uncompressed() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(fac0ea8b372b50ff, 1, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
+typedef ::capnp::schemas::TextureKind_fc05632244f526d5 TextureKind;
 
 struct Texture {
   Texture() = delete;
@@ -96,10 +141,26 @@ struct Texture {
   class Reader;
   class Builder;
   class Pipeline;
+  struct Dimensions;
   struct Compression;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(c4cf8d45880f89f2, 3, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(c4cf8d45880f89f2, 3, 3)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Texture::Dimensions {
+  Dimensions() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c64972e0022dd9c5, 3, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
     #endif  // !CAPNP_LITE
@@ -121,7 +182,7 @@ struct Texture::Compression {
   };
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(88a85f661c059e3d, 3, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(f81d792693e6a6f3, 3, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
     #endif  // !CAPNP_LITE
@@ -143,7 +204,123 @@ struct Cubemap {
   };
 };
 
+struct RootTexture {
+  RootTexture() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  struct Texture;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8630d6be0dfe5710, 1, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct RootTexture::Texture {
+  Texture() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  enum Which: uint16_t {
+    SINGLE,
+    CUBEMAP,
+  };
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e778d2682349d8fc, 1, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
 // =======================================================================================
+
+class Uncompressed::Reader {
+public:
+  typedef Uncompressed Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::Channels getFormat() const;
+
+  inline  ::DataType getType() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Uncompressed::Builder {
+public:
+  typedef Uncompressed Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::Channels getFormat();
+  inline void setFormat( ::Channels value);
+
+  inline  ::DataType getType();
+  inline void setType( ::DataType value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Uncompressed::Pipeline {
+public:
+  typedef Uncompressed Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
 
 class Texture::Reader {
 public:
@@ -162,20 +339,16 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint32_t getWidth() const;
+  inline  ::TextureKind getKind() const;
 
-  inline  ::uint32_t getHeight() const;
+  inline Dimensions::Reader getDimensions() const;
+
+  inline bool getSrgb() const;
 
   inline Compression::Reader getCompression() const;
 
   inline bool hasData() const;
   inline  ::capnp::Data::Reader getData() const;
-
-  inline bool getSrgb() const;
-
-  inline  ::uint32_t getDepth() const;
-
-  inline  ::Kind getKind() const;
 
   inline bool hasMipmaps() const;
   inline  ::capnp::List< ::capnp::Data>::Reader getMipmaps() const;
@@ -208,11 +381,14 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint32_t getWidth();
-  inline void setWidth( ::uint32_t value);
+  inline  ::TextureKind getKind();
+  inline void setKind( ::TextureKind value);
 
-  inline  ::uint32_t getHeight();
-  inline void setHeight( ::uint32_t value);
+  inline Dimensions::Builder getDimensions();
+  inline Dimensions::Builder initDimensions();
+
+  inline bool getSrgb();
+  inline void setSrgb(bool value);
 
   inline Compression::Builder getCompression();
   inline Compression::Builder initCompression();
@@ -223,15 +399,6 @@ public:
   inline  ::capnp::Data::Builder initData(unsigned int size);
   inline void adoptData(::capnp::Orphan< ::capnp::Data>&& value);
   inline ::capnp::Orphan< ::capnp::Data> disownData();
-
-  inline bool getSrgb();
-  inline void setSrgb(bool value);
-
-  inline  ::uint32_t getDepth();
-  inline void setDepth( ::uint32_t value);
-
-  inline  ::Kind getKind();
-  inline void setKind( ::Kind value);
 
   inline bool hasMipmaps();
   inline  ::capnp::List< ::capnp::Data>::Builder getMipmaps();
@@ -259,7 +426,94 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline Dimensions::Pipeline getDimensions();
   inline Compression::Pipeline getCompression();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Texture::Dimensions::Reader {
+public:
+  typedef Dimensions Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint32_t getWidth() const;
+
+  inline  ::uint32_t getHeight() const;
+
+  inline  ::uint32_t getDepth() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Texture::Dimensions::Builder {
+public:
+  typedef Dimensions Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint32_t getWidth();
+  inline void setWidth( ::uint32_t value);
+
+  inline  ::uint32_t getHeight();
+  inline void setHeight( ::uint32_t value);
+
+  inline  ::uint32_t getDepth();
+  inline void setDepth( ::uint32_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Texture::Dimensions::Pipeline {
+public:
+  typedef Dimensions Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -287,7 +541,8 @@ public:
 
   inline Which which() const;
   inline bool isNone() const;
-  inline  ::Raw getNone() const;
+  inline bool hasNone() const;
+  inline  ::Uncompressed::Reader getNone() const;
 
   inline bool isRgtc() const;
   inline  ::Rgtc getRgtc() const;
@@ -331,8 +586,12 @@ public:
 
   inline Which which();
   inline bool isNone();
-  inline  ::Raw getNone();
-  inline void setNone( ::Raw value);
+  inline bool hasNone();
+  inline  ::Uncompressed::Builder getNone();
+  inline void setNone( ::Uncompressed::Reader value);
+  inline  ::Uncompressed::Builder initNone();
+  inline void adoptNone(::capnp::Orphan< ::Uncompressed>&& value);
+  inline ::capnp::Orphan< ::Uncompressed> disownNone();
 
   inline bool isRgtc();
   inline  ::Rgtc getRgtc();
@@ -513,34 +772,253 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class RootTexture::Reader {
+public:
+  typedef RootTexture Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline Texture::Reader getTexture() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RootTexture::Builder {
+public:
+  typedef RootTexture Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline Texture::Builder getTexture();
+  inline Texture::Builder initTexture();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RootTexture::Pipeline {
+public:
+  typedef RootTexture Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline Texture::Pipeline getTexture();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class RootTexture::Texture::Reader {
+public:
+  typedef Texture Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline Which which() const;
+  inline bool isSingle() const;
+  inline bool hasSingle() const;
+  inline  ::Texture::Reader getSingle() const;
+
+  inline bool isCubemap() const;
+  inline bool hasCubemap() const;
+  inline  ::Cubemap::Reader getCubemap() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RootTexture::Texture::Builder {
+public:
+  typedef Texture Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline Which which();
+  inline bool isSingle();
+  inline bool hasSingle();
+  inline  ::Texture::Builder getSingle();
+  inline void setSingle( ::Texture::Reader value);
+  inline  ::Texture::Builder initSingle();
+  inline void adoptSingle(::capnp::Orphan< ::Texture>&& value);
+  inline ::capnp::Orphan< ::Texture> disownSingle();
+
+  inline bool isCubemap();
+  inline bool hasCubemap();
+  inline  ::Cubemap::Builder getCubemap();
+  inline void setCubemap( ::Cubemap::Reader value);
+  inline  ::Cubemap::Builder initCubemap();
+  inline void adoptCubemap(::capnp::Orphan< ::Cubemap>&& value);
+  inline ::capnp::Orphan< ::Cubemap> disownCubemap();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RootTexture::Texture::Pipeline {
+public:
+  typedef Texture Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 // =======================================================================================
 
-inline  ::uint32_t Texture::Reader::getWidth() const {
-  return _reader.getDataField< ::uint32_t>(
+inline  ::Channels Uncompressed::Reader::getFormat() const {
+  return _reader.getDataField< ::Channels>(
       0 * ::capnp::ELEMENTS);
 }
 
-inline  ::uint32_t Texture::Builder::getWidth() {
-  return _builder.getDataField< ::uint32_t>(
+inline  ::Channels Uncompressed::Builder::getFormat() {
+  return _builder.getDataField< ::Channels>(
       0 * ::capnp::ELEMENTS);
 }
-inline void Texture::Builder::setWidth( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
+inline void Uncompressed::Builder::setFormat( ::Channels value) {
+  _builder.setDataField< ::Channels>(
       0 * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint32_t Texture::Reader::getHeight() const {
-  return _reader.getDataField< ::uint32_t>(
+inline  ::DataType Uncompressed::Reader::getType() const {
+  return _reader.getDataField< ::DataType>(
       1 * ::capnp::ELEMENTS);
 }
 
-inline  ::uint32_t Texture::Builder::getHeight() {
-  return _builder.getDataField< ::uint32_t>(
+inline  ::DataType Uncompressed::Builder::getType() {
+  return _builder.getDataField< ::DataType>(
       1 * ::capnp::ELEMENTS);
 }
-inline void Texture::Builder::setHeight( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
+inline void Uncompressed::Builder::setType( ::DataType value) {
+  _builder.setDataField< ::DataType>(
       1 * ::capnp::ELEMENTS, value);
+}
+
+inline  ::TextureKind Texture::Reader::getKind() const {
+  return _reader.getDataField< ::TextureKind>(
+      0 * ::capnp::ELEMENTS, 1u);
+}
+
+inline  ::TextureKind Texture::Builder::getKind() {
+  return _builder.getDataField< ::TextureKind>(
+      0 * ::capnp::ELEMENTS, 1u);
+}
+inline void Texture::Builder::setKind( ::TextureKind value) {
+  _builder.setDataField< ::TextureKind>(
+      0 * ::capnp::ELEMENTS, value, 1u);
+}
+
+inline Texture::Dimensions::Reader Texture::Reader::getDimensions() const {
+  return Texture::Dimensions::Reader(_reader);
+}
+inline Texture::Dimensions::Builder Texture::Builder::getDimensions() {
+  return Texture::Dimensions::Builder(_builder);
+}
+#if !CAPNP_LITE
+inline Texture::Dimensions::Pipeline Texture::Pipeline::getDimensions() {
+  return Texture::Dimensions::Pipeline(_typeless.noop());
+}
+#endif  // !CAPNP_LITE
+inline Texture::Dimensions::Builder Texture::Builder::initDimensions() {
+  _builder.setDataField< ::uint32_t>(1 * ::capnp::ELEMENTS, 0);
+  _builder.setDataField< ::uint32_t>(2 * ::capnp::ELEMENTS, 0);
+  _builder.setDataField< ::uint32_t>(3 * ::capnp::ELEMENTS, 0);
+  return Texture::Dimensions::Builder(_builder);
+}
+inline bool Texture::Reader::getSrgb() const {
+  return _reader.getDataField<bool>(
+      16 * ::capnp::ELEMENTS);
+}
+
+inline bool Texture::Builder::getSrgb() {
+  return _builder.getDataField<bool>(
+      16 * ::capnp::ELEMENTS);
+}
+inline void Texture::Builder::setSrgb(bool value) {
+  _builder.setDataField<bool>(
+      16 * ::capnp::ELEMENTS, value);
 }
 
 inline Texture::Compression::Reader Texture::Reader::getCompression() const {
@@ -555,125 +1033,126 @@ inline Texture::Compression::Pipeline Texture::Pipeline::getCompression() {
 }
 #endif  // !CAPNP_LITE
 inline Texture::Compression::Builder Texture::Builder::initCompression() {
-  _builder.setDataField< ::uint16_t>(4 * ::capnp::ELEMENTS, 0);
-  _builder.setDataField< ::uint16_t>(5 * ::capnp::ELEMENTS, 0);
+  _builder.setDataField< ::uint16_t>(8 * ::capnp::ELEMENTS, 0);
+  _builder.setDataField< ::uint16_t>(9 * ::capnp::ELEMENTS, 0);
+  _builder.getPointerField(0 * ::capnp::POINTERS).clear();
   return Texture::Compression::Builder(_builder);
 }
 inline bool Texture::Reader::hasData() const {
-  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
 }
 inline bool Texture::Builder::hasData() {
-  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
 }
 inline  ::capnp::Data::Reader Texture::Reader::getData() const {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
-      _reader.getPointerField(0 * ::capnp::POINTERS));
+      _reader.getPointerField(1 * ::capnp::POINTERS));
 }
 inline  ::capnp::Data::Builder Texture::Builder::getData() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
-      _builder.getPointerField(0 * ::capnp::POINTERS));
+      _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 inline void Texture::Builder::setData( ::capnp::Data::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::set(
-      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+      _builder.getPointerField(1 * ::capnp::POINTERS), value);
 }
 inline  ::capnp::Data::Builder Texture::Builder::initData(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::init(
-      _builder.getPointerField(0 * ::capnp::POINTERS), size);
+      _builder.getPointerField(1 * ::capnp::POINTERS), size);
 }
 inline void Texture::Builder::adoptData(
     ::capnp::Orphan< ::capnp::Data>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(
-      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
 }
 inline ::capnp::Orphan< ::capnp::Data> Texture::Builder::disownData() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(
-      _builder.getPointerField(0 * ::capnp::POINTERS));
-}
-
-inline bool Texture::Reader::getSrgb() const {
-  return _reader.getDataField<bool>(
-      96 * ::capnp::ELEMENTS);
-}
-
-inline bool Texture::Builder::getSrgb() {
-  return _builder.getDataField<bool>(
-      96 * ::capnp::ELEMENTS);
-}
-inline void Texture::Builder::setSrgb(bool value) {
-  _builder.setDataField<bool>(
-      96 * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint32_t Texture::Reader::getDepth() const {
-  return _reader.getDataField< ::uint32_t>(
-      4 * ::capnp::ELEMENTS);
-}
-
-inline  ::uint32_t Texture::Builder::getDepth() {
-  return _builder.getDataField< ::uint32_t>(
-      4 * ::capnp::ELEMENTS);
-}
-inline void Texture::Builder::setDepth( ::uint32_t value) {
-  _builder.setDataField< ::uint32_t>(
-      4 * ::capnp::ELEMENTS, value);
-}
-
-inline  ::Kind Texture::Reader::getKind() const {
-  return _reader.getDataField< ::Kind>(
-      7 * ::capnp::ELEMENTS, 1u);
-}
-
-inline  ::Kind Texture::Builder::getKind() {
-  return _builder.getDataField< ::Kind>(
-      7 * ::capnp::ELEMENTS, 1u);
-}
-inline void Texture::Builder::setKind( ::Kind value) {
-  _builder.setDataField< ::Kind>(
-      7 * ::capnp::ELEMENTS, value, 1u);
+      _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 
 inline bool Texture::Reader::hasMipmaps() const {
-  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
+  return !_reader.getPointerField(2 * ::capnp::POINTERS).isNull();
 }
 inline bool Texture::Builder::hasMipmaps() {
-  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
+  return !_builder.getPointerField(2 * ::capnp::POINTERS).isNull();
 }
 inline  ::capnp::List< ::capnp::Data>::Reader Texture::Reader::getMipmaps() const {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::get(
-      _reader.getPointerField(1 * ::capnp::POINTERS));
+      _reader.getPointerField(2 * ::capnp::POINTERS));
 }
 inline  ::capnp::List< ::capnp::Data>::Builder Texture::Builder::getMipmaps() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::get(
-      _builder.getPointerField(1 * ::capnp::POINTERS));
+      _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 inline void Texture::Builder::setMipmaps( ::capnp::List< ::capnp::Data>::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::set(
-      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+      _builder.getPointerField(2 * ::capnp::POINTERS), value);
 }
 inline void Texture::Builder::setMipmaps(::kj::ArrayPtr<const  ::capnp::Data::Reader> value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::set(
-      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+      _builder.getPointerField(2 * ::capnp::POINTERS), value);
 }
 inline  ::capnp::List< ::capnp::Data>::Builder Texture::Builder::initMipmaps(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::init(
-      _builder.getPointerField(1 * ::capnp::POINTERS), size);
+      _builder.getPointerField(2 * ::capnp::POINTERS), size);
 }
 inline void Texture::Builder::adoptMipmaps(
     ::capnp::Orphan< ::capnp::List< ::capnp::Data>>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::adopt(
-      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
+      _builder.getPointerField(2 * ::capnp::POINTERS), kj::mv(value));
 }
 inline ::capnp::Orphan< ::capnp::List< ::capnp::Data>> Texture::Builder::disownMipmaps() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::Data>>::disown(
-      _builder.getPointerField(1 * ::capnp::POINTERS));
+      _builder.getPointerField(2 * ::capnp::POINTERS));
+}
+
+inline  ::uint32_t Texture::Dimensions::Reader::getWidth() const {
+  return _reader.getDataField< ::uint32_t>(
+      1 * ::capnp::ELEMENTS);
+}
+
+inline  ::uint32_t Texture::Dimensions::Builder::getWidth() {
+  return _builder.getDataField< ::uint32_t>(
+      1 * ::capnp::ELEMENTS);
+}
+inline void Texture::Dimensions::Builder::setWidth( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
+      1 * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint32_t Texture::Dimensions::Reader::getHeight() const {
+  return _reader.getDataField< ::uint32_t>(
+      2 * ::capnp::ELEMENTS);
+}
+
+inline  ::uint32_t Texture::Dimensions::Builder::getHeight() {
+  return _builder.getDataField< ::uint32_t>(
+      2 * ::capnp::ELEMENTS);
+}
+inline void Texture::Dimensions::Builder::setHeight( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
+      2 * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint32_t Texture::Dimensions::Reader::getDepth() const {
+  return _reader.getDataField< ::uint32_t>(
+      3 * ::capnp::ELEMENTS);
+}
+
+inline  ::uint32_t Texture::Dimensions::Builder::getDepth() {
+  return _builder.getDataField< ::uint32_t>(
+      3 * ::capnp::ELEMENTS);
+}
+inline void Texture::Dimensions::Builder::setDepth( ::uint32_t value) {
+  _builder.setDataField< ::uint32_t>(
+      3 * ::capnp::ELEMENTS, value);
 }
 
 inline  ::Texture::Compression::Which Texture::Compression::Reader::which() const {
-  return _reader.getDataField<Which>(5 * ::capnp::ELEMENTS);
+  return _reader.getDataField<Which>(8 * ::capnp::ELEMENTS);
 }
 inline  ::Texture::Compression::Which Texture::Compression::Builder::which() {
-  return _builder.getDataField<Which>(5 * ::capnp::ELEMENTS);
+  return _builder.getDataField<Which>(8 * ::capnp::ELEMENTS);
 }
 
 inline bool Texture::Compression::Reader::isNone() const {
@@ -682,24 +1161,50 @@ inline bool Texture::Compression::Reader::isNone() const {
 inline bool Texture::Compression::Builder::isNone() {
   return which() == Texture::Compression::NONE;
 }
-inline  ::Raw Texture::Compression::Reader::getNone() const {
+inline bool Texture::Compression::Reader::hasNone() const {
+  if (which() != Texture::Compression::NONE) return false;
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline bool Texture::Compression::Builder::hasNone() {
+  if (which() != Texture::Compression::NONE) return false;
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline  ::Uncompressed::Reader Texture::Compression::Reader::getNone() const {
   KJ_IREQUIRE(which() == Texture::Compression::NONE,
               "Must check which() before get()ing a union member.");
-  return _reader.getDataField< ::Raw>(
-      4 * ::capnp::ELEMENTS);
+  return ::capnp::_::PointerHelpers< ::Uncompressed>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
 }
-
-inline  ::Raw Texture::Compression::Builder::getNone() {
+inline  ::Uncompressed::Builder Texture::Compression::Builder::getNone() {
   KJ_IREQUIRE(which() == Texture::Compression::NONE,
               "Must check which() before get()ing a union member.");
-  return _builder.getDataField< ::Raw>(
-      4 * ::capnp::ELEMENTS);
+  return ::capnp::_::PointerHelpers< ::Uncompressed>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-inline void Texture::Compression::Builder::setNone( ::Raw value) {
+inline void Texture::Compression::Builder::setNone( ::Uncompressed::Reader value) {
   _builder.setDataField<Texture::Compression::Which>(
-      5 * ::capnp::ELEMENTS, Texture::Compression::NONE);
-  _builder.setDataField< ::Raw>(
-      4 * ::capnp::ELEMENTS, value);
+      8 * ::capnp::ELEMENTS, Texture::Compression::NONE);
+  ::capnp::_::PointerHelpers< ::Uncompressed>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+inline  ::Uncompressed::Builder Texture::Compression::Builder::initNone() {
+  _builder.setDataField<Texture::Compression::Which>(
+      8 * ::capnp::ELEMENTS, Texture::Compression::NONE);
+  return ::capnp::_::PointerHelpers< ::Uncompressed>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void Texture::Compression::Builder::adoptNone(
+    ::capnp::Orphan< ::Uncompressed>&& value) {
+  _builder.setDataField<Texture::Compression::Which>(
+      8 * ::capnp::ELEMENTS, Texture::Compression::NONE);
+  ::capnp::_::PointerHelpers< ::Uncompressed>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Uncompressed> Texture::Compression::Builder::disownNone() {
+  KJ_IREQUIRE(which() == Texture::Compression::NONE,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Uncompressed>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
 }
 
 inline bool Texture::Compression::Reader::isRgtc() const {
@@ -712,20 +1217,20 @@ inline  ::Rgtc Texture::Compression::Reader::getRgtc() const {
   KJ_IREQUIRE(which() == Texture::Compression::RGTC,
               "Must check which() before get()ing a union member.");
   return _reader.getDataField< ::Rgtc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 
 inline  ::Rgtc Texture::Compression::Builder::getRgtc() {
   KJ_IREQUIRE(which() == Texture::Compression::RGTC,
               "Must check which() before get()ing a union member.");
   return _builder.getDataField< ::Rgtc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 inline void Texture::Compression::Builder::setRgtc( ::Rgtc value) {
   _builder.setDataField<Texture::Compression::Which>(
-      5 * ::capnp::ELEMENTS, Texture::Compression::RGTC);
+      8 * ::capnp::ELEMENTS, Texture::Compression::RGTC);
   _builder.setDataField< ::Rgtc>(
-      4 * ::capnp::ELEMENTS, value);
+      9 * ::capnp::ELEMENTS, value);
 }
 
 inline bool Texture::Compression::Reader::isBptc() const {
@@ -738,20 +1243,20 @@ inline  ::Bptc Texture::Compression::Reader::getBptc() const {
   KJ_IREQUIRE(which() == Texture::Compression::BPTC,
               "Must check which() before get()ing a union member.");
   return _reader.getDataField< ::Bptc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 
 inline  ::Bptc Texture::Compression::Builder::getBptc() {
   KJ_IREQUIRE(which() == Texture::Compression::BPTC,
               "Must check which() before get()ing a union member.");
   return _builder.getDataField< ::Bptc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 inline void Texture::Compression::Builder::setBptc( ::Bptc value) {
   _builder.setDataField<Texture::Compression::Which>(
-      5 * ::capnp::ELEMENTS, Texture::Compression::BPTC);
+      8 * ::capnp::ELEMENTS, Texture::Compression::BPTC);
   _builder.setDataField< ::Bptc>(
-      4 * ::capnp::ELEMENTS, value);
+      9 * ::capnp::ELEMENTS, value);
 }
 
 inline bool Texture::Compression::Reader::isAstc() const {
@@ -764,20 +1269,20 @@ inline  ::BlockSize Texture::Compression::Reader::getAstc() const {
   KJ_IREQUIRE(which() == Texture::Compression::ASTC,
               "Must check which() before get()ing a union member.");
   return _reader.getDataField< ::BlockSize>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 
 inline  ::BlockSize Texture::Compression::Builder::getAstc() {
   KJ_IREQUIRE(which() == Texture::Compression::ASTC,
               "Must check which() before get()ing a union member.");
   return _builder.getDataField< ::BlockSize>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 inline void Texture::Compression::Builder::setAstc( ::BlockSize value) {
   _builder.setDataField<Texture::Compression::Which>(
-      5 * ::capnp::ELEMENTS, Texture::Compression::ASTC);
+      8 * ::capnp::ELEMENTS, Texture::Compression::ASTC);
   _builder.setDataField< ::BlockSize>(
-      4 * ::capnp::ELEMENTS, value);
+      9 * ::capnp::ELEMENTS, value);
 }
 
 inline bool Texture::Compression::Reader::isS3tc() const {
@@ -790,20 +1295,20 @@ inline  ::S3tc Texture::Compression::Reader::getS3tc() const {
   KJ_IREQUIRE(which() == Texture::Compression::S3TC,
               "Must check which() before get()ing a union member.");
   return _reader.getDataField< ::S3tc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 
 inline  ::S3tc Texture::Compression::Builder::getS3tc() {
   KJ_IREQUIRE(which() == Texture::Compression::S3TC,
               "Must check which() before get()ing a union member.");
   return _builder.getDataField< ::S3tc>(
-      4 * ::capnp::ELEMENTS);
+      9 * ::capnp::ELEMENTS);
 }
 inline void Texture::Compression::Builder::setS3tc( ::S3tc value) {
   _builder.setDataField<Texture::Compression::Which>(
-      5 * ::capnp::ELEMENTS, Texture::Compression::S3TC);
+      8 * ::capnp::ELEMENTS, Texture::Compression::S3TC);
   _builder.setDataField< ::S3tc>(
-      4 * ::capnp::ELEMENTS, value);
+      9 * ::capnp::ELEMENTS, value);
 }
 
 inline bool Cubemap::Reader::hasRight() const {
@@ -1026,6 +1531,133 @@ inline void Cubemap::Builder::adoptFront(
 inline ::capnp::Orphan< ::Texture> Cubemap::Builder::disownFront() {
   return ::capnp::_::PointerHelpers< ::Texture>::disown(
       _builder.getPointerField(5 * ::capnp::POINTERS));
+}
+
+inline RootTexture::Texture::Reader RootTexture::Reader::getTexture() const {
+  return RootTexture::Texture::Reader(_reader);
+}
+inline RootTexture::Texture::Builder RootTexture::Builder::getTexture() {
+  return RootTexture::Texture::Builder(_builder);
+}
+#if !CAPNP_LITE
+inline RootTexture::Texture::Pipeline RootTexture::Pipeline::getTexture() {
+  return RootTexture::Texture::Pipeline(_typeless.noop());
+}
+#endif  // !CAPNP_LITE
+inline RootTexture::Texture::Builder RootTexture::Builder::initTexture() {
+  _builder.setDataField< ::uint16_t>(0 * ::capnp::ELEMENTS, 0);
+  _builder.getPointerField(0 * ::capnp::POINTERS).clear();
+  return RootTexture::Texture::Builder(_builder);
+}
+inline  ::RootTexture::Texture::Which RootTexture::Texture::Reader::which() const {
+  return _reader.getDataField<Which>(0 * ::capnp::ELEMENTS);
+}
+inline  ::RootTexture::Texture::Which RootTexture::Texture::Builder::which() {
+  return _builder.getDataField<Which>(0 * ::capnp::ELEMENTS);
+}
+
+inline bool RootTexture::Texture::Reader::isSingle() const {
+  return which() == RootTexture::Texture::SINGLE;
+}
+inline bool RootTexture::Texture::Builder::isSingle() {
+  return which() == RootTexture::Texture::SINGLE;
+}
+inline bool RootTexture::Texture::Reader::hasSingle() const {
+  if (which() != RootTexture::Texture::SINGLE) return false;
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline bool RootTexture::Texture::Builder::hasSingle() {
+  if (which() != RootTexture::Texture::SINGLE) return false;
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline  ::Texture::Reader RootTexture::Texture::Reader::getSingle() const {
+  KJ_IREQUIRE(which() == RootTexture::Texture::SINGLE,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Texture>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
+}
+inline  ::Texture::Builder RootTexture::Texture::Builder::getSingle() {
+  KJ_IREQUIRE(which() == RootTexture::Texture::SINGLE,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Texture>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void RootTexture::Texture::Builder::setSingle( ::Texture::Reader value) {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::SINGLE);
+  ::capnp::_::PointerHelpers< ::Texture>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+inline  ::Texture::Builder RootTexture::Texture::Builder::initSingle() {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::SINGLE);
+  return ::capnp::_::PointerHelpers< ::Texture>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void RootTexture::Texture::Builder::adoptSingle(
+    ::capnp::Orphan< ::Texture>&& value) {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::SINGLE);
+  ::capnp::_::PointerHelpers< ::Texture>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Texture> RootTexture::Texture::Builder::disownSingle() {
+  KJ_IREQUIRE(which() == RootTexture::Texture::SINGLE,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Texture>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+
+inline bool RootTexture::Texture::Reader::isCubemap() const {
+  return which() == RootTexture::Texture::CUBEMAP;
+}
+inline bool RootTexture::Texture::Builder::isCubemap() {
+  return which() == RootTexture::Texture::CUBEMAP;
+}
+inline bool RootTexture::Texture::Reader::hasCubemap() const {
+  if (which() != RootTexture::Texture::CUBEMAP) return false;
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline bool RootTexture::Texture::Builder::hasCubemap() {
+  if (which() != RootTexture::Texture::CUBEMAP) return false;
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline  ::Cubemap::Reader RootTexture::Texture::Reader::getCubemap() const {
+  KJ_IREQUIRE(which() == RootTexture::Texture::CUBEMAP,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Cubemap>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
+}
+inline  ::Cubemap::Builder RootTexture::Texture::Builder::getCubemap() {
+  KJ_IREQUIRE(which() == RootTexture::Texture::CUBEMAP,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Cubemap>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void RootTexture::Texture::Builder::setCubemap( ::Cubemap::Reader value) {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::CUBEMAP);
+  ::capnp::_::PointerHelpers< ::Cubemap>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+inline  ::Cubemap::Builder RootTexture::Texture::Builder::initCubemap() {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::CUBEMAP);
+  return ::capnp::_::PointerHelpers< ::Cubemap>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void RootTexture::Texture::Builder::adoptCubemap(
+    ::capnp::Orphan< ::Cubemap>&& value) {
+  _builder.setDataField<RootTexture::Texture::Which>(
+      0 * ::capnp::ELEMENTS, RootTexture::Texture::CUBEMAP);
+  ::capnp::_::PointerHelpers< ::Cubemap>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Cubemap> RootTexture::Texture::Builder::disownCubemap() {
+  KJ_IREQUIRE(which() == RootTexture::Texture::CUBEMAP,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::Cubemap>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
 }
 
 

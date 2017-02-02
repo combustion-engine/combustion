@@ -19,6 +19,7 @@ namespace schemas {
 CAPNP_DECLARE_SCHEMA(fbeac91137839967);
 CAPNP_DECLARE_SCHEMA(a0b3f1b2653c62aa);
 CAPNP_DECLARE_SCHEMA(8876750e6bdf2879);
+CAPNP_DECLARE_SCHEMA(afe88be97f056652);
 CAPNP_DECLARE_SCHEMA(9c4ab6880b9462a0);
 CAPNP_DECLARE_SCHEMA(822f647ac3885738);
 
@@ -71,6 +72,21 @@ struct Vertices {
   };
 };
 
+struct VerticesRaw {
+  VerticesRaw() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(afe88be97f056652, 0, 3)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
+    #endif  // !CAPNP_LITE
+  };
+};
+
 struct Mesh {
   Mesh() = delete;
 
@@ -96,6 +112,8 @@ struct Mesh::Vertices {
   enum Which: uint16_t {
     INTERLEAVED,
     DISCRETE,
+    INTERLEAVED_RAW,
+    DISCRETE_RAW,
   };
 
   struct _capnpPrivate {
@@ -210,10 +228,10 @@ public:
   inline  ::Point3::Reader getPosition() const;
 
   inline bool hasNormal() const;
-  inline  ::Option< ::Vector3>::Reader getNormal() const;
+  inline  ::Vector3::Reader getNormal() const;
 
   inline bool hasUv() const;
-  inline  ::Option< ::TexCoord>::Reader getUv() const;
+  inline  ::TexCoord::Reader getUv() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -251,18 +269,18 @@ public:
   inline ::capnp::Orphan< ::Point3> disownPosition();
 
   inline bool hasNormal();
-  inline  ::Option< ::Vector3>::Builder getNormal();
-  inline void setNormal( ::Option< ::Vector3>::Reader value);
-  inline  ::Option< ::Vector3>::Builder initNormal();
-  inline void adoptNormal(::capnp::Orphan< ::Option< ::Vector3>>&& value);
-  inline ::capnp::Orphan< ::Option< ::Vector3>> disownNormal();
+  inline  ::Vector3::Builder getNormal();
+  inline void setNormal( ::Vector3::Reader value);
+  inline  ::Vector3::Builder initNormal();
+  inline void adoptNormal(::capnp::Orphan< ::Vector3>&& value);
+  inline ::capnp::Orphan< ::Vector3> disownNormal();
 
   inline bool hasUv();
-  inline  ::Option< ::TexCoord>::Builder getUv();
-  inline void setUv( ::Option< ::TexCoord>::Reader value);
-  inline  ::Option< ::TexCoord>::Builder initUv();
-  inline void adoptUv(::capnp::Orphan< ::Option< ::TexCoord>>&& value);
-  inline ::capnp::Orphan< ::Option< ::TexCoord>> disownUv();
+  inline  ::TexCoord::Builder getUv();
+  inline void setUv( ::TexCoord::Reader value);
+  inline  ::TexCoord::Builder initUv();
+  inline void adoptUv(::capnp::Orphan< ::TexCoord>&& value);
+  inline ::capnp::Orphan< ::TexCoord> disownUv();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -283,8 +301,8 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::Point3::Pipeline getPosition();
-  inline  ::Option< ::Vector3>::Pipeline getNormal();
-  inline  ::Option< ::TexCoord>::Pipeline getUv();
+  inline  ::Vector3::Pipeline getNormal();
+  inline  ::TexCoord::Pipeline getUv();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -388,6 +406,109 @@ public:
 
   inline  ::Option< ::capnp::List< ::Vector3>>::Pipeline getNormals();
   inline  ::Option< ::capnp::List< ::TexCoord>>::Pipeline getUvs();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class VerticesRaw::Reader {
+public:
+  typedef VerticesRaw Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand);
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasPositions() const;
+  inline  ::capnp::Data::Reader getPositions() const;
+
+  inline bool hasNormals() const;
+  inline  ::Option< ::capnp::Data>::Reader getNormals() const;
+
+  inline bool hasUvs() const;
+  inline  ::Option< ::capnp::Data>::Reader getUvs() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class VerticesRaw::Builder {
+public:
+  typedef VerticesRaw Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasPositions();
+  inline  ::capnp::Data::Builder getPositions();
+  inline void setPositions( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initPositions(unsigned int size);
+  inline void adoptPositions(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownPositions();
+
+  inline bool hasNormals();
+  inline  ::Option< ::capnp::Data>::Builder getNormals();
+  inline void setNormals( ::Option< ::capnp::Data>::Reader value);
+  inline  ::Option< ::capnp::Data>::Builder initNormals();
+  inline void adoptNormals(::capnp::Orphan< ::Option< ::capnp::Data>>&& value);
+  inline ::capnp::Orphan< ::Option< ::capnp::Data>> disownNormals();
+
+  inline bool hasUvs();
+  inline  ::Option< ::capnp::Data>::Builder getUvs();
+  inline void setUvs( ::Option< ::capnp::Data>::Reader value);
+  inline  ::Option< ::capnp::Data>::Builder initUvs();
+  inline void adoptUvs(::capnp::Orphan< ::Option< ::capnp::Data>>&& value);
+  inline ::capnp::Orphan< ::Option< ::capnp::Data>> disownUvs();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class VerticesRaw::Pipeline {
+public:
+  typedef VerticesRaw Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::Option< ::capnp::Data>::Pipeline getNormals();
+  inline  ::Option< ::capnp::Data>::Pipeline getUvs();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -521,6 +642,14 @@ public:
   inline bool hasDiscrete() const;
   inline  ::Vertices::Reader getDiscrete() const;
 
+  inline bool isInterleavedRaw() const;
+  inline bool hasInterleavedRaw() const;
+  inline  ::capnp::Data::Reader getInterleavedRaw() const;
+
+  inline bool isDiscreteRaw() const;
+  inline bool hasDiscreteRaw() const;
+  inline  ::VerticesRaw::Reader getDiscreteRaw() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -565,6 +694,22 @@ public:
   inline  ::Vertices::Builder initDiscrete();
   inline void adoptDiscrete(::capnp::Orphan< ::Vertices>&& value);
   inline ::capnp::Orphan< ::Vertices> disownDiscrete();
+
+  inline bool isInterleavedRaw();
+  inline bool hasInterleavedRaw();
+  inline  ::capnp::Data::Builder getInterleavedRaw();
+  inline void setInterleavedRaw( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initInterleavedRaw(unsigned int size);
+  inline void adoptInterleavedRaw(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownInterleavedRaw();
+
+  inline bool isDiscreteRaw();
+  inline bool hasDiscreteRaw();
+  inline  ::VerticesRaw::Builder getDiscreteRaw();
+  inline void setDiscreteRaw( ::VerticesRaw::Reader value);
+  inline  ::VerticesRaw::Builder initDiscreteRaw();
+  inline void adoptDiscreteRaw(::capnp::Orphan< ::VerticesRaw>&& value);
+  inline ::capnp::Orphan< ::VerticesRaw> disownDiscreteRaw();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -665,34 +810,34 @@ inline bool Vertex::Reader::hasNormal() const {
 inline bool Vertex::Builder::hasNormal() {
   return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
 }
-inline  ::Option< ::Vector3>::Reader Vertex::Reader::getNormal() const {
-  return ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::get(
+inline  ::Vector3::Reader Vertex::Reader::getNormal() const {
+  return ::capnp::_::PointerHelpers< ::Vector3>::get(
       _reader.getPointerField(1 * ::capnp::POINTERS));
 }
-inline  ::Option< ::Vector3>::Builder Vertex::Builder::getNormal() {
-  return ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::get(
+inline  ::Vector3::Builder Vertex::Builder::getNormal() {
+  return ::capnp::_::PointerHelpers< ::Vector3>::get(
       _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::Option< ::Vector3>::Pipeline Vertex::Pipeline::getNormal() {
-  return  ::Option< ::Vector3>::Pipeline(_typeless.getPointerField(1));
+inline  ::Vector3::Pipeline Vertex::Pipeline::getNormal() {
+  return  ::Vector3::Pipeline(_typeless.getPointerField(1));
 }
 #endif  // !CAPNP_LITE
-inline void Vertex::Builder::setNormal( ::Option< ::Vector3>::Reader value) {
-  ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::set(
+inline void Vertex::Builder::setNormal( ::Vector3::Reader value) {
+  ::capnp::_::PointerHelpers< ::Vector3>::set(
       _builder.getPointerField(1 * ::capnp::POINTERS), value);
 }
-inline  ::Option< ::Vector3>::Builder Vertex::Builder::initNormal() {
-  return ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::init(
+inline  ::Vector3::Builder Vertex::Builder::initNormal() {
+  return ::capnp::_::PointerHelpers< ::Vector3>::init(
       _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 inline void Vertex::Builder::adoptNormal(
-    ::capnp::Orphan< ::Option< ::Vector3>>&& value) {
-  ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::adopt(
+    ::capnp::Orphan< ::Vector3>&& value) {
+  ::capnp::_::PointerHelpers< ::Vector3>::adopt(
       _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::Option< ::Vector3>> Vertex::Builder::disownNormal() {
-  return ::capnp::_::PointerHelpers< ::Option< ::Vector3>>::disown(
+inline ::capnp::Orphan< ::Vector3> Vertex::Builder::disownNormal() {
+  return ::capnp::_::PointerHelpers< ::Vector3>::disown(
       _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 
@@ -702,34 +847,34 @@ inline bool Vertex::Reader::hasUv() const {
 inline bool Vertex::Builder::hasUv() {
   return !_builder.getPointerField(2 * ::capnp::POINTERS).isNull();
 }
-inline  ::Option< ::TexCoord>::Reader Vertex::Reader::getUv() const {
-  return ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::get(
+inline  ::TexCoord::Reader Vertex::Reader::getUv() const {
+  return ::capnp::_::PointerHelpers< ::TexCoord>::get(
       _reader.getPointerField(2 * ::capnp::POINTERS));
 }
-inline  ::Option< ::TexCoord>::Builder Vertex::Builder::getUv() {
-  return ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::get(
+inline  ::TexCoord::Builder Vertex::Builder::getUv() {
+  return ::capnp::_::PointerHelpers< ::TexCoord>::get(
       _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::Option< ::TexCoord>::Pipeline Vertex::Pipeline::getUv() {
-  return  ::Option< ::TexCoord>::Pipeline(_typeless.getPointerField(2));
+inline  ::TexCoord::Pipeline Vertex::Pipeline::getUv() {
+  return  ::TexCoord::Pipeline(_typeless.getPointerField(2));
 }
 #endif  // !CAPNP_LITE
-inline void Vertex::Builder::setUv( ::Option< ::TexCoord>::Reader value) {
-  ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::set(
+inline void Vertex::Builder::setUv( ::TexCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::TexCoord>::set(
       _builder.getPointerField(2 * ::capnp::POINTERS), value);
 }
-inline  ::Option< ::TexCoord>::Builder Vertex::Builder::initUv() {
-  return ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::init(
+inline  ::TexCoord::Builder Vertex::Builder::initUv() {
+  return ::capnp::_::PointerHelpers< ::TexCoord>::init(
       _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 inline void Vertex::Builder::adoptUv(
-    ::capnp::Orphan< ::Option< ::TexCoord>>&& value) {
-  ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::adopt(
+    ::capnp::Orphan< ::TexCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::TexCoord>::adopt(
       _builder.getPointerField(2 * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::Option< ::TexCoord>> Vertex::Builder::disownUv() {
-  return ::capnp::_::PointerHelpers< ::Option< ::TexCoord>>::disown(
+inline ::capnp::Orphan< ::TexCoord> Vertex::Builder::disownUv() {
+  return ::capnp::_::PointerHelpers< ::TexCoord>::disown(
       _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 
@@ -836,6 +981,112 @@ inline void Vertices::Builder::adoptUvs(
 }
 inline ::capnp::Orphan< ::Option< ::capnp::List< ::TexCoord>>> Vertices::Builder::disownUvs() {
   return ::capnp::_::PointerHelpers< ::Option< ::capnp::List< ::TexCoord>>>::disown(
+      _builder.getPointerField(2 * ::capnp::POINTERS));
+}
+
+inline bool VerticesRaw::Reader::hasPositions() const {
+  return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline bool VerticesRaw::Builder::hasPositions() {
+  return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Data::Reader VerticesRaw::Reader::getPositions() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
+      _reader.getPointerField(0 * ::capnp::POINTERS));
+}
+inline  ::capnp::Data::Builder VerticesRaw::Builder::getPositions() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+inline void VerticesRaw::Builder::setPositions( ::capnp::Data::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::set(
+      _builder.getPointerField(0 * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Data::Builder VerticesRaw::Builder::initPositions(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::init(
+      _builder.getPointerField(0 * ::capnp::POINTERS), size);
+}
+inline void VerticesRaw::Builder::adoptPositions(
+    ::capnp::Orphan< ::capnp::Data>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(
+      _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Data> VerticesRaw::Builder::disownPositions() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(
+      _builder.getPointerField(0 * ::capnp::POINTERS));
+}
+
+inline bool VerticesRaw::Reader::hasNormals() const {
+  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline bool VerticesRaw::Builder::hasNormals() {
+  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline  ::Option< ::capnp::Data>::Reader VerticesRaw::Reader::getNormals() const {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::get(
+      _reader.getPointerField(1 * ::capnp::POINTERS));
+}
+inline  ::Option< ::capnp::Data>::Builder VerticesRaw::Builder::getNormals() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::get(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::Option< ::capnp::Data>::Pipeline VerticesRaw::Pipeline::getNormals() {
+  return  ::Option< ::capnp::Data>::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void VerticesRaw::Builder::setNormals( ::Option< ::capnp::Data>::Reader value) {
+  ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::set(
+      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+}
+inline  ::Option< ::capnp::Data>::Builder VerticesRaw::Builder::initNormals() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::init(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+inline void VerticesRaw::Builder::adoptNormals(
+    ::capnp::Orphan< ::Option< ::capnp::Data>>&& value) {
+  ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::adopt(
+      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Option< ::capnp::Data>> VerticesRaw::Builder::disownNormals() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::disown(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+
+inline bool VerticesRaw::Reader::hasUvs() const {
+  return !_reader.getPointerField(2 * ::capnp::POINTERS).isNull();
+}
+inline bool VerticesRaw::Builder::hasUvs() {
+  return !_builder.getPointerField(2 * ::capnp::POINTERS).isNull();
+}
+inline  ::Option< ::capnp::Data>::Reader VerticesRaw::Reader::getUvs() const {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::get(
+      _reader.getPointerField(2 * ::capnp::POINTERS));
+}
+inline  ::Option< ::capnp::Data>::Builder VerticesRaw::Builder::getUvs() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::get(
+      _builder.getPointerField(2 * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::Option< ::capnp::Data>::Pipeline VerticesRaw::Pipeline::getUvs() {
+  return  ::Option< ::capnp::Data>::Pipeline(_typeless.getPointerField(2));
+}
+#endif  // !CAPNP_LITE
+inline void VerticesRaw::Builder::setUvs( ::Option< ::capnp::Data>::Reader value) {
+  ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::set(
+      _builder.getPointerField(2 * ::capnp::POINTERS), value);
+}
+inline  ::Option< ::capnp::Data>::Builder VerticesRaw::Builder::initUvs() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::init(
+      _builder.getPointerField(2 * ::capnp::POINTERS));
+}
+inline void VerticesRaw::Builder::adoptUvs(
+    ::capnp::Orphan< ::Option< ::capnp::Data>>&& value) {
+  ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::adopt(
+      _builder.getPointerField(2 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::Option< ::capnp::Data>> VerticesRaw::Builder::disownUvs() {
+  return ::capnp::_::PointerHelpers< ::Option< ::capnp::Data>>::disown(
       _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 
@@ -1036,6 +1287,110 @@ inline ::capnp::Orphan< ::Vertices> Mesh::Vertices::Builder::disownDiscrete() {
   KJ_IREQUIRE(which() == Mesh::Vertices::DISCRETE,
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::Vertices>::disown(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Vertices::Reader::isInterleavedRaw() const {
+  return which() == Mesh::Vertices::INTERLEAVED_RAW;
+}
+inline bool Mesh::Vertices::Builder::isInterleavedRaw() {
+  return which() == Mesh::Vertices::INTERLEAVED_RAW;
+}
+inline bool Mesh::Vertices::Reader::hasInterleavedRaw() const {
+  if (which() != Mesh::Vertices::INTERLEAVED_RAW) return false;
+  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Vertices::Builder::hasInterleavedRaw() {
+  if (which() != Mesh::Vertices::INTERLEAVED_RAW) return false;
+  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Data::Reader Mesh::Vertices::Reader::getInterleavedRaw() const {
+  KJ_IREQUIRE(which() == Mesh::Vertices::INTERLEAVED_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
+      _reader.getPointerField(1 * ::capnp::POINTERS));
+}
+inline  ::capnp::Data::Builder Mesh::Vertices::Builder::getInterleavedRaw() {
+  KJ_IREQUIRE(which() == Mesh::Vertices::INTERLEAVED_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+inline void Mesh::Vertices::Builder::setInterleavedRaw( ::capnp::Data::Reader value) {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::INTERLEAVED_RAW);
+  ::capnp::_::PointerHelpers< ::capnp::Data>::set(
+      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Data::Builder Mesh::Vertices::Builder::initInterleavedRaw(unsigned int size) {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::INTERLEAVED_RAW);
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::init(
+      _builder.getPointerField(1 * ::capnp::POINTERS), size);
+}
+inline void Mesh::Vertices::Builder::adoptInterleavedRaw(
+    ::capnp::Orphan< ::capnp::Data>&& value) {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::INTERLEAVED_RAW);
+  ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(
+      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Data> Mesh::Vertices::Builder::disownInterleavedRaw() {
+  KJ_IREQUIRE(which() == Mesh::Vertices::INTERLEAVED_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+
+inline bool Mesh::Vertices::Reader::isDiscreteRaw() const {
+  return which() == Mesh::Vertices::DISCRETE_RAW;
+}
+inline bool Mesh::Vertices::Builder::isDiscreteRaw() {
+  return which() == Mesh::Vertices::DISCRETE_RAW;
+}
+inline bool Mesh::Vertices::Reader::hasDiscreteRaw() const {
+  if (which() != Mesh::Vertices::DISCRETE_RAW) return false;
+  return !_reader.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline bool Mesh::Vertices::Builder::hasDiscreteRaw() {
+  if (which() != Mesh::Vertices::DISCRETE_RAW) return false;
+  return !_builder.getPointerField(1 * ::capnp::POINTERS).isNull();
+}
+inline  ::VerticesRaw::Reader Mesh::Vertices::Reader::getDiscreteRaw() const {
+  KJ_IREQUIRE(which() == Mesh::Vertices::DISCRETE_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::VerticesRaw>::get(
+      _reader.getPointerField(1 * ::capnp::POINTERS));
+}
+inline  ::VerticesRaw::Builder Mesh::Vertices::Builder::getDiscreteRaw() {
+  KJ_IREQUIRE(which() == Mesh::Vertices::DISCRETE_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::VerticesRaw>::get(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+inline void Mesh::Vertices::Builder::setDiscreteRaw( ::VerticesRaw::Reader value) {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::DISCRETE_RAW);
+  ::capnp::_::PointerHelpers< ::VerticesRaw>::set(
+      _builder.getPointerField(1 * ::capnp::POINTERS), value);
+}
+inline  ::VerticesRaw::Builder Mesh::Vertices::Builder::initDiscreteRaw() {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::DISCRETE_RAW);
+  return ::capnp::_::PointerHelpers< ::VerticesRaw>::init(
+      _builder.getPointerField(1 * ::capnp::POINTERS));
+}
+inline void Mesh::Vertices::Builder::adoptDiscreteRaw(
+    ::capnp::Orphan< ::VerticesRaw>&& value) {
+  _builder.setDataField<Mesh::Vertices::Which>(
+      0 * ::capnp::ELEMENTS, Mesh::Vertices::DISCRETE_RAW);
+  ::capnp::_::PointerHelpers< ::VerticesRaw>::adopt(
+      _builder.getPointerField(1 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::VerticesRaw> Mesh::Vertices::Builder::disownDiscreteRaw() {
+  KJ_IREQUIRE(which() == Mesh::Vertices::DISCRETE_RAW,
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::VerticesRaw>::disown(
       _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 
