@@ -4,7 +4,7 @@ use ::texture::protocol::{self, Channels, DataType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Uncompressed {
-    pub format: Channels,
+    pub channels: Channels,
     pub data_type: DataType,
 }
 
@@ -56,7 +56,7 @@ impl Which {
         use self::protocol::{Rgtc, Bptc, S3tc};
 
         match *self {
-            Which::None(uncompressed) => uncompressed.format,
+            Which::None(uncompressed) => uncompressed.channels,
             Which::Rgtc(rgtc) => {
                 match rgtc {
                     Rgtc::Red | Rgtc::RedSigned => Channels::R,
@@ -133,7 +133,7 @@ pub struct GenericFormat {
     ///
     /// **MUST BE 1, 3 or 5**
     pub version: u8,
-    data_type: DataType,
+    pub data_type: DataType,
 }
 
 impl Default for GenericFormat {
@@ -178,7 +178,7 @@ impl GenericFormat {
     pub fn none(&self) -> SpecificFormat {
         SpecificFormat {
             which: Which::None(Uncompressed {
-                format: self.channels,
+                channels: self.channels,
                 data_type: self.data_type,
             }),
             srgb: self.srgb,

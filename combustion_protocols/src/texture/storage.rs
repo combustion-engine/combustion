@@ -21,7 +21,7 @@ impl<'a> Storage<'a> for Texture {
                     let uncompressed_reader = try_throw!(uncompressed_reader);
 
                     format::Which::None(format::Uncompressed {
-                        format: try_throw!(uncompressed_reader.get_format()),
+                        channels: try_throw!(uncompressed_reader.get_format()),
                         data_type: try_throw!(uncompressed_reader.get_type()),
                     })
                 },
@@ -77,7 +77,7 @@ impl<'a> Storage<'a> for Texture {
                 format::Which::None(ref uncompressed) => {
                     let mut uncompressed_builder = compression_builder.init_none();
 
-                    uncompressed_builder.set_format(uncompressed.format);
+                    uncompressed_builder.set_format(uncompressed.channels);
                     uncompressed_builder.set_type(uncompressed.data_type);
                 },
                 format::Which::Rgtc(ref rgtc) => compression_builder.set_rgtc(*rgtc),
