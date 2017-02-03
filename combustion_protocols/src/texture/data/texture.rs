@@ -6,6 +6,7 @@ use super::format::SpecificFormat;
 pub enum RootTexture {
     Cubemap(Cubemap),
     Single(Texture),
+    Array(Vec<Texture>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

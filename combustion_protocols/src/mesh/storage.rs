@@ -28,6 +28,7 @@ impl<'a> Storage<'a> for Mesh {
 
     type LoadArgs = ();
     type SaveArgs = MeshSaveArgs;
+    type Query = ();
 
     /// Load in a `Mesh` from a mesh `Reader`
     ///
@@ -344,5 +345,9 @@ impl<'a> Storage<'a> for Mesh {
         }
 
         Ok(())
+    }
+
+    fn query_reader_args(_: Self::Reader, _: ()) -> ProtocolResult<()> {
+        unimplemented!()
     }
 }

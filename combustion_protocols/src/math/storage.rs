@@ -1,9 +1,22 @@
 use ::error::ProtocolResult;
 
-use ::traits::Storage;
+use ::traits::{Storage, StorageQuery};
 
 use super::protocol;
 use super::data::Transform;
+
+#[derive(Debug, Clone, Copy)]
+pub enum TransformQuery {
+    Translation,
+    Rotation,
+    Scale,
+    Matrix,
+}
+
+impl StorageQuery for TransformQuery {
+    type Arguments = ();
+    type Result = TransformQuery;
+}
 
 impl<'a> Storage<'a> for Transform {
     type Builder = protocol::transform::Builder<'a>;
@@ -11,11 +24,10 @@ impl<'a> Storage<'a> for Transform {
 
     type LoadArgs = ();
     type SaveArgs = ();
+    type Query = TransformQuery;
 
     fn load_from_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<Transform> {
-        let transform_reader = reader.get_transform();
-
-        let transform = match try_throw!(transform_reader.which()) {
+        Ok(match try_throw!(reader.get_transform().which()) {
             protocol::transform::transform::Translation(translation) => {
                 Transform::Translation(try_throw!(translation).get_vector())
             },
@@ -28,9 +40,7 @@ impl<'a> Storage<'a> for Transform {
             protocol::transform::transform::Matrix(matrix) => {
                 Transform::Matrix(try_throw!(matrix).get_matrix())
             },
-        };
-
-        Ok(transform)
+        })
     }
 
     fn save_to_builder_args(&self, builder: Self::Builder, _: ()) -> ProtocolResult<()> {
@@ -52,5 +62,14 @@ impl<'a> Storage<'a> for Transform {
         }
 
         Ok(())
+    }
+
+    fn query_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<TransformQuery> {
+        Ok(match try_throw!(reader.get_transform().which()) {
+            protocol::transform::transform::Translation(_) => TransformQuery::Translation,
+            protocol::transform::transform::Rotation(_) => TransformQuery::Rotation,
+            protocol::transform::transform::Scale(_) => TransformQuery::Scale,
+            protocol::transform::transform::Matrix(_) => TransformQuery::Matrix,
+        })
     }
 }

@@ -1,9 +1,21 @@
 use ::error::ProtocolResult;
-use ::traits::Storage;
+use ::traits::{Storage, StorageQuery};
 
 use super::data::{format, texture};
 use super::data::texture::{Texture, RootTexture};
 use super::protocol;
+
+#[derive(Debug, Clone, Copy)]
+pub enum RootTextureQuery {
+    Single,
+    Cubemap,
+    Array,
+}
+
+impl StorageQuery for RootTextureQuery {
+    type Arguments = ();
+    type Result = RootTextureQuery;
+}
 
 impl<'a> Storage<'a> for Texture {
     type Builder = protocol::texture::Builder<'a>;
@@ -11,6 +23,7 @@ impl<'a> Storage<'a> for Texture {
 
     type LoadArgs = ();
     type SaveArgs = ();
+    type Query = ();
 
     fn load_from_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<Texture> {
         let format = {
@@ -91,6 +104,10 @@ impl<'a> Storage<'a> for Texture {
 
         Ok(())
     }
+
+    fn query_reader_args(_: Self::Reader, _: ()) -> ProtocolResult<()> {
+        unimplemented!()
+    }
 }
 
 impl<'a> Storage<'a> for RootTexture {
@@ -99,6 +116,7 @@ impl<'a> Storage<'a> for RootTexture {
 
     type LoadArgs = ();
     type SaveArgs = ();
+    type Query = RootTextureQuery;
 
     fn load_from_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<RootTexture> {
         let which_texture_reader = reader.get_texture();
@@ -130,6 +148,17 @@ impl<'a> Storage<'a> for RootTexture {
                     front: Texture::load_from_reader(front_reader)?,
                 }))
             },
+            protocol::root_texture::texture::Array(array_reader) => {
+                let array_reader = try_throw!(array_reader);
+
+                let mut textures = Vec::with_capacity(array_reader.len() as usize);
+
+                for texture_reader in array_reader.iter() {
+                    textures.push(try_rethrow!(Texture::load_from_reader(texture_reader)));
+                }
+
+                Ok(RootTexture::Array(textures))
+            }
         }
     }
 
@@ -152,6 +181,33 @@ impl<'a> Storage<'a> for RootTexture {
 
                 Ok(())
             },
+            RootTexture::Array(ref array) => {
+                let mut array_builder = texture_union_builder.init_array(array.len() as u32);
+
+                for (i, texture) in array.iter().enumerate() {
+                    let texture_builder = array_builder.borrow().get(i as u32);
+
+                    try_rethrow!(texture.save_to_builder(texture_builder));
+                }
+
+                Ok(())
+            }
+        }
+    }
+
+    fn query_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<RootTextureQuery> {
+        let which_texture_reader = reader.get_texture();
+
+        match try_throw!(which_texture_reader.which()) {
+            protocol::root_texture::texture::Single(_) => {
+                Ok(RootTextureQuery::Single)
+            },
+            protocol::root_texture::texture::Cubemap(_) => {
+               Ok(RootTextureQuery::Cubemap)
+            },
+            protocol::root_texture::texture::Array(_) => {
+                Ok(RootTextureQuery::Array)
+            }
         }
     }
 }

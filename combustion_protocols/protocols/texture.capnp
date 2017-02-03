@@ -126,5 +126,6 @@ struct RootTexture {
     texture: union {
         single @0: Texture;
         cubemap @1: Cubemap;
+        array @2: List(Texture);
     }
 }

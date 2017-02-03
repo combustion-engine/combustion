@@ -27,6 +27,7 @@ impl<'a> Storage<'a> for Node {
 
     type LoadArgs = ();
     type SaveArgs = ();
+    type Query = ();
 
     fn load_from_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<Self> {
         let raw_name = try_throw!(reader.get_name());
@@ -89,6 +90,10 @@ impl<'a> Storage<'a> for Node {
 
         Ok(())
     }
+
+    fn query_reader_args(_: Self::Reader, _: ()) -> ProtocolResult<()> {
+        unimplemented!()
+    }
 }
 
 impl<'a> Storage<'a> for Model {
@@ -97,6 +102,7 @@ impl<'a> Storage<'a> for Model {
 
     type LoadArgs = ();
     type SaveArgs = ModelSaveArgs;
+    type Query = ();
 
     fn load_from_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<Self> {
         let raw_root = try_throw!(reader.get_root());
@@ -148,5 +154,9 @@ impl<'a> Storage<'a> for Model {
         }
 
         Ok(())
+    }
+
+    fn query_reader_args(_: Self::Reader, _: ()) -> ProtocolResult<()> {
+        unimplemented!()
     }
 }
