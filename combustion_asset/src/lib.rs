@@ -17,10 +17,7 @@ extern crate lz4;
 #[macro_use]
 extern crate trace_error;
 
-#[macro_use]
 extern crate combustion_common as common;
-
-#[macro_use]
 extern crate combustion_protocols as protocols;
 
 pub mod error;
