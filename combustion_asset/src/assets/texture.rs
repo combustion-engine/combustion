@@ -91,7 +91,7 @@ impl<'a> Asset<'a> for TextureAsset {
                     let (width, height) = image.dimensions();
 
                     return Ok(TextureAsset(texture::RootTexture::Single(texture::Texture {
-                        data: image.raw_pixels(),
+                        data: image.raw_pixels().into(),
                         dimensions: texture::Dimensions::new(width, height, 0),
                         kind: {
                             if (width == 1 || height == 1) && !args.only2d {
