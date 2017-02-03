@@ -20,6 +20,7 @@ git = "https://github.com/combustion-engine/capnpc-rust"
 path = "../combustion_common"
 
 [dependencies]
+base64 = "0.3.0"
 capnp = "0.8"
 phf = "0.7.20"
 phf_macros = "0.7.20"
@@ -27,14 +28,14 @@ serde = "0.9"
 serde_derive = "0.9"
 trace-error = "0.1"
 
+[dependencies.capnpc]
+git = "https://github.com/combustion-engine/capnpc-rust"
+
 [dependencies.combustion_common]
 path = "../combustion_common/"
 
 [dependencies.combustion_macros]
 path = "../combustion_macros/"
-
-[dependencies.capnpc]
-git = "https://github.com/combustion-engine/capnpc-rust"
 
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
@@ -47,6 +48,6 @@ serde_json = "0.9"
 serde_yaml = "0.6"
 
 [features]
-default = ["sample"]
 cpp = []
+default = ["sample"]
 sample = []

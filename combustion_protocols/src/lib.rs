@@ -1,6 +1,7 @@
 #![feature(plugin, conservative_impl_trait)]
 #![plugin(phf_macros)]
 #![allow(dead_code, unknown_lints, inline_always)]
+//#![deny(missing_docs)]
 
 extern crate capnp;
 extern crate capnpc;
@@ -11,6 +12,10 @@ extern crate serde;
 extern crate serde_derive;
 #[macro_use]
 extern crate trace_error;
+extern crate base64;
+
+#[cfg(test)]
+extern crate serde_json;
 
 #[macro_use]
 extern crate combustion_macros;
@@ -20,6 +25,7 @@ pub mod error;
 
 pub mod traits;
 
+pub mod blob;
 pub mod math;
 pub mod mesh;
 pub mod model;
@@ -27,8 +33,11 @@ pub mod scene;
 pub mod texture;
 pub mod material;
 
+/// Protocol utilities
 pub mod utils {
     pub mod protocol {
+        #![allow(missing_docs)]
+
         include!(concat!(env!("OUT_DIR"), "/protocols/utils_capnp.rs"));
     }
 }
