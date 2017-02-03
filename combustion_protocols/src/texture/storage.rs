@@ -5,7 +5,7 @@ use super::data::{format, texture};
 use super::data::texture::{Texture, RootTexture};
 use super::protocol;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RootTextureQuery {
     Single,
     Cubemap,

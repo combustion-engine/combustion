@@ -5,7 +5,7 @@ use ::traits::{Storage, StorageQuery};
 use super::protocol;
 use super::data::Transform;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TransformQuery {
     Translation,
     Rotation,
