@@ -10,15 +10,23 @@ use image::{self, DynamicImage, GenericImage, ImageFormat};
 use protocols::traits::Storage;
 use protocols::texture::{protocol, EXTENSION};
 use protocols::texture::data::{texture, format};
+use protocols::texture::storage::RootTextureQuery;
 
 use ::error::{AssetResult, AssetError};
 use ::traits::asset::{Asset, AssetMedium};
 
-pub struct TextureAsset(texture::Texture);
+pub struct TextureAsset(texture::RootTexture);
 
 #[derive(Debug, Clone, Copy)]
 pub struct TextureArgs {
+    pub only2d: bool,
     pub srgb: bool,
+}
+
+impl Default for TextureArgs {
+    fn default() -> TextureArgs {
+        TextureArgs { only2d: false, srgb: false }
+    }
 }
 
 impl<'a> Asset<'a> for TextureAsset {
@@ -38,11 +46,15 @@ impl<'a> Asset<'a> for TextureAsset {
 
                     let root_texture_reader = try_throw!(message_reader.get_root::<protocol::root_texture::Reader>());
 
+                    let query_results = try_rethrow!(texture::RootTexture::query_reader(root_texture_reader.borrow()));
+
+                    if args.only2d && query_results != RootTextureQuery::Single {
+                        throw!(AssetError::InvalidValue);
+                    }
+
                     let root_texture = try_rethrow!(texture::RootTexture::load_from_reader(root_texture_reader));
 
-                    if let texture::RootTexture::Single(texture) = root_texture {
-                        return Ok(TextureAsset(texture));
-                    }
+                    return Ok(TextureAsset(root_texture));
                 } else {
                     let image_format = match ext.as_str() {
                         "jpg" | "jpeg" => ImageFormat::JPEG,
@@ -78,18 +90,18 @@ impl<'a> Asset<'a> for TextureAsset {
 
                     let (width, height) = image.dimensions();
 
-                    return Ok(TextureAsset(texture::Texture {
+                    return Ok(TextureAsset(texture::RootTexture::Single(texture::Texture {
                         data: image.raw_pixels(),
                         dimensions: texture::Dimensions::new(width, height, 0),
                         kind: {
-                            if width == 1 || height == 1 {
+                            if (width == 1 || height == 1) && !args.only2d {
                                 protocol::TextureKind::Texture1D
                             } else {
                                 protocol::TextureKind::Texture2D
                             }
                         },
                         format: format,
-                    }));
+                    })));
                 }
             }
         }
@@ -107,7 +119,7 @@ impl<'a> Asset<'a> for TextureAsset {
 }
 
 impl Deref for TextureAsset {
-    type Target = texture::Texture;
+    type Target = texture::RootTexture;
 
     fn deref(&self) -> &Self::Target {
         &self.0
