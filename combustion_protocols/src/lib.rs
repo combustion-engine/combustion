@@ -1,7 +1,14 @@
+//! combustion_protocols crate
+//!
+//! This crate defines all data structures, protocols and storage routines for interacting with engine-specific data,
+//! such as textures, meshes, models, scene descriptions, etc, etc.
+//!
+//! For the actual loading and management of Combustion assets and external file formats, see the combustion_asset crate
+
 #![feature(plugin, conservative_impl_trait)]
 #![plugin(phf_macros)]
 #![allow(dead_code, unknown_lints, inline_always)]
-//#![deny(missing_docs)]
+#![deny(missing_docs)]
 
 extern crate capnp;
 extern crate capnpc;

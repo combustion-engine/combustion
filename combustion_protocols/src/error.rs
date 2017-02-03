@@ -1,3 +1,5 @@
+//! Error handling
+
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::Utf8Error;
@@ -7,18 +9,29 @@ use trace_error::TraceResult;
 use capnp::{Error as CapnpError, NotInSchema};
 use base64::Base64Error;
 
+/// Traceable Result type for `ProtocolError`s
 pub type ProtocolResult<T> = TraceResult<T, ProtocolError>;
 
+/// Errors that may be encountered in this crate
 #[derive(Debug)]
 pub enum ProtocolError {
+    /// Indicates an unsupported feature was attempting to be used
     Unsupported,
+    /// Indicates the length of some data didn't match its expected size
     InvalidLength,
+    /// Indicates an invalid format was given
     InvalidFormat,
+    /// Indicates a value was not present
     NotPresent,
+    /// UTF-8 codec error
     Utf8Error(Utf8Error),
+    /// Arbitrary error message
     Other(&'static str),
+    /// Cap'N Proto error
     CapnpError(CapnpError),
+    /// `NotInSchema` error forwarded from Cap'N Proto
     NotInSchema(NotInSchema),
+    /// Errors forwarded from the `base64` crate
     Base64Error(Base64Error),
 }
 

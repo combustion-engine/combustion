@@ -34,46 +34,56 @@ impl DefaultName for Material {
     }
 }
 
+/// Associated functions for getting default values for material structures
 pub trait DefaultMaterial {}
 
 impl DefaultMaterial for Material {}
 
+/// Associated functions for getting default values for light structures
 pub trait DefaultLight {
+    /// Returns the default value for zdistance
     #[inline(always)]
     fn default_zdistance() -> (f32, f32) {
         (0.0, 1000.0)
     }
 
+    /// Returns the default value for position
     #[inline(always)]
     fn default_position() -> Point3<f32> {
         Point3::new(0.0, 1.0, 0.0)
     }
 
+    /// Returns the default value for direction
     #[inline(always)]
     fn default_direction() -> Vector3<f32> {
         Vector3::new(0.0, -1.0, 0.0)
     }
 
+    /// Returns the default value for kind
     #[inline(always)]
     fn default_kind() -> LightKind {
         LightKind::Spotlight
     }
 
+    /// Returns the default value for effect_radius
     #[inline(always)]
     fn default_effect_radius() -> f32 {
         1000.0
     }
 
+    /// Returns the default value for inner_cone
     #[inline(always)]
     fn default_inner_cone() -> f32 {
         0.0
     }
 
+    /// Returns the default value for outer_cone
     #[inline(always)]
     fn default_outer_cone() -> f32 {
         15.0
     }
 
+    /// Returns the default value for intensity
     #[inline(always)]
     fn default_intensity() -> f32 {
         1.0

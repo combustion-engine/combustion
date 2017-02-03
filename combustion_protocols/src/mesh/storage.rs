@@ -1,3 +1,5 @@
+//! Storage routines for meshes
+
 use std::mem;
 use std::slice;
 
@@ -11,8 +13,12 @@ use ::traits::Storage;
 use super::protocol;
 use super::data::{Mesh, MeshVertices, TexCoord, Vertex, Vertices};
 
+/// Arguments to pass to the mesh storage routines
 #[derive(Debug, Clone, Copy)]
 pub struct MeshSaveArgs {
+    /// `raw` indicates that the vertex buffers should be saved straight from memory,
+    /// rather than as symbolic values. If forward compatibility and safety are not primary concerns,
+    /// `raw` should be set to `true` to allow MUCH faster saving and loading of the meshes.
     pub raw: bool,
 }
 

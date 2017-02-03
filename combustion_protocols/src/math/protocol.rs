@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use nalgebra::{Vector3, Point3, Matrix4};
 
 include!(concat!(env!("OUT_DIR"), "/protocols/math_capnp.rs"));

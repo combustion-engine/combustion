@@ -1,14 +1,29 @@
+//! Compressed and uncompressed format descriptions both specific and generic
+
 use ::error::{ProtocolResult, ProtocolError};
 
 use ::texture::protocol::{self, Channels, DataType};
 
+/// Uncompressed image format
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Uncompressed {
+    /// Channels for uncompressed format
     pub channels: Channels,
+    /// Data type to store pixel data
     pub data_type: DataType,
 }
 
 impl Channels {
+    /// Gets the number of channels
+    ///
+    /// ```ignore
+    /// match *self {
+    ///     Channels::R => 1,
+    ///     Channels::Rg => 2,
+    ///     Channels::Rgb => 3,
+    ///     Channels::Rgba => 4
+    /// }
+    /// ```
     pub fn num_channels(&self) -> usize {
         match *self {
             Channels::R => 1,
@@ -123,16 +138,21 @@ impl Which {
 /// Can be used to build up formats
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GenericFormat {
+    /// Channels to be used in this format
     pub channels: Channels,
+    /// sRGB color space for format
     pub srgb: bool,
     /// Only applicable to ASTC formats
     pub blocksize: Option<protocol::BlockSize>,
+    /// Signed format
     pub signed: bool,
+    /// Floating point format
     pub float: bool,
     /// Only applicable to S3TC/DXT formats.
     ///
     /// **MUST BE 1, 3 or 5**
     pub version: u8,
+    /// Data type for data storage
     pub data_type: DataType,
 }
 
@@ -151,6 +171,7 @@ impl Default for GenericFormat {
 }
 
 impl GenericFormat {
+    /// Constructor for `GenericFormat`
     pub fn new(channels: Channels,
                srgb: bool,
                blocksize: Option<protocol::BlockSize>,
@@ -169,6 +190,7 @@ impl GenericFormat {
         }
     }
 
+    /// Counts the channels used in the format
     #[inline(always)]
     pub fn num_channels(&self) -> usize {
         self.channels.num_channels()
@@ -257,7 +279,9 @@ impl GenericFormat {
 /// OpenGL, DirectX or whatever enum values associated with it.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct SpecificFormat {
+    /// Which format is used
     pub which: Which,
+    /// sRGB color space in the format
     pub srgb: bool,
 }
 
@@ -297,6 +321,7 @@ impl SpecificFormat {
         self.clone().into_generic()
     }
 
+    /// Check if this is a compressed format
     pub fn is_compressed(&self) -> bool {
         match self.which {
             Which::None(_) => false,

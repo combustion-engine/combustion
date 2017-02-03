@@ -1,3 +1,5 @@
+//! Default values for material structures
+
 use std::collections::HashMap;
 
 use common::color::Color;

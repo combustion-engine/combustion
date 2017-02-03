@@ -1,3 +1,5 @@
+//! Data structures for manipulating math data
+
 use nalgebra::{Vector3, Matrix4};
 
 /// 3D Transformations

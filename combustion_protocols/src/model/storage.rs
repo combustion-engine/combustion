@@ -1,3 +1,5 @@
+//! Storage routines for models
+
 use ::error::ProtocolResult;
 
 use ::traits::Storage;
@@ -10,8 +12,10 @@ use ::mesh::storage::MeshSaveArgs;
 use super::protocol;
 use super::data::{Node, Model};
 
+/// Arguments to pass to the model storage routines
 #[derive(Debug, Clone, Copy)]
 pub struct ModelSaveArgs {
+    /// Mesh arguments
     pub mesh_args: MeshSaveArgs,
 }
 

@@ -1,21 +1,28 @@
+//! Special handling for material anisotropy values
+
 use nalgebra::Vector3;
 
+/// Represents material anisotropy as a scaling amount and rotation
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MaterialAnisotropy {
+    /// Amount of anisotropy
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub amount: Option<f32>,
+    /// Rotation of anisotropy
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default = "Option::default")]
     pub rotation: Option<Vector3<f32>>,
 }
 
 impl MaterialAnisotropy {
+    /// Check if the amount and rotation are none
     #[inline(always)]
     pub fn is_none(&self) -> bool {
         self.amount.is_none() && self.rotation.is_none()
     }
 
+    /// Create `MaterialAnisotropy` from amount value only
     #[inline(always)]
     pub fn from_amount(amount: f32) -> MaterialAnisotropy {
         MaterialAnisotropy { amount: Some(amount), rotation: None }
@@ -29,6 +36,7 @@ impl Default for MaterialAnisotropy {
     }
 }
 
+/// `MaterialAnisotropy` deserialization routines
 pub mod de {
     use serde::de::{self, Deserialize, Deserializer};
 
@@ -36,6 +44,7 @@ pub mod de {
 
     use super::*;
 
+    /// Create a `MaterialAnisotropy` instance from single number or explicit structure
     pub fn from_num_or_value<D>(d: D) -> Result<MaterialAnisotropy, D::Error> where D: Deserializer {
         struct NumOrAnisotropyVisitor;
 

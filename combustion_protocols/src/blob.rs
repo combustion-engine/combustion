@@ -1,3 +1,5 @@
+//! Simple `Blob` structure which can store binary data and serialize/deserialize to/from base-64 encoded strings
+
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 

@@ -2,6 +2,7 @@
 
 use nalgebra::*;
 
+/// Whole mesh with vertices, indices and material indices
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Mesh {
     /// Vertex data
@@ -36,7 +37,9 @@ pub enum MeshVertices {
 #[derive(Default, Copy, Clone, Debug, Serialize, Deserialize)]
 #[repr(C)]
 pub struct TexCoord {
+    /// U Coordinate
     pub u: f32,
+    /// V Coordinate
     pub v: f32,
 }
 
@@ -47,8 +50,11 @@ pub struct TexCoord {
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[repr(C)]
 pub struct Vertex {
+    /// Vertex position
     pub position: Point3<f32>,
+    /// Vertex normal
     pub normal: Vector3<f32>,
+    /// Vertex texture coordinate
     pub uv: TexCoord,
 }
 
@@ -67,7 +73,10 @@ impl Default for Vertex {
 /// Data from this must be passed though multiple buffers
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Vertices {
+    /// Vertex positions
     pub positions: Vec<Point3<f32>>,
+    /// Optional vertex normals
     pub normals: Option<Vec<Vector3<f32>>>,
+    /// Optional vertex texture coordinates
     pub uvs: Option<Vec<TexCoord>>,
 }

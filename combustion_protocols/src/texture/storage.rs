@@ -1,3 +1,5 @@
+//! Storage routines for textures
+
 use ::error::ProtocolResult;
 use ::traits::{Storage, StorageQuery};
 
@@ -5,10 +7,14 @@ use super::data::{format, texture};
 use super::data::texture::{Texture, RootTexture};
 use super::protocol;
 
+/// Query for determining `RootTexture` variation without actually loading the data into memory
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RootTextureQuery {
+    /// Single texture variant
     Single,
+    /// Cubemap variant
     Cubemap,
+    /// Array of textures variant
     Array,
 }
 

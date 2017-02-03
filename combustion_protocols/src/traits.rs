@@ -1,3 +1,5 @@
+//! Protocol and storage traits
+
 use ::error::ProtocolResult;
 
 /// Trait that allows for storage mediums to be queried for information,
@@ -15,6 +17,8 @@ impl StorageQuery for () {
     type Result = ();
 }
 
+/// The `Storage` trait defines routines for loading and saving data from/to protocols,
+/// and querying the protocols for information
 pub trait Storage<'a> where Self: Sized {
     /// Protocol builder type
     type Builder: 'a;

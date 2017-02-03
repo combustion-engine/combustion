@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use super::data;
 
 include!(concat!(env!("OUT_DIR"), "/protocols/mesh_capnp.rs"));

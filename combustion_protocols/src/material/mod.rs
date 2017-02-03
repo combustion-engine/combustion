@@ -23,6 +23,7 @@ use self::anisotropy::de as anisotropy_de;
 /// Map of materials used for a certain model or scene
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MaterialMap {
+    /// Map of named materials
     pub materials: HashMap<String, Material>
 }
 
@@ -136,6 +137,7 @@ pub struct Material {
     pub render: Option<RenderMethod>,
 }
 
+/// Preferred rendering pipeline to use for the material
 #[derive(Debug, Serialize, Deserialize)]
 pub enum RenderMethod {
     /// Use traditional forward rendering for this material.
@@ -158,6 +160,9 @@ pub enum RenderMethod {
     Clustered
 }
 
+/// Which shader should be used for the material.
+///
+/// Certain shaders are more optimized or use more accurate algorithms for special cases
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MaterialShader {
     /// All-in-one lighting shader used in deferred or forward rendering contexts

@@ -1,3 +1,5 @@
+//! Storage routines for math structures
+
 use ::error::ProtocolResult;
 
 use ::traits::{Storage, StorageQuery};
@@ -5,11 +7,16 @@ use ::traits::{Storage, StorageQuery};
 use super::protocol;
 use super::data::Transform;
 
+/// Query for determining what kind of transform is present without actually loading it
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TransformQuery {
+    /// Translation
     Translation,
+    /// Rotation
     Rotation,
+    /// Scale
     Scale,
+    /// Matrix
     Matrix,
 }
 

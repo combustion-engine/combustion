@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 //! Inner protocol components
 use std::str::FromStr;
 

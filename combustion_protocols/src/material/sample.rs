@@ -1,7 +1,10 @@
+//! Utility for generating a sample `MaterialMap`
+
 use super::*;
 
 use common::color::palette::*;
 
+/// Generate a simple `MaterialMap`
 pub fn sample() -> MaterialMap {
     let mut materials = MaterialMap::default();
 

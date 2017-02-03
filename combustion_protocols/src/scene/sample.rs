@@ -1,3 +1,5 @@
+//! Utilities for generating sample scenes
+
 use std::iter::{Iterator, repeat};
 
 use common::traits::Named;
@@ -6,6 +8,7 @@ use ::math::data::Transform;
 
 use super::*;
 
+/// Generates a `Named` type with a numbered name
 pub fn generate_named<T: Named + Default + Clone>(name: &'static str, len: usize) -> impl Iterator<Item = T> {
     repeat(T::default()).take(len).enumerate().map(move |(i, mut item)| {
         item.set_name(format!("{} {}", name, i + 1).to_string());
@@ -14,6 +17,7 @@ pub fn generate_named<T: Named + Default + Clone>(name: &'static str, len: usize
     })
 }
 
+/// Create a sample `Scene`
 pub fn sample() -> Scene {
     Scene {
         name: Scene::default_name(),
