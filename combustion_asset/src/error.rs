@@ -19,6 +19,7 @@ pub enum AssetError {
     ImageError(ImageError),
     Io(io::Error),
     UnsupportedMedium,
+    InvalidValue,
 }
 
 impl Display for AssetError {
@@ -34,7 +35,8 @@ impl Error for AssetError {
             AssetError::CapnpError(ref err) => err.description(),
             AssetError::ImageError(ref err) => err.description(),
             AssetError::Io(ref err) => err.description(),
-            AssetError::UnsupportedMedium => "Unsupported Asset Medium"
+            AssetError::UnsupportedMedium => "Unsupported Asset Medium",
+            AssetError::InvalidValue => "Invalid Value",
         }
     }
 }
