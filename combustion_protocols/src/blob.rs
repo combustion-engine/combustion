@@ -9,7 +9,7 @@ use serde;
 use ::error::ProtocolResult;
 
 /// `Blob` is a simple wrapper around a `Vec<u8>` that serializes to a base-64 string
-/// instead of a massive sequence of integers.
+/// instead of a massive sequence of integers. However, it can be deserialized from an array of bytes.
 #[derive(Debug, Clone, Hash, PartialEq)]
 pub struct Blob(Vec<u8>);
 
@@ -64,6 +64,21 @@ impl serde::Deserialize for Blob {
 
             fn visit_byte_buf<E>(self, value: Vec<u8>) -> Result<Self::Value, E> where E: serde::de::Error {
                 Ok(Blob(value))
+            }
+
+            fn visit_seq<V>(self, mut visitor: V) -> Result<Self::Value, V::Error> where V: serde::de::SeqVisitor {
+                // Preallocate the bytes vector if possible
+                let mut bytes = Vec::with_capacity({
+                    let (min, max) = visitor.size_hint();
+
+                    max.unwrap_or(min)
+                });
+
+                while let Some(byte) = visitor.visit()? {
+                    bytes.push(byte);
+                }
+
+                Ok(Blob(bytes))
             }
         }
 
@@ -126,5 +141,28 @@ mod test {
         let decoded = from_str(encoded.as_str()).unwrap();
 
         assert_eq!(fixture, decoded);
+    }
+
+    #[test]
+    fn test_blob_array() {
+        use serde_json::from_str;
+
+        let fixture_struct = BlobFixture { my_blob: Blob::from(&DATA[..]) };
+
+        let fixture_str = r#"{"my_blob": [1, 2, 3, 4, 5]}"#;
+
+        let decoded: BlobFixture = from_str(fixture_str).unwrap();
+
+        assert_eq!(decoded, fixture_struct);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_blob_array_overflow() {
+        use serde_json::from_str;
+
+        let fixture_str = r#"{"my_blob": [1, 2, 3000, 4, 5]}"#;
+
+        let _: BlobFixture = from_str(fixture_str).unwrap();
     }
 }
