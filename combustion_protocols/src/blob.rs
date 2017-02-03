@@ -57,6 +57,14 @@ impl serde::Deserialize for Blob {
             fn visit_str<E>(self, value: &str) -> Result<Self::Value, E> where E: serde::de::Error {
                 Ok(FromStr::from_str(value).unwrap())
             }
+
+            fn visit_bytes<E>(self, value: &[u8]) -> Result<Self::Value, E> where E: serde::de::Error {
+                Ok(Blob::from(value))
+            }
+
+            fn visit_byte_buf<E>(self, value: Vec<u8>) -> Result<Self::Value, E> where E: serde::de::Error {
+                Ok(Blob(value))
+            }
         }
 
         deserializer.deserialize(BlobVisitor)
