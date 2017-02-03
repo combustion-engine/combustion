@@ -1,3 +1,5 @@
+//! Texture Asset
+
 use std::io::prelude::*;
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
@@ -13,13 +15,17 @@ use protocols::texture::data::{texture, format};
 use protocols::texture::storage::RootTextureQuery;
 
 use ::error::{AssetResult, AssetError};
-use ::traits::asset::{Asset, AssetMedium};
+use ::asset::{Asset, AssetMedium, AssetQuery};
 
+/// Texture Asset
 pub struct TextureAsset(texture::RootTexture);
 
+/// Save/Load arguments for texture assets
 #[derive(Debug, Clone, Copy)]
 pub struct TextureArgs {
+    /// Only allow 2D textures
     pub only2d: bool,
+    /// Consider the loaded images as in sRGB color space
     pub srgb: bool,
 }
 
@@ -29,9 +35,37 @@ impl Default for TextureArgs {
     }
 }
 
+/// Texture asset query
+#[derive(Debug, Clone, Copy)]
+pub enum TextureAssetQuery<'a> {
+    /// Queries if a given medium is supported
+    SupportedMedium(AssetMedium<'a>)
+}
+
+impl<'a> AssetQuery for TextureAssetQuery<'a> {
+    type Arguments = TextureAssetQuery<'a>;
+    type Result = bool;
+}
+
 impl<'a> Asset<'a> for TextureAsset {
     type LoadArgs = TextureArgs;
     type SaveArgs = TextureArgs;
+
+    type Query = TextureAssetQuery<'a>;
+
+    fn query(query: TextureAssetQuery) -> AssetResult<bool> {
+        Ok(match query {
+            TextureAssetQuery::SupportedMedium(medium) => {
+                match medium {
+                    AssetMedium::Memory => false,
+                    AssetMedium::File(path) => {
+                        //TODO
+                        true
+                    }
+                }
+            }
+        })
+    }
 
     fn load<R: BufRead + Seek>(mut reader: R, medium: AssetMedium<'a>, args: TextureArgs) -> AssetResult<TextureAsset> {
         if let AssetMedium::File(path) = medium {

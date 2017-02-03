@@ -1,3 +1,5 @@
+//! Error handling
+
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::io;
@@ -10,15 +12,23 @@ use capnp::Error as CapnpError;
 
 use protocols::error::ProtocolError;
 
+/// Result type for assets
 pub type AssetResult<T> = TraceResult<T, AssetError>;
 
+/// Asset error variants
 #[derive(Debug)]
 pub enum AssetError {
+    /// Protocol error
     ProtocolError(ProtocolError),
+    /// Cap'N Proto error
     CapnpError(CapnpError),
+    /// Image error
     ImageError(ImageError),
+    /// I/O error
     Io(io::Error),
+    /// Unsupported medium error
     UnsupportedMedium,
+    /// Invalid value error
     InvalidValue,
 }
 
