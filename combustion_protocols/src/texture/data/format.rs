@@ -4,6 +4,18 @@ use ::error::{ProtocolResult, ProtocolError};
 
 use ::texture::protocol::{self, Channels, DataType};
 
+pub use ::texture::protocol::BlockSize;
+
+/// DXT versions to use with the S3TC algorithm
+pub enum DXTVersion {
+    /// DXT1 variant
+    DXT1 = 1,
+    /// DXT3 variant
+    DXT3 = 3,
+    /// DXT5 variant
+    DXT5 = 5,
+}
+
 /// Uncompressed image format
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Uncompressed {
@@ -96,7 +108,7 @@ impl Which {
 
     /// Returns true if the stored specific format is signed
     pub fn signed(&self) -> bool {
-        use self::protocol::*;
+        use self::protocol::{Rgtc, Bptc};
 
         match *self {
             Which::Rgtc(rgtc) => {
@@ -118,7 +130,7 @@ impl Which {
 
     /// Returns true if the stored specific format is floating point
     pub fn float(&self) -> bool {
-        use self::protocol::*;
+        use self::protocol::Bptc;
 
         match *self {
             Which::Bptc(bptc) => {
@@ -142,16 +154,10 @@ pub struct GenericFormat {
     pub channels: Channels,
     /// sRGB color space for format
     pub srgb: bool,
-    /// Only applicable to ASTC formats
-    pub blocksize: Option<protocol::BlockSize>,
     /// Signed format
     pub signed: bool,
     /// Floating point format
     pub float: bool,
-    /// Only applicable to S3TC/DXT formats.
-    ///
-    /// **MUST BE 1, 3 or 5**
-    pub version: u8,
     /// Data type for data storage
     pub data_type: DataType,
 }
@@ -161,10 +167,8 @@ impl Default for GenericFormat {
         GenericFormat {
             channels: Channels::Rgba,
             srgb: false,
-            blocksize: None,
             signed: false,
             float: false,
-            version: 5, //OpenGL seems to prefer DXT5 on my hardware, so it's a good default
             data_type: DataType::UnsignedByte,
         }
     }
@@ -174,18 +178,14 @@ impl GenericFormat {
     /// Constructor for `GenericFormat`
     pub fn new(channels: Channels,
                srgb: bool,
-               blocksize: Option<protocol::BlockSize>,
                signed: bool,
                float: bool,
-               version: u8,
                data_type: DataType) -> GenericFormat {
         GenericFormat {
             channels: channels,
             srgb: srgb,
-            blocksize: blocksize,
             signed: signed,
             float: float,
-            version: version,
             data_type: data_type,
         }
     }
@@ -209,7 +209,7 @@ impl GenericFormat {
 
     /// Create a new RGTC `SpecificFormat` from the properties provided in `self`
     pub fn rgtc(&self) -> ProtocolResult<SpecificFormat> {
-        use self::protocol::*;
+        use self::protocol::Rgtc;
 
         let rgtc = match self.channels {
             Channels::R => {
@@ -228,27 +228,26 @@ impl GenericFormat {
     }
 
     /// Create a new S3TC `SpecificFormat` from the properties provided in `self`
-    pub fn s3tc(&self) -> ProtocolResult<SpecificFormat> {
-        use self::protocol::*;
+    pub fn s3tc(&self, version: DXTVersion) -> SpecificFormat {
+        use self::protocol::S3tc;
 
-        let s3tc = match self.version {
-            1 => {
+        let s3tc = match version {
+            DXTVersion::DXT1 => {
                 if self.channels == Channels::Rgba { S3tc::Rgba1 } else { S3tc::Rgb1 }
             }
-            3 => S3tc::Rgba3,
-            5 => S3tc::Rgba5,
-            _ => throw!(ProtocolError::InvalidFormat),
+            DXTVersion::DXT3 => S3tc::Rgba3,
+            DXTVersion::DXT5 => S3tc::Rgba5,
         };
 
-        Ok(SpecificFormat {
+        SpecificFormat {
             which: Which::S3tc(s3tc),
             srgb: self.srgb,
-        })
+        }
     }
 
     /// Create a new BPTC `SpecificFormat` from the properties provided in `self`
     pub fn bptc(&self) -> SpecificFormat {
-        use self::protocol::*;
+        use self::protocol::Bptc;
 
         let bptc = if self.float {
             if self.signed { Bptc::RgbFloatSigned } else { Bptc::RgbFloatUnsigned }
@@ -263,14 +262,10 @@ impl GenericFormat {
     }
 
     /// Create a new ASTC `SpecificFormat` from the properties provided in `self`
-    pub fn astc(&self) -> ProtocolResult<SpecificFormat> {
-        if let Some(blocksize) = self.blocksize {
-            Ok(SpecificFormat {
-                which: Which::Astc(blocksize),
-                srgb: self.srgb,
-            })
-        } else {
-            throw!(ProtocolError::NotPresent);
+    pub fn astc(&self, blocksize: BlockSize) -> SpecificFormat {
+        SpecificFormat {
+            which: Which::Astc(blocksize),
+            srgb: self.srgb,
         }
     }
 }
@@ -288,27 +283,11 @@ pub struct SpecificFormat {
 impl SpecificFormat {
     /// Consume self and convert specific formats back into generic ones
     pub fn into_generic(self) -> GenericFormat {
-        use self::protocol::S3tc;
-
         GenericFormat {
             channels: self.which.channels(),
             srgb: self.srgb,
-            blocksize: match self.which {
-                Which::Astc(blocksize) => Some(blocksize),
-                _ => None
-            },
             signed: self.which.signed(),
             float: self.which.float(),
-            version: match self.which {
-                Which::S3tc(s3tc) => {
-                    match s3tc {
-                        S3tc::Rgb1 | S3tc::Rgba1 => 1,
-                        S3tc::Rgba3 => 3,
-                        S3tc::Rgba5 => 5
-                    }
-                },
-                _ => 0
-            },
             data_type: match self.which {
                 Which::None(uncompressed) => uncompressed.data_type,
                 _ => DataType::Unspecified,
