@@ -34,6 +34,7 @@ pub struct Uncompressed {
 }
 
 impl Uncompressed {
+    /// `Uncompressed` constructor function
     pub fn new(channels: Channels, data_type: DataType) -> Uncompressed {
         Uncompressed { channels: channels, data_type: data_type }
     }
@@ -215,7 +216,7 @@ impl GenericFormat {
         }
 
         Ok(SpecificFormat {
-            which: Which::None(Uncompressed::new(channels, data_type)),
+            which: Which::None(Uncompressed::new(self.channels, data_type)),
             srgb: self.srgb,
         })
     }
