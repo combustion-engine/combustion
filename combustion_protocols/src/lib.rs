@@ -20,7 +20,7 @@ extern crate serde_derive;
 #[macro_use]
 extern crate trace_error;
 extern crate base64;
-
+extern crate blob;
 #[cfg(test)]
 extern crate serde_json;
 
@@ -32,7 +32,6 @@ pub mod error;
 
 pub mod traits;
 
-pub mod blob;
 pub mod math;
 pub mod mesh;
 pub mod model;

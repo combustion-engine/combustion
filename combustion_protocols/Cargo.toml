@@ -21,6 +21,7 @@ path = "../combustion_common"
 
 [dependencies]
 base64 = "0.3.0"
+blob = "0.1.0"
 capnp = "0.8"
 phf = "0.7.20"
 phf_macros = "0.7.20"
