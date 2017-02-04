@@ -7,6 +7,8 @@ use ::texture::protocol::{self, Channels, DataType};
 pub use ::texture::protocol::BlockSize;
 
 /// DXT versions to use with the S3TC algorithm
+///
+/// See https://en.wikipedia.org/wiki/S3_Texture_Compression for more information on each version
 pub enum DXTVersion {
     /// DXT1 variant
     DXT1 = 1,
@@ -16,6 +18,12 @@ pub enum DXTVersion {
     DXT5 = 5,
 }
 
+impl Default for DXTVersion {
+    fn default() -> DXTVersion {
+        DXTVersion::DXT5
+    }
+}
+
 /// Uncompressed image format
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Uncompressed {
@@ -23,6 +31,12 @@ pub struct Uncompressed {
     pub channels: Channels,
     /// Data type to store pixel data
     pub data_type: DataType,
+}
+
+impl Uncompressed {
+    pub fn new(channels: Channels, data_type: DataType) -> Uncompressed {
+        Uncompressed { channels: channels, data_type: data_type }
+    }
 }
 
 impl Channels {
@@ -158,8 +172,6 @@ pub struct GenericFormat {
     pub signed: bool,
     /// Floating point format
     pub float: bool,
-    /// Data type for data storage
-    pub data_type: DataType,
 }
 
 impl Default for GenericFormat {
@@ -169,7 +181,6 @@ impl Default for GenericFormat {
             srgb: false,
             signed: false,
             float: false,
-            data_type: DataType::UnsignedByte,
         }
     }
 }
@@ -179,14 +190,12 @@ impl GenericFormat {
     pub fn new(channels: Channels,
                srgb: bool,
                signed: bool,
-               float: bool,
-               data_type: DataType) -> GenericFormat {
+               float: bool) -> GenericFormat {
         GenericFormat {
             channels: channels,
             srgb: srgb,
             signed: signed,
             float: float,
-            data_type: data_type,
         }
     }
 
@@ -197,14 +206,18 @@ impl GenericFormat {
     }
 
     /// Create a new uncompressed `SpecificFormat` from `self`
-    pub fn none(&self) -> SpecificFormat {
-        SpecificFormat {
-            which: Which::None(Uncompressed {
-                channels: self.channels,
-                data_type: self.data_type,
-            }),
-            srgb: self.srgb,
+    ///
+    /// Throws `ProtocolError::MismatchedTypes(data_type, DataType::Float)`
+    /// if `self.float` is `true` and `data_type` is not a floating point type.
+    pub fn none(&self, data_type: DataType) -> ProtocolResult<SpecificFormat> {
+        if self.float && data_type != DataType::Float {
+            throw!(ProtocolError::MismatchedTypes(data_type, DataType::Float));
         }
+
+        Ok(SpecificFormat {
+            which: Which::None(Uncompressed::new(channels, data_type)),
+            srgb: self.srgb,
+        })
     }
 
     /// Create a new RGTC `SpecificFormat` from the properties provided in `self`
@@ -288,10 +301,6 @@ impl SpecificFormat {
             srgb: self.srgb,
             signed: self.which.signed(),
             float: self.which.float(),
-            data_type: match self.which {
-                Which::None(uncompressed) => uncompressed.data_type,
-                _ => DataType::Unspecified,
-            },
         }
     }
 
