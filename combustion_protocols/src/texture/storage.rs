@@ -160,7 +160,7 @@ impl<'a> Storage<'a> for RootTexture {
                 let mut textures = Vec::with_capacity(array_reader.len() as usize);
 
                 for texture_reader in array_reader.iter() {
-                    textures.push(try_rethrow!(Texture::load_from_reader(texture_reader)));
+                    textures.push(Texture::load_from_reader(texture_reader)?);
                 }
 
                 Ok(RootTexture::Array(textures))
@@ -178,12 +178,12 @@ impl<'a> Storage<'a> for RootTexture {
             RootTexture::Cubemap(ref cubemap) => {
                 let mut cubemap_builder = texture_union_builder.init_cubemap();
 
-                try_rethrow!(cubemap.right.save_to_builder(cubemap_builder.borrow().init_right()));
-                try_rethrow!(cubemap.left.save_to_builder(cubemap_builder.borrow().init_left()));
-                try_rethrow!(cubemap.top.save_to_builder(cubemap_builder.borrow().init_top()));
-                try_rethrow!(cubemap.bottom.save_to_builder(cubemap_builder.borrow().init_bottom()));
-                try_rethrow!(cubemap.back.save_to_builder(cubemap_builder.borrow().init_back()));
-                try_rethrow!(cubemap.front.save_to_builder(cubemap_builder.borrow().init_front()));
+                cubemap.right.save_to_builder(cubemap_builder.borrow().init_right())?;
+                cubemap.left.save_to_builder(cubemap_builder.borrow().init_left())?;
+                cubemap.top.save_to_builder(cubemap_builder.borrow().init_top())?;
+                cubemap.bottom.save_to_builder(cubemap_builder.borrow().init_bottom())?;
+                cubemap.back.save_to_builder(cubemap_builder.borrow().init_back())?;
+                cubemap.front.save_to_builder(cubemap_builder.borrow().init_front())?;
 
                 Ok(())
             },
@@ -193,7 +193,7 @@ impl<'a> Storage<'a> for RootTexture {
                 for (i, texture) in array.iter().enumerate() {
                     let texture_builder = array_builder.borrow().get(i as u32);
 
-                    try_rethrow!(texture.save_to_builder(texture_builder));
+                    texture.save_to_builder(texture_builder)?;
                 }
 
                 Ok(())
@@ -202,18 +202,10 @@ impl<'a> Storage<'a> for RootTexture {
     }
 
     fn query_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<RootTextureQuery> {
-        let which_texture_reader = reader.get_texture();
-
-        match try_throw!(which_texture_reader.which()) {
-            protocol::root_texture::texture::Single(_) => {
-                Ok(RootTextureQuery::Single)
-            },
-            protocol::root_texture::texture::Cubemap(_) => {
-               Ok(RootTextureQuery::Cubemap)
-            },
-            protocol::root_texture::texture::Array(_) => {
-                Ok(RootTextureQuery::Array)
-            }
-        }
+        Ok(match try_throw!(reader.get_texture().which()) {
+            protocol::root_texture::texture::Single(_) => RootTextureQuery::Single,
+            protocol::root_texture::texture::Cubemap(_) => RootTextureQuery::Cubemap,
+            protocol::root_texture::texture::Array(_) => RootTextureQuery::Array,
+        })
     }
 }
