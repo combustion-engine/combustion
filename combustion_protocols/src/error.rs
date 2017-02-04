@@ -9,6 +9,8 @@ use trace_error::TraceResult;
 use capnp::{Error as CapnpError, NotInSchema};
 use base64::Base64Error;
 
+use ::texture::protocol::DataType;
+
 /// Traceable Result type for `ProtocolError`s
 pub type ProtocolResult<T> = TraceResult<T, ProtocolError>;
 
@@ -33,6 +35,8 @@ pub enum ProtocolError {
     NotInSchema(NotInSchema),
     /// Errors forwarded from the `base64` crate
     Base64Error(Base64Error),
+    /// Invalid type conversion
+    MismatchedTypes(DataType, DataType),
 }
 
 impl Display for ProtocolError {
@@ -53,6 +57,7 @@ impl Error for ProtocolError {
             ProtocolError::CapnpError(ref err) => err.description(),
             ProtocolError::NotInSchema(ref err) => err.description(),
             ProtocolError::Base64Error(ref err) => err.description(),
+            ProtocolError::MismatchedTypes(..) => "Mismatched data types",
         }
     }
 }
