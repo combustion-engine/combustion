@@ -49,7 +49,13 @@ impl<'a> Asset<'a> for ModelAsset {
     fn query(query: ModelAssetQuery<'a>) -> AssetResult<bool> {
         match query {
             ModelAssetQuery::SupportedExtension(ext) => {
-                Ok(ext == EXTENSION || assimp::formats::IMPORT_EXTENSIONS.contains_key(ext))
+                // Checks if the extension is Combustion's model format,
+                // then checks if its in the formats Assimp can handle,
+                // then checks if Assimp can really handle it.
+                Ok(ext == EXTENSION || (
+                    assimp::formats::IMPORT_EXTENSIONS.contains_key(ext) &&
+                        assimp::formats::is_extension_supported(ext)
+                ))
             },
             _ => unimplemented!()
         }
