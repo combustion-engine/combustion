@@ -307,7 +307,7 @@ impl SpecificFormat {
 
     /// Convert specific formats into generic properties
     pub fn to_generic(&self) -> GenericFormat {
-        self.clone().into_generic()
+        self.into_generic()
     }
 
     /// Check if this is a compressed format
