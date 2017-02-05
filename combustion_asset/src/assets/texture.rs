@@ -97,7 +97,7 @@ impl<'a> Asset<'a> for TextureAsset {
     fn load<R: BufRead + Seek>(mut reader: R, medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
         if let AssetMedium::File(path) = medium {
             if let Some(ext) = path.extension() {
-                let ext = ext.to_str().unwrap().to_ascii_lowercase();
+                let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
                 if ext == EXTENSION {
                     let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
@@ -159,7 +159,7 @@ impl<'a> Asset<'a> for TextureAsset {
     fn save<W: Write>(&self, mut writer: W, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
         if let AssetMedium::File(path) = medium {
             if let Some(ext) = path.extension() {
-                let ext = ext.to_str().unwrap().to_ascii_lowercase();
+                let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
                 if ext == EXTENSION {
                     let mut message = ::capnp::message::Builder::new_default();
