@@ -6,5 +6,7 @@ pub mod model;
 /// TODO
 pub enum GenericAsset {
     /// Texture asset
-    Texture(texture::TextureAsset)
+    Texture(texture::TextureAsset),
+    /// Model asset
+    Model(model::ModelAsset),
 }

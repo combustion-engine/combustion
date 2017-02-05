@@ -41,10 +41,10 @@ pub trait Asset<'a> where Self: Sized {
     type Query: AssetQuery + 'a;
 
     /// Load the asset from the given reader
-    fn load<R: BufRead + Seek>(reader: R, medium: AssetMedium<'a>, args: Self::LoadArgs) -> AssetResult<Self>;
+    fn load<R: BufRead + Seek, T: AsMut<R>>(reader: T, medium: AssetMedium<'a>, args: Self::LoadArgs) -> AssetResult<Self>;
 
     /// Save the asset to the given writer
-    fn save<W: Write>(&self, writer: W, medium: AssetMedium<'a>, args: Self::SaveArgs) -> AssetResult<()>;
+    fn save<W: Write, T: AsMut<W>>(&self, writer: T, medium: AssetMedium<'a>, args: Self::SaveArgs) -> AssetResult<()>;
 
     /// Query the asset type for something
     fn query(query: < Self::Query as AssetQuery >::Arguments) -> AssetResult<< Self::Query as AssetQuery >::Result>;

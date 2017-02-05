@@ -94,13 +94,13 @@ impl<'a> Asset<'a> for TextureAsset {
         })
     }
 
-    fn load<R: BufRead + Seek>(mut reader: R, medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
+    fn load<R: BufRead + Seek, T: AsMut<R>>(mut reader: T, medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
         if let AssetMedium::File(path) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
                 if ext == EXTENSION {
-                    let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
+                    let message_reader = try_throw!(serialize_packed::read_message(reader.as_mut(), ReaderOptions {
                         traversal_limit_in_words: u64::max_value(),
                         nesting_limit: 64,
                     }));
@@ -120,7 +120,7 @@ impl<'a> Asset<'a> for TextureAsset {
                     let image_format = image_format_from_extension(ext.as_str())?;
 
                     // Load ordinary image into data structures
-                    let image: DynamicImage = try_throw!(image::load(reader, image_format));
+                    let image: DynamicImage = try_throw!(image::load(reader.as_mut(), image_format));
 
                     let format = format::SpecificFormat {
                         which: format::Which::None(format::Uncompressed {
@@ -156,7 +156,7 @@ impl<'a> Asset<'a> for TextureAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save<W: Write>(&self, mut writer: W, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
+    fn save<W: Write, T: AsMut<W>>(&self, mut writer: T, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
         if let AssetMedium::File(path) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
@@ -170,7 +170,7 @@ impl<'a> Asset<'a> for TextureAsset {
                         try_rethrow!(self.0.save_to_builder(root_texture_builder));
                     }
 
-                    try_throw!(serialize_packed::write_message(&mut writer, &message));
+                    try_throw!(serialize_packed::write_message(writer.as_mut(), &message));
                 } else {
                     throw!(AssetError::Unimplemented("Non-combustion image exporting"));
                 }

@@ -3,8 +3,7 @@
 use std::io::prelude::*;
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
-use std::rc::Rc;
-use std::cell::RefCell;
+use std::sync::{Arc, RwLock};
 
 use capnp::serialize_packed;
 use capnp::message::ReaderOptions;
@@ -34,8 +33,12 @@ impl<'a> AssetQuery for ModelAssetQuery<'a> {
 
 #[derive(Clone)]
 pub struct ModelLoadArgs<'a> {
-    pub scene_cache: Rc<RefCell<AssimpSceneCache<'a>>>,
+    pub scene_cache: Arc<RwLock<AssimpSceneCache<'a>>>,
 }
+
+unsafe impl<'a> Send for ModelLoadArgs<'a> {}
+
+unsafe impl<'a> Sync for ModelLoadArgs<'a> {}
 
 /// Model Asset
 pub struct ModelAsset(Model);
@@ -49,31 +52,39 @@ impl<'a> Asset<'a> for ModelAsset {
     fn query(query: ModelAssetQuery<'a>) -> AssetResult<bool> {
         match query {
             ModelAssetQuery::SupportedExtension(ext) => {
-                // Checks if the extension is Combustion's model format,
-                // then checks if its in the formats Assimp can handle,
-                // then checks if Assimp can really handle it.
-                Ok(ext == EXTENSION || (
-                    assimp::formats::IMPORT_EXTENSIONS.contains_key(ext) &&
-                        assimp::formats::is_extension_supported(ext)
-                ))
+                Ok(ext == EXTENSION || assimp::formats::is_extension_supported(ext))
             },
             _ => unimplemented!()
         }
     }
 
-    fn load<R: BufRead + Seek>(reader: R, medium: AssetMedium<'a>, mut args: ModelLoadArgs<'a>) -> AssetResult<ModelAsset> {
+    fn load<R: BufRead + Seek, T: AsMut<R>>(mut reader: T, medium: AssetMedium<'a>, mut args: ModelLoadArgs<'a>) -> AssetResult<ModelAsset> {
         if let AssetMedium::File(path) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                if ext == EXTENSION {} else {}
+                if ext == EXTENSION {
+                    let message_reader = try_throw!(serialize_packed::read_message(reader.as_mut(), ReaderOptions {
+                        traversal_limit_in_words: u64::max_value(),
+                        nesting_limit: 1024,
+                    }));
+
+                    let model_reader = try_throw!(message_reader.get_root::<protocol::model::Reader>());
+
+                    let model = try_rethrow!(Model::load_from_reader(model_reader));
+
+                    return Ok(ModelAsset(model));
+                } else {
+                    // TODO: Load up an assimp scene and convert it into a Combustion scene
+                    unimplemented!()
+                }
             }
         }
 
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save<W: Write>(&self, _writer: W, _medium: AssetMedium<'a>, _: ()) -> AssetResult<()> {
+    fn save<W: Write, T: AsMut<W>>(&self, _writer: T, _medium: AssetMedium<'a>, _: ()) -> AssetResult<()> {
         unimplemented!()
     }
 }
