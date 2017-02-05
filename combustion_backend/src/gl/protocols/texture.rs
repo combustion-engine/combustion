@@ -2,14 +2,16 @@
 use ::gl::bindings as glb;
 use ::gl::types::*;
 
-use protocols::texture::protocol::{Raw, BlockSize, Bptc, Rgtc, S3tc};
-use protocols::texture::{Channels, Which, GenericFormat, SpecificFormat};
+use protocols::texture::protocol::{Channels, BlockSize, Bptc, Rgtc, S3tc};
+use protocols::texture::data::format::{Which, GenericFormat, SpecificFormat};
 
 /// OpenGL extension to `SpecificFormat` to convert raw `GLenum` texture formats into the symbolic `SpecificFormat`
 pub trait GLSpecificFormatExt {
     /// Create symbolic `SpecificFormat` from provided `GLenum` value
     fn from_raw_gl(format: GLenum) -> SpecificFormat;
 }
+
+// TODO: Double check all the code here for the correct formats.
 
 impl GLSpecificFormatExt for SpecificFormat {
     fn from_raw_gl(format: GLenum) -> SpecificFormat {
@@ -115,14 +117,14 @@ pub trait GLCompressedSpecificFormats {
 impl GLCompressedSpecificFormats for SpecificFormat {
     fn specific(&self) -> GLuint {
         match self.which {
-            Which::None(raw) => {
-                match raw {
-                    Raw::R => glb::R8,
-                    Raw::Rg => glb::RG8,
-                    Raw::Rgb => glb::RGB8,
-                    Raw::Rgba => glb::RGBA8,
+            Which::None(ref uncompressed) => {
+                match uncompressed.channels {
+                    Channels::R => glb::R8,
+                    Channels::Rg => glb::RG8,
+                    Channels::Rgb => glb::RGB8,
+                    Channels::Rgba => glb::RGBA8,
                 }
-            }
+            },
             Which::Rgtc(rgtc) => {
                 match rgtc {
                     Rgtc::Red => glb::COMPRESSED_RED_RGTC1,
@@ -130,7 +132,7 @@ impl GLCompressedSpecificFormats for SpecificFormat {
                     Rgtc::Rg => glb::COMPRESSED_RG_RGTC2,
                     Rgtc::RgSigned => glb::COMPRESSED_SIGNED_RG_RGTC2,
                 }
-            }
+            },
             Which::Bptc(bptc) => {
                 match bptc {
                     Bptc::Rgba => {
@@ -139,7 +141,7 @@ impl GLCompressedSpecificFormats for SpecificFormat {
                     Bptc::RgbFloatSigned => glb::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
                     Bptc::RgbFloatUnsigned => glb::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
                 }
-            }
+            },
             Which::S3tc(s3tc) => {
                 if self.srgb {
                     match s3tc {
@@ -156,7 +158,7 @@ impl GLCompressedSpecificFormats for SpecificFormat {
                         S3tc::Rgba5 => glb::COMPRESSED_RGBA_S3TC_DXT5_EXT,
                     }
                 }
-            }
+            },
             Which::Astc(blocksize) => {
                 if self.srgb {
                     match blocksize {
