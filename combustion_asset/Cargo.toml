@@ -6,13 +6,17 @@ version = "0.1.0"
 
 [dependencies]
 capnp = "0.8"
-image = "0.12.2"
 phf = "0.7.20"
 phf_macros = "0.7.20"
 rayon = "0.6.0"
 serde = "0.9"
 serde_derive = "0.9"
 trace-error = "0.1.3"
+
+[dependencies.image]
+version = "0.12.2"
+# These are intentionally redundant
+features = ["default", "gif_codec", "jpeg", "ico", "png_codec", "ppm", "tga", "tiff", "webp", "bmp", "hdr"]
 
 [dependencies.assimp]
 features = ["default", "compat"]
