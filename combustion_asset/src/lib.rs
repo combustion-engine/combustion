@@ -22,6 +22,9 @@ extern crate serde_derive;
 extern crate image;
 extern crate assimp;
 extern crate lz4;
+extern crate fnv;
+#[macro_use]
+extern crate matches;
 
 #[macro_use]
 extern crate trace_error;
@@ -31,4 +34,5 @@ extern crate combustion_protocols as protocols;
 
 pub mod error;
 pub mod asset;
+pub mod cache;
 pub mod assets;
