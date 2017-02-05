@@ -30,11 +30,16 @@ pub enum AssetError {
     UnsupportedMedium,
     /// Invalid value error
     InvalidValue,
+    /// Unimplemented feature
+    Unimplemented(&'static str),
 }
 
 impl Display for AssetError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        f.write_str(self.description())
+        match *self {
+            AssetError::Unimplemented(feature) => write!(f, "Unimplemented {}", feature),
+            _ => f.write_str(self.description()),
+        }
     }
 }
 
@@ -47,6 +52,7 @@ impl Error for AssetError {
             AssetError::Io(ref err) => err.description(),
             AssetError::UnsupportedMedium => "Unsupported Asset Medium",
             AssetError::InvalidValue => "Invalid Value",
+            AssetError::Unimplemented(_) => "Unimplemented",
         }
     }
 }
