@@ -1,6 +1,6 @@
 //! `combustion_asset` crate
 //!
-//! This crate defines routines for loading and saving assets from/to both the protocols defined in combustion_protocols,
+//! This crate defines routines for loading and saving assets from/to both the protocols defined in `combustion_protocols`,
 //! and in some cases external formats like textures as images and so forth.
 //!
 //! Most of the focus of this is not on saving/exporting, however, but on being able to load in and normalize many formats
