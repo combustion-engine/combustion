@@ -1,4 +1,4 @@
-//! combustion_asset crate
+//! `combustion_asset` crate
 //!
 //! This crate defines routines for loading and saving assets from/to both the protocols defined in combustion_protocols,
 //! and in some cases external formats like textures as images and so forth.
@@ -6,7 +6,7 @@
 //! Most of the focus of this is not on saving/exporting, however, but on being able to load in and normalize many formats
 //! for textures, models and anything else.
 
-#![feature(plugin, conservative_impl_trait)]
+#![feature(plugin, conservative_impl_trait, box_syntax)]
 #![plugin(phf_macros)]
 #![allow(dead_code)]
 #![warn(missing_docs)]
