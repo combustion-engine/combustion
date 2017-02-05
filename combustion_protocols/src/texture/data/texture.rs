@@ -9,9 +9,9 @@ use super::format::SpecificFormat;
 #[derive(Clone, Serialize, Deserialize)]
 pub enum RootTexture {
     /// Cubemap variant
-    Cubemap(Cubemap),
+    Cubemap(Box<Cubemap>),
     /// Single texture variant
-    Single(Texture),
+    Single(Box<Texture>),
     /// Array of textures variant
     Array(Vec<Texture>),
 }

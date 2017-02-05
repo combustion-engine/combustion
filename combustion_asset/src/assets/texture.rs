@@ -47,6 +47,22 @@ impl<'a> AssetQuery for TextureAssetQuery<'a> {
     type Result = bool;
 }
 
+/// Find an appropriate image format based on file extension
+pub fn image_format_from_extension(ext: &str) -> AssetResult<ImageFormat> {
+    Ok(match ext {
+        "jpg" | "jpeg" => ImageFormat::JPEG,
+        "png" => ImageFormat::PNG,
+        "gif" => ImageFormat::GIF,
+        "webp" => ImageFormat::WEBP,
+        "tif" | "tiff" => ImageFormat::TIFF,
+        "tga" => ImageFormat::TGA,
+        "bmp" => ImageFormat::BMP,
+        "ico" => ImageFormat::ICO,
+        "hdr" => ImageFormat::HDR,
+        format => throw!(image::ImageError::UnsupportedError(format!("Image format image/{:?} is not supported.", format)))
+    })
+}
+
 impl<'a> Asset<'a> for TextureAsset {
     type LoadArgs = TextureArgs;
     type SaveArgs = TextureArgs;
@@ -90,21 +106,7 @@ impl<'a> Asset<'a> for TextureAsset {
 
                     return Ok(TextureAsset(root_texture));
                 } else {
-                    let image_format = match ext.as_str() {
-                        "jpg" | "jpeg" => ImageFormat::JPEG,
-                        "png" => ImageFormat::PNG,
-                        "gif" => ImageFormat::GIF,
-                        "webp" => ImageFormat::WEBP,
-                        "tif" | "tiff" => ImageFormat::TIFF,
-                        "tga" => ImageFormat::TGA,
-                        "bmp" => ImageFormat::BMP,
-                        "ico" => ImageFormat::ICO,
-                        "hdr" => ImageFormat::HDR,
-                        format => {
-                            throw!(image::ImageError::UnsupportedError(
-                                format!("Image format image/{:?} is not supported.", format)))
-                        }
-                    };
+                    let image_format = image_format_from_extension(ext.as_str())?;
 
                     // Load ordinary image into data structures
                     let image: DynamicImage = try_throw!(image::load(reader, image_format));
@@ -124,7 +126,7 @@ impl<'a> Asset<'a> for TextureAsset {
 
                     let (width, height) = image.dimensions();
 
-                    return Ok(TextureAsset(texture::RootTexture::Single(texture::Texture {
+                    return Ok(TextureAsset(texture::RootTexture::Single(box texture::Texture {
                         data: image.raw_pixels().into(),
                         dimensions: texture::Dimensions::new(width, height, 0),
                         kind: {
