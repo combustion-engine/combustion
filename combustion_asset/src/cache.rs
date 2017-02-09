@@ -21,3 +21,12 @@ pub struct AssetHashMapCache<'a, K, T: 'a> where K: Hash + PartialEq + Eq {
 impl<'a, K, T: 'a> AssetCache<'a> for AssetHashMapCache<'a, K, T> where K: Hash + PartialEq + Eq {
     type Asset = T;
 }
+
+impl<'a, K, T: 'a> Default for AssetHashMapCache<'a, K, T> where K: Hash + PartialEq + Eq {
+    fn default() -> AssetHashMapCache<'a, K, T> {
+        AssetHashMapCache {
+            map: FnvHashMap::default(),
+            _marker: PhantomData,
+        }
+    }
+}
