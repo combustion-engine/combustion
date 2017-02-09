@@ -35,7 +35,7 @@ impl<'a> AssetQuery for ModelAssetQuery<'a> {
 }
 
 /// Arguments for loading models
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct ModelLoadArgs<'a> {
     /// Assimp scene cache
     pub scene_cache: Arc<RwLock<AssimpSceneCache<'a>>>,
