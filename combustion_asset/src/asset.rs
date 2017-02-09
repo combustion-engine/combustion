@@ -4,13 +4,13 @@ use std::path::Path;
 use std::sync::Arc;
 
 use ::error::AssetResult;
-use ::vfs::{BoxedFS, BoxedStream};
+use ::vfs::{BoxedVFS, BoxedStream};
 
 /// Tells the asset save/load routines where the data is coming from
 #[derive(Debug, Clone)]
 pub enum AssetMedium<'a> {
     /// Some file-like stream with a specific path on the given virtual filesystem
-    File(&'a Path, Arc<BoxedFS>),
+    File(&'a Path, Arc<BoxedVFS>),
     /// An in-memory data stream
     Memory(Arc<BoxedStream>),
 }

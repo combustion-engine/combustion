@@ -12,10 +12,10 @@ use protocols::model::data::{Model, Node};
 
 use ::error::{AssetResult, AssetError};
 
-use ::vfs::{BoxedFS, BoxedStream};
+use ::vfs::{BoxedVFS, BoxedStream};
 
 /// Creates an Assimp `CustomIO` handler that opens files via a `VirtualFS` instance
-pub fn vfs_to_custom_io(vfs: Arc<BoxedFS>)
+pub fn vfs_to_custom_io(vfs: Arc<BoxedVFS>)
                         -> aio::CustomIO<BoxedStream, aio::CallbackIOHandler<BoxedStream>> {
     aio::CustomIO::callback(move |path| vfs.open(path))
 }
@@ -47,8 +47,6 @@ fn assimp_mesh_to_mesh<'a>(mesh: assimp::Mesh<'a>) -> AssetResult<Mesh> {
 }
 
 fn assimp_node_to_node<'a>(node: assimp::Node<'a>) -> AssetResult<Node> {
-    let raw_meshes = try_throw!(node.meshes().ok_or(AssetError::UnsupportedFormat));
-
     let mut children = Vec::new();
 
     // Convert and collect children if there are any
@@ -62,7 +60,9 @@ fn assimp_node_to_node<'a>(node: assimp::Node<'a>) -> AssetResult<Node> {
         // Take the node name and convert it into a String
         name: node.name().to_string(),
         // Take all the mesh indices (as c_uints), clone them, and convert them into u32
-        meshes: raw_meshes.iter().cloned().map(From::from).collect(),
+        meshes: node.meshes().map(|mesh_indices| {
+            mesh_indices.iter().cloned().map(From::from).collect()
+        }).unwrap_or_else(Vec::new),
         // Create a single-element Vec with the converted node transform
         transforms: vec![Transform::Matrix(node.transformation().clone().into())],
         children: children,

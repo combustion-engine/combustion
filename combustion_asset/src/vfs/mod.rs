@@ -84,4 +84,4 @@ pub trait VirtualFS: Debug + Send + Sync + 'static {
 }
 
 /// A Boxed `VirtualFS` instance
-pub type BoxedFS = Box<VirtualFS + Send + Sync>;
+pub type BoxedVFS = Box<VirtualFS + Send + Sync>;
