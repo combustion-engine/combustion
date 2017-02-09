@@ -1,17 +1,16 @@
 //! The primary `Asset` trait and data structures
 
-use std::io::prelude::*;
 use std::path::Path;
+use std::sync::Arc;
 
 use ::error::AssetResult;
+use ::vfs::{BoxedFS, BoxedStream};
 
 /// Tells the asset save/load routines where the data is coming from
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum AssetMedium<'a> {
-    /// The asset is in a file at this path
-    File(&'a Path),
-    /// The asset is in memory, so no filepath can be given
-    Memory,
+    File(&'a Path, Arc<BoxedFS>),
+    Memory(Arc<BoxedStream>),
 }
 
 /// Defines a query to an asset,
@@ -41,10 +40,10 @@ pub trait Asset<'a> where Self: Sized {
     type Query: AssetQuery + 'a;
 
     /// Load the asset from the given reader
-    fn load<R: BufRead + Seek, T: AsMut<R>>(reader: T, medium: AssetMedium<'a>, args: Self::LoadArgs) -> AssetResult<Self>;
+    fn load(medium: AssetMedium<'a>, args: Self::LoadArgs) -> AssetResult<Self>;
 
     /// Save the asset to the given writer
-    fn save<W: Write, T: AsMut<W>>(&self, writer: T, medium: AssetMedium<'a>, args: Self::SaveArgs) -> AssetResult<()>;
+    fn save(&self, medium: AssetMedium<'a>, args: Self::SaveArgs) -> AssetResult<()>;
 
     /// Query the asset type for something
     fn query(query: < Self::Query as AssetQuery >::Arguments) -> AssetResult<< Self::Query as AssetQuery >::Result>;
