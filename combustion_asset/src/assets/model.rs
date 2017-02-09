@@ -1,17 +1,17 @@
 //! Model asset
 
-use std::io::prelude::*;
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
 use std::sync::{Arc, RwLock};
+use std::io::BufReader;
 
 use capnp::serialize_packed;
 use capnp::message::ReaderOptions;
 
 use protocols::traits::Storage;
 use protocols::model::{protocol, EXTENSION};
-use protocols::model::data::{Model, Node};
-use protocols::model::storage::ModelSaveArgs;
+use protocols::model::data::Model;
+use protocols::model::storage;
 
 use assimp::{self, Scene};
 
@@ -21,8 +21,10 @@ use ::asset::{Asset, AssetMedium, AssetQuery};
 
 pub type AssimpSceneCache<'a> = AssetHashMapCache<'a, String, Scene<'a>>;
 
+/// Model Asset queries
 #[derive(Debug, Clone, Copy)]
 pub enum ModelAssetQuery<'a> {
+    /// Check if a file extension for a model file is supported
     SupportedExtension(&'a str),
 }
 
@@ -31,8 +33,10 @@ impl<'a> AssetQuery for ModelAssetQuery<'a> {
     type Result = bool;
 }
 
+/// Arguments for loading models
 #[derive(Clone)]
 pub struct ModelLoadArgs<'a> {
+    /// Assimp scene cache
     pub scene_cache: Arc<RwLock<AssimpSceneCache<'a>>>,
 }
 
@@ -40,12 +44,17 @@ unsafe impl<'a> Send for ModelLoadArgs<'a> {}
 
 unsafe impl<'a> Sync for ModelLoadArgs<'a> {}
 
+#[derive(Debug, Clone)]
+pub struct ModelSaveArgs {
+    pub storage_args: storage::ModelSaveArgs,
+}
+
 /// Model Asset
 pub struct ModelAsset(Model);
 
 impl<'a> Asset<'a> for ModelAsset {
     type LoadArgs = ModelLoadArgs<'a>;
-    type SaveArgs = ();
+    type SaveArgs = ModelSaveArgs;
 
     type Query = ModelAssetQuery<'a>;
 
@@ -54,17 +63,18 @@ impl<'a> Asset<'a> for ModelAsset {
             ModelAssetQuery::SupportedExtension(ext) => {
                 Ok(ext == EXTENSION || assimp::formats::is_extension_supported(ext))
             },
-            _ => unimplemented!()
         }
     }
 
-    fn load<R: BufRead + Seek, T: AsMut<R>>(mut reader: T, medium: AssetMedium<'a>, mut args: ModelLoadArgs<'a>) -> AssetResult<ModelAsset> {
-        if let AssetMedium::File(path) = medium {
+    fn load(medium: AssetMedium<'a>, _ /*TODO*/: ModelLoadArgs<'a>) -> AssetResult<ModelAsset> {
+        if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
                 if ext == EXTENSION {
-                    let message_reader = try_throw!(serialize_packed::read_message(reader.as_mut(), ReaderOptions {
+                    let mut reader = BufReader::new(try_throw!(vfs.open(path)));
+
+                    let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
                         traversal_limit_in_words: u64::max_value(),
                         nesting_limit: 1024,
                     }));
@@ -75,8 +85,14 @@ impl<'a> Asset<'a> for ModelAsset {
 
                     return Ok(ModelAsset(model));
                 } else {
-                    // TODO: Load up an assimp scene and convert it into a Combustion scene
-                    unimplemented!()
+                    // Use custom IO for Assimp so it can use the virtual filesystem to interact with data
+                    let mut io = ::external::assimp::vfs_to_custom_io(vfs);
+
+                    let scene: assimp::Scene = try_rethrow!(assimp::Scene::import_from(path, None, &mut io));
+
+                    let model = try_rethrow!(::external::assimp::scene_to_model(scene));
+
+                    return Ok(ModelAsset(model));
                 }
             }
         }
@@ -84,7 +100,44 @@ impl<'a> Asset<'a> for ModelAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save<W: Write, T: AsMut<W>>(&self, _writer: T, _medium: AssetMedium<'a>, _: ()) -> AssetResult<()> {
-        unimplemented!()
+    fn save(&self, medium: AssetMedium<'a>, args: ModelSaveArgs) -> AssetResult<()> {
+        if let AssetMedium::File(path, vfs) = medium {
+            if let Some(ext) = path.extension() {
+                let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
+
+                let mut writer = try_throw!(vfs.open(path));
+
+                if ext == EXTENSION {
+                    let mut message = ::capnp::message::Builder::new_default();
+
+                    {
+                        let model_builder = message.init_root::<protocol::model::Builder>();
+
+                        try_rethrow!(self.0.save_to_builder_args(model_builder, args.storage_args));
+                    }
+
+                    try_throw!(serialize_packed::write_message(&mut writer, &message));
+
+                } else {
+                    throw!(AssetError::Unimplemented("Non-combustion model exporting"));
+                }
+            }
+        }
+
+        throw!(AssetError::UnsupportedMedium)
+    }
+}
+
+impl Deref for ModelAsset {
+    type Target = Model;
+
+    fn deref(&self) -> &Model {
+        &self.0
+    }
+}
+
+impl DerefMut for ModelAsset {
+    fn deref_mut(&mut self) -> &mut Model {
+        &mut self.0
     }
 }

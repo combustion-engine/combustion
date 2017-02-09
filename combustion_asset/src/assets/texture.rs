@@ -1,8 +1,8 @@
 //! Texture Asset
 
-use std::io::prelude::*;
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
+use std::io::BufReader;
 
 use capnp::serialize_packed;
 use capnp::message::ReaderOptions;
@@ -46,7 +46,7 @@ impl Default for TextureSaveArgs {
 }
 
 /// Texture asset query
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum TextureAssetQuery<'a> {
     /// Queries if a given medium is supported
     SupportedMedium(AssetMedium<'a>)
@@ -83,24 +83,24 @@ impl<'a> Asset<'a> for TextureAsset {
     fn query(query: TextureAssetQuery) -> AssetResult<bool> {
         Ok(match query {
             TextureAssetQuery::SupportedMedium(medium) => {
-                match medium {
-                    AssetMedium::Memory => false,
-                    AssetMedium::File(_path) => {
-                        //TODO
-                        true
-                    }
+                if let AssetMedium::File(_, _) = medium {
+                    true
+                } else {
+                    false
                 }
-            }
+            },
         })
     }
 
-    fn load<R: BufRead + Seek, T: AsMut<R>>(mut reader: T, medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
-        if let AssetMedium::File(path) = medium {
+    fn load(medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
+        if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
+                let mut reader = BufReader::new(try_throw!(vfs.open(path)));
+
                 if ext == EXTENSION {
-                    let message_reader = try_throw!(serialize_packed::read_message(reader.as_mut(), ReaderOptions {
+                    let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
                         traversal_limit_in_words: u64::max_value(),
                         nesting_limit: 64,
                     }));
@@ -120,7 +120,7 @@ impl<'a> Asset<'a> for TextureAsset {
                     let image_format = image_format_from_extension(ext.as_str())?;
 
                     // Load ordinary image into data structures
-                    let image: DynamicImage = try_throw!(image::load(reader.as_mut(), image_format));
+                    let image: DynamicImage = try_throw!(image::load(&mut reader, image_format));
 
                     let format = format::SpecificFormat {
                         which: format::Which::None(format::Uncompressed {
@@ -156,10 +156,12 @@ impl<'a> Asset<'a> for TextureAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save<W: Write, T: AsMut<W>>(&self, mut writer: T, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
-        if let AssetMedium::File(path) = medium {
+    fn save(&self, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
+        if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
+
+                let mut writer = try_throw!(vfs.open(path));
 
                 if ext == EXTENSION {
                     let mut message = ::capnp::message::Builder::new_default();
@@ -170,7 +172,7 @@ impl<'a> Asset<'a> for TextureAsset {
                         try_rethrow!(self.0.save_to_builder(root_texture_builder));
                     }
 
-                    try_throw!(serialize_packed::write_message(writer.as_mut(), &message));
+                    try_throw!(serialize_packed::write_message(&mut writer, &message));
                 } else {
                     throw!(AssetError::Unimplemented("Non-combustion image exporting"));
                 }
