@@ -43,6 +43,13 @@ pub struct TexCoord {
     pub v: f32,
 }
 
+impl TexCoord {
+    /// Create a new `TexCoord` from its corresponding `u` and `v` parts
+    pub fn new(u: f32, v: f32) -> TexCoord {
+        TexCoord { u: u, v: v }
+    }
+}
+
 /// Structure for a single vertex.
 ///
 /// This struct is marked as `repr(C)` so it can
