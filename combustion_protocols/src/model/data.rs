@@ -1,7 +1,29 @@
 //! Data structures for manipulating Models
 
+use std::fmt::{Debug, Formatter, Result as FmtResult};
+
 use ::mesh::data::Mesh;
 use ::math::data::Transform;
+
+/// Node within a `Model`
+#[derive(Clone, Default, Named, Serialize, Deserialize)]
+pub struct Node {
+    /// Name of the node
+    pub name: String,
+    /// List of meshes in this node
+    pub meshes: Vec<u32>,
+    /// List of child nodes
+    pub children: Vec<Node>,
+    /// List of transforms to apply to all meshes in this node and in child nodes
+    pub transforms: Vec<Transform>,
+}
+
+impl Debug for Node {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, r#"Node {{name: "{}", meshes: {:?}, children: {:?}, transforms: {}}}"#,
+               self.name, self.meshes, self.children, self.transforms.len())
+    }
+}
 
 /// Whole model with nested node structure
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -18,15 +40,8 @@ pub struct Model {
     pub materials: Vec<String>,
 }
 
-/// Node within a `Model`
-#[derive(Clone, Default, Named, Serialize, Deserialize)]
-pub struct Node {
-    /// Name of the node
-    pub name: String,
-    /// List of meshes in this node
-    pub meshes: Vec<u32>,
-    /// List of child nodes
-    pub children: Vec<Node>,
-    /// List of transforms to apply to all meshes in this node and in child nodes
-    pub transforms: Vec<Transform>,
+impl Debug for Model {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "Model {{root: {:?}, meshes: {:?}}}", self.root, self.meshes)
+    }
 }

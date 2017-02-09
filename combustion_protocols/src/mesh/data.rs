@@ -1,9 +1,11 @@
 //! Rust equivalents to mesh.capnp protocol structures
 
+use std::fmt::{Debug, Formatter, Result as FmtResult};
+
 use nalgebra::*;
 
 /// Whole mesh with vertices, indices and material indices
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Mesh {
     /// Vertex data
     pub vertices: MeshVertices,
@@ -13,8 +15,17 @@ pub struct Mesh {
     pub materials: Vec<u32>,
 }
 
+impl Debug for Mesh {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "Mesh {{vertices: {:?}, indices: {:?}, materials: {}}}",
+               self.vertices,
+               self.indices.as_ref().map(|indices| indices.len()),
+               self.materials.len())
+    }
+}
+
 /// Enum for different vertex layouts
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum MeshVertices {
     /// Represents vertices as multiple discrete arrays of data.
     ///
@@ -31,6 +42,19 @@ pub enum MeshVertices {
     /// However, if Normals, TexCoords and so forth are not given, they just waste space, so
     /// perhaps Discrete data streams would be more appropriate
     Interleaved(Vec<Vertex>),
+}
+
+impl Debug for MeshVertices {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "MeshVertices {{ {} }}", match *self {
+            MeshVertices::Discrete(ref vertices) => {
+                format!("Discrete {{ {:?} }}", vertices)
+            },
+            MeshVertices::Interleaved(ref vertices) => {
+                format!("Interleaved {{ {} vertices }}", vertices.len())
+            }
+        })
+    }
 }
 
 /// UV-coordinate structure
@@ -78,7 +102,7 @@ impl Default for Vertex {
 /// Structure for many vertices with non-interleaved data
 ///
 /// Data from this must be passed though multiple buffers
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Vertices {
     /// Vertex positions
     pub positions: Vec<Point3<f32>>,
@@ -86,4 +110,13 @@ pub struct Vertices {
     pub normals: Option<Vec<Vector3<f32>>>,
     /// Optional vertex texture coordinates
     pub uvs: Option<Vec<TexCoord>>,
+}
+
+impl Debug for Vertices {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "Vertices {{ positions: {}, normals: {:?}, uvs: {:?} }}",
+               self.positions.len(),
+               self.normals.as_ref().map(|normals| normals.len()),
+               self.uvs.as_ref().map(|uvs| uvs.len()))
+    }
 }
