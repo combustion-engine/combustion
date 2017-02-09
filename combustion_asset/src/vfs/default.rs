@@ -1,9 +1,12 @@
+//! Default VFS that just uses the real filesystem on the hard disk.
+
 use std::io;
 use std::path::Path;
 use std::fs;
 
 use super::{VirtualFS, BoxedStream, OpenOptions};
 
+/// Default VFS that just uses the real filesystem on the hard disk
 #[derive(Debug)]
 pub struct DefaultFS;
 

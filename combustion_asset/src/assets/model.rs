@@ -19,6 +19,7 @@ use ::cache::AssetHashMapCache;
 use ::error::{AssetResult, AssetError};
 use ::asset::{Asset, AssetMedium, AssetQuery};
 
+/// Cache object for Assimp scenes
 pub type AssimpSceneCache<'a> = AssetHashMapCache<'a, String, Scene<'a>>;
 
 /// Model Asset queries
@@ -44,8 +45,10 @@ unsafe impl<'a> Send for ModelLoadArgs<'a> {}
 
 unsafe impl<'a> Sync for ModelLoadArgs<'a> {}
 
+/// Arguments for model save routines
 #[derive(Debug, Clone)]
 pub struct ModelSaveArgs {
+    /// Arguments for the storage routines
     pub storage_args: storage::ModelSaveArgs,
 }
 

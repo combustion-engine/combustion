@@ -1,3 +1,5 @@
+//! Routines for converting Assimp structures to Combustion structures
+
 use std::sync::Arc;
 
 use nalgebra::Vector3;
@@ -67,6 +69,7 @@ fn assimp_node_to_node<'a>(node: assimp::Node<'a>) -> AssetResult<Node> {
     })
 }
 
+/// Converts an Assimp `Scene` into a Combustion `Model`
 pub fn scene_to_model<'a>(scene: assimp::Scene<'a>) -> AssetResult<Model> {
     let raw_meshes = try_throw!(scene.meshes().ok_or(AssetError::UnsupportedFormat));
 

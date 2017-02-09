@@ -1,3 +1,12 @@
+//! Virtual File System
+//!
+//! The virtual file system provides a simple interface for opening data streams,
+//! whether they be real files on the hard disk, virtual files within a compressed archive,
+//! or even some network protocol.
+//!
+//! By using this, the asset load/save routines don't care about the underlying structure of the data,
+//! just that the data exists and can be read.
+
 use std::io::prelude::*;
 use std::io;
 use std::path::Path;
@@ -5,10 +14,14 @@ use std::fmt::Debug;
 
 pub mod default;
 
+/// Some type with `Debug + Read + Seek + Write + 'static`
+///
+/// Automatically implemented for types that satisfy those above requirements.
 pub trait Stream: Debug + Read + Seek + Write + 'static {}
 
 impl<T> Stream for T where T: Debug + Read + Seek + Write + 'static {}
 
+/// Simple alias for a `Box<String>` to ease in use
 pub type BoxedStream = Box<Stream>;
 
 /// Options to open a data stream with
