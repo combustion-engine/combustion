@@ -4,7 +4,7 @@ use ::mesh::data::Mesh;
 use ::math::data::Transform;
 
 /// Whole model with nested node structure
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Model {
     /// Root node
     pub root: Node,
@@ -19,7 +19,7 @@ pub struct Model {
 }
 
 /// Node within a `Model`
-#[derive(Clone, Named, Serialize, Deserialize)]
+#[derive(Clone, Default, Named, Serialize, Deserialize)]
 pub struct Node {
     /// Name of the node
     pub name: String,
