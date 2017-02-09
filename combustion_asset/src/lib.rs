@@ -33,6 +33,8 @@ extern crate combustion_common as common;
 extern crate combustion_protocols as protocols;
 
 pub mod error;
+pub mod vfs;
 pub mod asset;
+pub mod external;
 pub mod cache;
 pub mod assets;

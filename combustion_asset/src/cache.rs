@@ -1,11 +1,7 @@
-use std::collections::HashMap;
-use std::sync::Arc;
 use std::marker::PhantomData;
 use std::hash::Hash;
 
 use fnv::FnvHashMap;
-
-use ::asset::Asset;
 
 pub trait AssetCache<'a> {
     type Asset: 'a;
