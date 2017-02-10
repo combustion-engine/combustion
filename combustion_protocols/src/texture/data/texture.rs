@@ -16,6 +16,17 @@ pub enum RootTexture {
     Array(Vec<Texture>),
 }
 
+impl RootTexture {
+    /// Checks if any textures in `RootTexture` are compressed
+    pub fn has_compressed(&self) -> bool {
+        match *self {
+            RootTexture::Single(ref texture) => texture.is_compressed(),
+            RootTexture::Cubemap(ref cubemap) => cubemap.any_compressed(),
+            RootTexture::Array(ref array) => array.iter().any(|texture| texture.is_compressed())
+        }
+    }
+}
+
 /// Texture dimensions
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Dimensions {
@@ -47,6 +58,13 @@ pub struct Texture {
     pub format: SpecificFormat,
 }
 
+impl Texture {
+    /// Checks if the texture is in a compressed format
+    pub fn is_compressed(&self) -> bool {
+        self.format.is_compressed()
+    }
+}
+
 /// Represents a cubemap made of six unique textures
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Cubemap {
@@ -62,4 +80,26 @@ pub struct Cubemap {
     pub back: Texture,
     /// Front texture
     pub front: Texture,
+}
+
+impl Cubemap {
+    /// Checks if any texture in the cubemap is compressed
+    pub fn any_compressed(&self) -> bool {
+        self.right.is_compressed()
+            || self.left.is_compressed()
+            || self.top.is_compressed()
+            || self.bottom.is_compressed()
+            || self.back.is_compressed()
+            || self.front.is_compressed()
+    }
+
+    /// Checks if all textures in the cubemap are compressed
+    pub fn all_compressed(&self) -> bool {
+        self.right.is_compressed()
+            && self.left.is_compressed()
+            && self.top.is_compressed()
+            && self.bottom.is_compressed()
+            && self.back.is_compressed()
+            && self.front.is_compressed()
+    }
 }
