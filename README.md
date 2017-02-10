@@ -11,18 +11,42 @@ Currently the engine is in the stages of going from "I got things working" to "I
 
 That is to say, I've been splitting up functionality into crates to simplify each component and to make compiling the engine more incremental.
 
-The current todo list is as follows, in order:
+## Completed or Working:
 
-1. Add and implement a uniform API for loading, saving and managing assets. An asset being defined as any data that needs to be loaded into the engine for it to function and perform work (such as rendering).
-2. Design an API for the rendering backend. For every backend, I want as little application and driver overhead as possible, so although a data-oriented API like gfx-rs is nice in theory, I need to take a hybrid approach where the API has knowledge of its usage.
-    a. The backend API will be heavily based on traits, so as to have the same functionality for all backends, and trait objects will be used for higher level components. 
-    b. All resources and handles for the backends will be completely opaque or generic for engine-facing APIs. Consider the `Mesh` and `Texture` structures in the `combustion_protocols` crate.
-3. Integrating the scene graph, asset system and backend into the engine core.
-4. Create a modular shader generation pipeline
-    a. Node-based might work
-5. and 6. Rewrite all of the tooling using the engine itself
+These are either fully working or in a state in which new features can be easily added. Their API is relatively stable. 
 
-After these two are done and things are looking more organized, I'll move all "todos" into organization or repo projects/issues.
+This does NOT mean all parts of feature-complete. Off the top of my head, animations need to be incorporated somehow.
+
+- [x] Common utilities
+    - [x] Logging
+    - [x] Error handling
+    - [x] Etc (see `combustion_common` crate)
+- [x] Engine protocols (`combustion_protocols` crate)
+    - [x] Scenes
+        - [x] Lights
+    - [x] Models
+    - [x] Textures
+        - [x] Uncompressed and Compressed
+    - [x] Materials
+    - [x] All (De)Serializable via Serde
+- [x] Assets (`combustion_asset` crate)
+    - [x] Virtual File System 
+        - [x] Supports any `Read + Seek + Write` stream
+    - [x] Loading and Saving
+        - [x] Models
+        - [x] Textures
+
+#### Points of improvement
+
+* Spawn a child process for logging to prevent data loss on crash.
+
+## TODO
+
+- [ ] Design an API for the rendering backend
+- [ ] Integrate scene graph, asset system and backend into engine core
+- [ ] Create a modular shader generation pipeline
+- [ ] Rewrite tooling with updated crates
+- [ ] Figure out how to best handle animations
 
 ## Engine Crates
 
