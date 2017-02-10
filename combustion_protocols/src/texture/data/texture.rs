@@ -43,6 +43,11 @@ impl Dimensions {
     pub fn new(width: u32, height: u32, depth: u32) -> Dimensions {
         Dimensions { width: width, height: height, depth: depth }
     }
+
+    /// Returns `(width, height, depth)` tuple
+    pub fn to_tuple(&self) -> (u32, u32, u32) {
+        (self.width, self.height, self.depth)
+    }
 }
 
 /// Represents a single texture
