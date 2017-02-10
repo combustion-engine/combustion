@@ -27,21 +27,40 @@ pub struct TextureLoadArgs {
     pub only2d: bool,
     /// Consider the loaded images as in sRGB color space
     pub srgb: bool,
+    /// If a filepath is given, it'll first try to use that for determining the image format.
+    ///
+    /// If it cannot determine the image format from the path, it will use this hint.
+    ///
+    /// If the hint is `None`, it'll default to the Combustion texture format.
+    pub format_hint: Option<ImageFormat>,
 }
 
 impl Default for TextureLoadArgs {
     fn default() -> TextureLoadArgs {
-        TextureLoadArgs { only2d: false, srgb: false }
+        TextureLoadArgs { only2d: false, srgb: false, format_hint: None }
     }
 }
 
 /// Save arguments for texture assets
 #[derive(Debug, Clone, Copy)]
-pub struct TextureSaveArgs {}
+pub struct TextureSaveArgs {
+    /// If a filepath is given, it'll first try to use that for determining the image format.
+    ///
+    /// If it cannot determine the image format from the path, it will use this hint.
+    ///
+    /// If the hint is `None`, it'll default to the Combustion texture format.
+    pub format_hint: Option<ImageFormat>,
+    /// For formats with adjustable encoding quality,
+    /// set the quality as a value between 1-100 where 1 is the worst and 100 is the best.
+    pub quality: u8,
+}
 
 impl Default for TextureSaveArgs {
     fn default() -> TextureSaveArgs {
-        TextureSaveArgs {}
+        TextureSaveArgs {
+            format_hint: None,
+            quality: 95,
+        }
     }
 }
 
@@ -83,11 +102,7 @@ impl<'a> Asset<'a> for TextureAsset {
     fn query(query: TextureAssetQuery) -> AssetResult<bool> {
         Ok(match query {
             TextureAssetQuery::SupportedMedium(medium) => {
-                if let AssetMedium::File(_, _) = medium {
-                    true
-                } else {
-                    false
-                }
+                if let AssetMedium::File(_, _) = medium { true } else { false }
             },
         })
     }
@@ -156,7 +171,7 @@ impl<'a> Asset<'a> for TextureAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save(&self, medium: AssetMedium<'a>, _args: TextureSaveArgs) -> AssetResult<()> {
+    fn save(&self, medium: AssetMedium<'a>, args: TextureSaveArgs) -> AssetResult<()> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
@@ -173,13 +188,53 @@ impl<'a> Asset<'a> for TextureAsset {
                     }
 
                     try_throw!(serialize_packed::write_message(&mut writer, &message));
-                } else if !self.has_compressed() {
+
+                    return Ok(());
+                } else if let texture::RootTexture::Single(ref texture) = **self {
                     let image_format = image_format_from_extension(ext.as_str())?;
 
-                    throw!(AssetError::Unimplemented("Non-Combustion image exporting"));
-                } else {
-                    throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats"))
-                }
+                    if !texture.is_compressed() {
+                        if texture.kind == protocol::TextureKind::Texture2D ||
+                            texture.kind == protocol::TextureKind::Texture1D {
+                            if let Some(bit_depth) = texture.format.which.data_type().bit_depth() {
+                                let color_type = match texture.format.which.channels() {
+                                    protocol::Channels::R => image::ColorType::Gray(bit_depth),
+                                    protocol::Channels::Rg => image::ColorType::GrayA(bit_depth),
+                                    protocol::Channels::Rgb => image::ColorType::RGB(bit_depth),
+                                    protocol::Channels::Rgba => image::ColorType::RGBA(bit_depth),
+                                };
+
+                                let (width, height, _) = texture.dimensions.to_tuple();
+
+                                let result = match image_format {
+                                    ImageFormat::ICO => {
+                                        image::ico::ICOEncoder::new(writer)
+                                            .encode(texture.data.as_slice(), width, height, color_type)
+                                    },
+                                    ImageFormat::JPEG => {
+                                        image::jpeg::JPEGEncoder::new_with_quality(&mut writer, args.quality)
+                                            .encode(texture.data.as_slice(), width, height, color_type)
+                                    },
+                                    ImageFormat::PNG => {
+                                        image::png::PNGEncoder::new(writer)
+                                            .encode(texture.data.as_slice(), width, height, color_type)
+                                    },
+                                    ImageFormat::PPM => {
+                                        image::ppm::PPMEncoder::new(&mut writer)
+                                            .encode(texture.data.as_slice(), width, height, color_type)
+                                    },
+                                    _ => {
+                                        throw!(AssetError::Unimplemented("Unsupported image format"));
+                                    }
+                                };
+
+                                try_throw!(result);
+
+                                return Ok(());
+                            } else { throw!(AssetError::Unimplemented("3D texture exporting to non-Combustion image formats")); }
+                        } else { throw!(AssetError::Unimplemented("Uneven or inapplicable bit depth image exporting to non-Combustion image formats")); }
+                    } else { throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats")); }
+                } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to non-Combustion image formats")); }
             }
         }
 
