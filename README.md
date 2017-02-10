@@ -17,24 +17,9 @@ These are either fully working or in a state in which new features can be easily
 
 This does NOT mean all parts of feature-complete. Off the top of my head, animations need to be incorporated somehow.
 
-- [x] Common utilities
-    - [x] Logging
-    - [x] Error handling
-    - [x] Etc (see `combustion_common` crate)
+- [x] Common utilities (`combustion_common` crate)
 - [x] Engine protocols (`combustion_protocols` crate)
-    - [x] Scenes
-        - [x] Lights
-    - [x] Models
-    - [x] Textures
-        - [x] Uncompressed and Compressed
-    - [x] Materials
-    - [x] All (De)Serializable via Serde
-- [x] Assets (`combustion_asset` crate)
-    - [x] Virtual File System 
-        - [x] Supports any `Read + Seek + Write` stream
-    - [x] Loading and Saving
-        - [x] Models
-        - [x] Textures
+- [x] Asset importing/exporting (`combustion_asset` crate)
 
 #### Points of improvement
 

@@ -1,6 +1,18 @@
 `combustion_asset`
 ------------------
 
-This crate is for all asset loading, creation and editing routines.
+Asset importing, exporting and conversion routines.
 
-While it doesn't create any assets directly, it provides convenience methods for interacting with assets.
+## Features
+
+- [x] Models
+    * Import and export:
+        - [x] Combustion model format
+    * Import only:
+        - [x] External models via Assimp
+- [x] Textures
+    * Import and export:
+        - [x] Combustion texture format
+        - [ ] External images via the `image` crate
+            - [x] import support
+            - [ ] export support
