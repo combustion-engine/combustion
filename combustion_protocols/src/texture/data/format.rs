@@ -158,6 +158,14 @@ impl Which {
             _ => false,
         }
     }
+
+    /// Returns the most appropriate data type for this format
+    pub fn data_type(&self) -> DataType {
+        match *self {
+            Which::None(ref uncompressed) => uncompressed.data_type,
+            _ => DataType::Unspecified,
+        }
+    }
 }
 
 /// Structure to store random properties until it needs to be converted into a `SpecificFormat`
@@ -237,7 +245,8 @@ impl GenericFormat {
 
         Ok(SpecificFormat {
             which: Which::Rgtc(rgtc),
-            srgb: false, //this compression method doesn't support sRGB
+            // this compression method doesn't support sRGB
+            srgb: false,
         })
     }
 
