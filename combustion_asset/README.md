@@ -13,6 +13,6 @@ Asset importing, exporting and conversion routines.
 - [x] Textures
     * Import and export:
         - [x] Combustion texture format
-        - [ ] External images via the `image` crate
+        - [x] External images via the `image` crate
             - [x] import support
-            - [ ] export support
+            - [x] export support
