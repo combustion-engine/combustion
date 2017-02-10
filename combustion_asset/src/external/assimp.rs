@@ -1,10 +1,8 @@
 //! Routines for converting Assimp structures to Combustion structures
 
-use std::sync::Arc;
-
 use nalgebra::Vector3;
 
-use assimp::{self, Named, io as aio};
+use assimp::{self, Named};
 
 use protocols::math::data::Transform;
 use protocols::mesh::data::{Mesh, MeshVertices, Vertices, TexCoord};
@@ -12,9 +10,7 @@ use protocols::model::data::{Model, Node};
 
 use ::error::{AssetResult, AssetError};
 
-use ::vfs::{BoxedVFS, BoxedStream};
-
-fn assimp_mesh_to_mesh<'a>(mesh: assimp::Mesh<'a>) -> AssetResult<Mesh> {
+fn assimp_mesh_to_mesh(mesh: assimp::Mesh) -> AssetResult<Mesh> {
     let vertices = MeshVertices::Discrete({
         let raw_positions = try_throw!(mesh.vertices().ok_or(AssetError::UnsupportedFormat));
 
@@ -40,7 +36,7 @@ fn assimp_mesh_to_mesh<'a>(mesh: assimp::Mesh<'a>) -> AssetResult<Mesh> {
     })
 }
 
-fn assimp_node_to_node<'a>(node: assimp::Node<'a>) -> AssetResult<Node> {
+fn assimp_node_to_node(node: assimp::Node) -> AssetResult<Node> {
     let mut children = Vec::new();
 
     // Convert and collect children if there are any
@@ -64,7 +60,7 @@ fn assimp_node_to_node<'a>(node: assimp::Node<'a>) -> AssetResult<Node> {
 }
 
 /// Converts an Assimp `Scene` into a Combustion `Model`
-pub fn scene_to_model<'a>(scene: assimp::Scene<'a>) -> AssetResult<Model> {
+pub fn scene_to_model(scene: assimp::Scene) -> AssetResult<Model> {
     let raw_meshes = try_throw!(scene.meshes().ok_or(AssetError::UnsupportedFormat));
 
     let mut meshes = Vec::new();
