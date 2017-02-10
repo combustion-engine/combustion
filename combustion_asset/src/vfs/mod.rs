@@ -54,10 +54,7 @@ pub struct OpenOptions {
 pub trait VirtualFS: Debug + Send + Sync + 'static {
     /// Open a read stream
     fn open(&self, path: &Path) -> io::Result<BoxedStream> {
-        self.open_with(path, OpenOptions {
-            read: true,
-            ..Default::default()
-        })
+        self.open_with(path, OpenOptions { read: true, ..Default::default() })
     }
 
     /// Open a read/write stream
