@@ -14,12 +14,6 @@ use ::error::{AssetResult, AssetError};
 
 use ::vfs::{BoxedVFS, BoxedStream};
 
-/// Creates an Assimp `CustomIO` handler that opens files via a `VirtualFS` instance
-pub fn vfs_to_custom_io(vfs: Arc<BoxedVFS>)
-                        -> aio::CustomIO<BoxedStream, aio::CallbackIOHandler<BoxedStream>> {
-    aio::CustomIO::callback(move |path| vfs.open(path))
-}
-
 fn assimp_mesh_to_mesh<'a>(mesh: assimp::Mesh<'a>) -> AssetResult<Mesh> {
     let vertices = MeshVertices::Discrete({
         let raw_positions = try_throw!(mesh.vertices().ok_or(AssetError::UnsupportedFormat));

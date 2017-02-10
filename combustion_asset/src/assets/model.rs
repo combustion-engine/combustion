@@ -89,9 +89,9 @@ impl<'a> Asset<'a> for ModelAsset {
                     return Ok(ModelAsset(model));
                 } else {
                     // Use custom IO for Assimp so it can use the virtual filesystem to interact with data
-                    let mut io = ::external::assimp::vfs_to_custom_io(vfs);
+                    let mut io = assimp::io::CustomIO::callback(move |path| vfs.open(path));
 
-                    let scene: assimp::Scene = try_rethrow!(assimp::Scene::import_from(path, None, &mut io));
+                    let scene = try_rethrow!(assimp::Scene::import_from(path, None, &mut io));
 
                     let model = try_rethrow!(::external::assimp::scene_to_model(scene));
 
@@ -108,7 +108,7 @@ impl<'a> Asset<'a> for ModelAsset {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                let mut writer = try_throw!(vfs.open(path));
+                let mut writer = try_throw!(vfs.open_or_create(path));
 
                 if ext == EXTENSION {
                     let mut message = ::capnp::message::Builder::new_default();
@@ -120,7 +120,6 @@ impl<'a> Asset<'a> for ModelAsset {
                     }
 
                     try_throw!(serialize_packed::write_message(&mut writer, &message));
-
                 } else {
                     throw!(AssetError::Unimplemented("Non-combustion model exporting"));
                 }

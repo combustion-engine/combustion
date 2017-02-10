@@ -161,7 +161,7 @@ impl<'a> Asset<'a> for TextureAsset {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                let mut writer = try_throw!(vfs.open(path));
+                let mut writer = try_throw!(vfs.open_or_create(path));
 
                 if ext == EXTENSION {
                     let mut message = ::capnp::message::Builder::new_default();
@@ -173,8 +173,12 @@ impl<'a> Asset<'a> for TextureAsset {
                     }
 
                     try_throw!(serialize_packed::write_message(&mut writer, &message));
+                } else if !self.has_compressed() {
+                    let image_format = image_format_from_extension(ext.as_str())?;
+
+                    throw!(AssetError::Unimplemented("Non-Combustion image exporting"));
                 } else {
-                    throw!(AssetError::Unimplemented("Non-combustion image exporting"));
+                    throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats"))
                 }
             }
         }
