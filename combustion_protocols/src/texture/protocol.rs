@@ -96,6 +96,22 @@ impl_protocol_enum!(DataType {
     Unspecified           => "Unspecified",
 });
 
+impl DataType {
+    /// If the color data type can be represented with channels of equal bit depth,
+    /// this returns that bit depth. If it cannot, if for example the data type assigns more bits
+    /// to certain channels, `None` is returned.
+    pub fn bit_depth(&self) -> Option<u8> {
+        use self::DataType::*;
+
+        match *self {
+            UnsignedByte | Byte => Some(8),
+            UnsignedShort | Short => Some(16),
+            UnsignedInt | Int => Some(32),
+            _ => None,
+        }
+    }
+}
+
 impl_protocol_enum!(Channels {
     R     => "Red Channel",
     Rg    => "Red-green Channels",
