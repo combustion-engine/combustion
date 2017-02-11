@@ -36,18 +36,18 @@ impl<'a> AssetQuery for ModelAssetQuery<'a> {
 
 /// Arguments for loading models
 #[derive(Default, Clone)]
-pub struct ModelLoadArgs<'a> {
+pub struct ModelAssetLoadArgs<'a> {
     /// Assimp scene cache
     pub scene_cache: Arc<RwLock<AssimpSceneCache<'a>>>,
 }
 
-unsafe impl<'a> Send for ModelLoadArgs<'a> {}
+unsafe impl<'a> Send for ModelAssetLoadArgs<'a> {}
 
-unsafe impl<'a> Sync for ModelLoadArgs<'a> {}
+unsafe impl<'a> Sync for ModelAssetLoadArgs<'a> {}
 
 /// Arguments for model save routines
 #[derive(Debug, Default, Clone)]
-pub struct ModelSaveArgs {
+pub struct ModelAssetSaveArgs {
     /// Arguments for the storage routines
     pub storage_args: storage::ModelSaveArgs,
 }
@@ -56,8 +56,8 @@ pub struct ModelSaveArgs {
 pub struct ModelAsset(Model);
 
 impl<'a> Asset<'a> for ModelAsset {
-    type LoadArgs = ModelLoadArgs<'a>;
-    type SaveArgs = ModelSaveArgs;
+    type LoadArgs = ModelAssetLoadArgs<'a>;
+    type SaveArgs = ModelAssetSaveArgs;
 
     type Query = ModelAssetQuery<'a>;
 
@@ -69,7 +69,7 @@ impl<'a> Asset<'a> for ModelAsset {
         }
     }
 
-    fn load(medium: AssetMedium<'a>, _ /*TODO*/: ModelLoadArgs<'a>) -> AssetResult<ModelAsset> {
+    fn load(medium: AssetMedium<'a>, _ /*TODO*/: ModelAssetLoadArgs<'a>) -> AssetResult<ModelAsset> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
@@ -103,7 +103,7 @@ impl<'a> Asset<'a> for ModelAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save(&self, medium: AssetMedium<'a>, args: ModelSaveArgs) -> AssetResult<()> {
+    fn save(&self, medium: AssetMedium<'a>, args: ModelAssetSaveArgs) -> AssetResult<()> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();

@@ -27,7 +27,7 @@ fn main() {
     // Display debug information for the model
     println!("{:?}", *model);
 
-    model.save(save_medium, model::ModelSaveArgs {
+    model.save(save_medium, model::ModelAssetSaveArgs {
         storage_args: protocols::model::storage::ModelSaveArgs {
             mesh_args: protocols::mesh::storage::MeshSaveArgs {
                 raw: true,
