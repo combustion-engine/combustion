@@ -50,3 +50,4 @@ pub mod structures;
 pub mod log;
 pub mod color;
 pub mod ext;
+pub mod streams;
