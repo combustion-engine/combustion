@@ -10,19 +10,13 @@
 use std::io::prelude::*;
 use std::io;
 use std::path::Path;
+use std::time::SystemTime;
 use std::fmt::Debug;
 
 pub mod default;
+pub mod null;
 
-/// Some type with `Debug + Read + Seek + Write + 'static`
-///
-/// Automatically implemented for types that satisfy those above requirements.
-pub trait Stream: Debug + Read + Seek + Write + 'static {}
-
-impl<T> Stream for T where T: Debug + Read + Seek + Write + 'static {}
-
-/// Simple alias for a `Box<String>` to ease in use
-pub type BoxedStream = Box<Stream>;
+use common::streams::definitions::{Stream, BoxedStream};
 
 /// Options to open a data stream with
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
@@ -42,6 +36,19 @@ pub struct OpenOptions {
     /// Overwrite any existing entry with a new one
     pub create_new: bool,
 }
+
+/// Defines methods for accessing `VirtualFS` entry metadata
+pub trait VirtualMetadata: 'static {
+    /// Returns `true` if the entry is a normal file
+    fn is_file(&self) -> bool;
+    /// Returns `true` if the entry is a directory
+    fn is_dir(&self) -> bool;
+    /// Returns the last modified time
+    fn modified(&self) -> io::Result<SystemTime>;
+}
+
+/// A Boxed `VirtualMetadata` instance
+pub type BoxedMetadata = Box<VirtualMetadata>;
 
 /// Represents a virtual filesystem that can open read/write streams
 ///
@@ -78,6 +85,9 @@ pub trait VirtualFS: Debug + Send + Sync + 'static {
 
     /// Open a stream with the given `OpenOptions`
     fn open_with(&self, path: &Path, options: OpenOptions) -> io::Result<BoxedStream>;
+
+    /// Returns metadata for a specific entry
+    fn metadata(&self, path: &Path) -> io::Result<BoxedMetadata>;
 }
 
 /// A Boxed `VirtualFS` instance
