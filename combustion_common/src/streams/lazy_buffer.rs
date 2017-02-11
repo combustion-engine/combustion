@@ -31,6 +31,20 @@ impl<R: Read> LazyBuffer<R> {
         self.reader
     }
 
+    /// Get reference to underlying reader
+    pub fn get_ref(&self) -> &R {
+        &self.reader
+    }
+
+    /// Get mutable reference to underlying reader
+    ///
+    /// It is **NOT** recommended to `read` from the underlying reader
+    /// while it is inside the `LazyBuffer`. It will cause undefined behavior
+    /// and data loss from the stream.
+    pub fn get_mut(&mut self) -> &mut R {
+        &mut self.reader
+    }
+
     /// Checks if the underlying reader has been fully buffered
     pub fn is_complete(&self) -> bool {
         self.complete
