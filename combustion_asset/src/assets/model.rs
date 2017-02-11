@@ -46,7 +46,7 @@ unsafe impl<'a> Send for ModelLoadArgs<'a> {}
 unsafe impl<'a> Sync for ModelLoadArgs<'a> {}
 
 /// Arguments for model save routines
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct ModelSaveArgs {
     /// Arguments for the storage routines
     pub storage_args: storage::ModelSaveArgs,
@@ -120,6 +120,8 @@ impl<'a> Asset<'a> for ModelAsset {
                     }
 
                     try_throw!(serialize_packed::write_message(&mut writer, &message));
+
+                    return Ok(());
                 } else {
                     throw!(AssetError::Unimplemented("Non-combustion model exporting"));
                 }
