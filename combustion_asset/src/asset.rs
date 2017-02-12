@@ -8,6 +8,18 @@ use common::streams::BoxedStream;
 use ::error::AssetResult;
 use ::vfs::BoxedVFS;
 
+/// Helper trait for formalizing asset file format enums
+pub trait AssetFileFormat {
+    /// Determine file format from extension.
+    ///
+    /// `None` is returned if no format exists for that file extension.
+    fn from_extension(ext: &str) -> Option<Self> where Self: Sized;
+    /// Check if the format can be imported
+    fn can_import(&self) -> bool;
+    /// Check if the format can be exported
+    fn can_export(&self) -> bool;
+}
+
 /// Tells the asset save/load routines where the data is coming from
 #[derive(Debug, Clone)]
 pub enum AssetMedium<'a> {

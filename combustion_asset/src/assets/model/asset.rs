@@ -17,7 +17,7 @@ use assimp::{self, Scene};
 
 use ::cache::AssetHashMapCache;
 use ::error::{AssetResult, AssetError};
-use ::asset::{Asset, AssetMedium, AssetQuery};
+use ::asset::{Asset, AssetMedium, AssetQuery, AssetFileFormat};
 
 use super::formats::ModelFileFormat;
 
