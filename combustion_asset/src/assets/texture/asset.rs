@@ -1,4 +1,4 @@
-//! Texture Asset
+//! Texture asset implementation
 
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
@@ -17,12 +17,14 @@ use protocols::texture::storage::RootTextureQuery;
 use ::error::{AssetResult, AssetError};
 use ::asset::{Asset, AssetMedium, AssetQuery};
 
+use super::formats::image_format_from_extension;
+
 /// Texture Asset
 pub struct TextureAsset(texture::RootTexture);
 
 /// Load arguments for texture assets
 #[derive(Debug, Clone, Copy)]
-pub struct TextureLoadArgs {
+pub struct TextureAssetLoadArgs {
     /// Only allow 2D textures
     pub only2d: bool,
     /// Consider the loaded images as in sRGB color space
@@ -35,15 +37,15 @@ pub struct TextureLoadArgs {
     pub format_hint: Option<ImageFormat>,
 }
 
-impl Default for TextureLoadArgs {
-    fn default() -> TextureLoadArgs {
-        TextureLoadArgs { only2d: false, srgb: false, format_hint: None }
+impl Default for TextureAssetLoadArgs {
+    fn default() -> TextureAssetLoadArgs {
+        TextureAssetLoadArgs { only2d: false, srgb: false, format_hint: None }
     }
 }
 
 /// Save arguments for texture assets
 #[derive(Debug, Clone, Copy)]
-pub struct TextureSaveArgs {
+pub struct TextureAssetSaveArgs {
     /// If a filepath is given, it'll first try to use that for determining the image format.
     ///
     /// If it cannot determine the image format from the path, it will use this hint.
@@ -55,9 +57,9 @@ pub struct TextureSaveArgs {
     pub quality: u8,
 }
 
-impl Default for TextureSaveArgs {
-    fn default() -> TextureSaveArgs {
-        TextureSaveArgs {
+impl Default for TextureAssetSaveArgs {
+    fn default() -> TextureAssetSaveArgs {
+        TextureAssetSaveArgs {
             format_hint: None,
             quality: 95,
         }
@@ -76,26 +78,9 @@ impl<'a> AssetQuery for TextureAssetQuery<'a> {
     type Result = bool;
 }
 
-/// Find an appropriate image format based on file extension
-pub fn image_format_from_extension(ext: &str) -> AssetResult<ImageFormat> {
-    Ok(match ext {
-        "jpg" | "jpeg" => ImageFormat::JPEG,
-        "png" => ImageFormat::PNG,
-        "gif" => ImageFormat::GIF,
-        "webp" => ImageFormat::WEBP,
-        "tif" | "tiff" => ImageFormat::TIFF,
-        "tga" => ImageFormat::TGA,
-        "ppm" => ImageFormat::PPM,
-        "bmp" => ImageFormat::BMP,
-        "ico" => ImageFormat::ICO,
-        "hdr" => ImageFormat::HDR,
-        format => throw!(ImageError::UnsupportedError(format!("Image format image/{:?} is not supported.", format)))
-    })
-}
-
 impl<'a> Asset<'a> for TextureAsset {
-    type LoadArgs = TextureLoadArgs;
-    type SaveArgs = TextureSaveArgs;
+    type LoadArgs = TextureAssetLoadArgs;
+    type SaveArgs = TextureAssetSaveArgs;
 
     type Query = TextureAssetQuery<'a>;
 
@@ -107,7 +92,7 @@ impl<'a> Asset<'a> for TextureAsset {
         })
     }
 
-    fn load(medium: AssetMedium<'a>, args: TextureLoadArgs) -> AssetResult<TextureAsset> {
+    fn load(medium: AssetMedium<'a>, args: TextureAssetLoadArgs) -> AssetResult<TextureAsset> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
@@ -171,7 +156,7 @@ impl<'a> Asset<'a> for TextureAsset {
         throw!(AssetError::UnsupportedMedium)
     }
 
-    fn save(&self, medium: AssetMedium<'a>, args: TextureSaveArgs) -> AssetResult<()> {
+    fn save(&self, medium: AssetMedium<'a>, args: TextureAssetSaveArgs) -> AssetResult<()> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
