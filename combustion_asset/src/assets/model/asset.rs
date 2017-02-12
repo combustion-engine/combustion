@@ -128,7 +128,6 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         return Ok(ModelAsset(model));
                     },
-
                     #[cfg(feature = "bincode")]
                     ModelFileFormat::Bincode => {
                         use bincode::{deserialize_from, SizeLimit};
@@ -200,7 +199,7 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         let mut writer = try_throw!(vfs.create_or_truncate(path));
 
-                        try_throw!(serialize_into(&mut writer, &**self, SizeLimit::Infinite));
+                        try_throw!(serialize_into(&mut writer, self, SizeLimit::Infinite));
 
                         return Ok(());
                     },
@@ -211,9 +210,9 @@ impl<'a> Asset<'a> for ModelAsset {
                         let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         if args.pretty {
-                            try_throw!(to_writer_pretty(&mut writer, &**self));
+                            try_throw!(to_writer_pretty(&mut writer, self));
                         } else {
-                            try_throw!(to_writer(&mut writer, &**self));
+                            try_throw!(to_writer(&mut writer, self));
                         }
 
                         return Ok(());
@@ -224,7 +223,7 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         let mut writer = try_throw!(vfs.create_or_truncate(path));
 
-                        try_throw!(to_writer(&mut writer, &**self));
+                        try_throw!(to_writer(&mut writer, self));
 
                         return Ok(());
                     },
@@ -234,7 +233,7 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         let mut writer = try_throw!(vfs.create_or_truncate(path));
 
-                        try_throw!(to_writer_packed_sd(&mut writer, &**self));
+                        try_throw!(to_writer_packed_sd(&mut writer, self));
 
                         return Ok(());
                     },
