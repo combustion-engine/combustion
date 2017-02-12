@@ -18,8 +18,13 @@ fn main() {
 
     let load_medium = AssetMedium::File(Path::new("examples/uv_test_512.png"), vfs.clone());
     let save_medium = AssetMedium::File(Path::new("examples/uv_test_512_2.png"), vfs.clone());
+    let save_medium2 = AssetMedium::File(Path::new("examples/uv_test_512.json"), vfs.clone());
 
     let texture = texture::TextureAsset::load(load_medium, Default::default()).unwrap();
 
     texture.save(save_medium, Default::default()).unwrap();
+    texture.save(save_medium2, texture::TextureAssetSaveArgs {
+        pretty: true,
+        ..Default::default()
+    }).unwrap();
 }
