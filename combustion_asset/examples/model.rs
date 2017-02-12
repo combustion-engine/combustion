@@ -19,7 +19,7 @@ fn main() {
 
     // Indicate an appropriate asset medium
     let load_medium = AssetMedium::File(Path::new("examples/sphere.dae"), vfs.clone());
-    let save_medium = AssetMedium::File(Path::new("examples/sphere.cbor"), vfs.clone());
+    let save_medium = AssetMedium::File(Path::new("examples/sphere.bc"), vfs.clone());
 
     // Load the model asset
     let model = model::ModelAsset::load(load_medium, Default::default()).unwrap();
