@@ -3,8 +3,10 @@
 use std::path::Path;
 use std::sync::Arc;
 
+use common::streams::BoxedStream;
+
 use ::error::AssetResult;
-use ::vfs::{BoxedVFS, BoxedStream};
+use ::vfs::BoxedVFS;
 
 /// Tells the asset save/load routines where the data is coming from
 #[derive(Debug, Clone)]
