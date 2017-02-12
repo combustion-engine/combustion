@@ -6,12 +6,12 @@ extern crate trace_error;
 extern crate combustion_protocols as protocols;
 extern crate combustion_asset as asset;
 
+use std::path::Path;
+use std::sync::Arc;
+
 use asset::asset::{Asset, AssetMedium};
 use asset::vfs;
 use asset::assets::model;
-
-use std::path::Path;
-use std::sync::Arc;
 
 fn main() {
     // Create the virtual filesystem handle
@@ -19,7 +19,7 @@ fn main() {
 
     // Indicate an appropriate asset medium
     let load_medium = AssetMedium::File(Path::new("examples/sphere.dae"), vfs.clone());
-    let save_medium = AssetMedium::File(Path::new("examples/sphere.cmodel"), vfs.clone());
+    let save_medium = AssetMedium::File(Path::new("examples/sphere.cbor"), vfs.clone());
 
     // Load the model asset
     let model = model::ModelAsset::load(load_medium, Default::default()).unwrap();
@@ -32,6 +32,7 @@ fn main() {
             mesh_args: protocols::mesh::storage::MeshSaveArgs {
                 raw: true,
             }
-        }
+        },
+        pretty: true,
     }).unwrap();
 }
