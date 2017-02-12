@@ -2,7 +2,7 @@
 
 use image::{ImageFormat, ImageError};
 
-use ::error::{AssetResult, AssetError};
+use ::error::AssetResult;
 
 /// Find an appropriate image format based on file extension
 pub fn image_format_from_extension(ext: &str) -> AssetResult<ImageFormat> {

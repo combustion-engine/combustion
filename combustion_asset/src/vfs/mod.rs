@@ -7,7 +7,6 @@
 //! By using this, the asset load/save routines don't care about the underlying structure of the data,
 //! just that the data exists and can be read.
 
-use std::io::prelude::*;
 use std::io;
 use std::path::Path;
 use std::time::SystemTime;
@@ -16,7 +15,7 @@ use std::fmt::Debug;
 pub mod default;
 pub mod null;
 
-use common::streams::definitions::{Stream, BoxedStream};
+use common::streams::definitions::BoxedStream;
 
 /// Options to open a data stream with
 #[derive(Default, Debug, Clone, Copy, PartialEq)]

@@ -6,7 +6,7 @@ use std::time::SystemTime;
 use std::fs;
 use std::ops::Deref;
 
-use common::streams::{Stream, BoxedStream};
+use common::streams::BoxedStream;
 
 use super::{VirtualFS, VirtualMetadata, BoxedMetadata, OpenOptions};
 

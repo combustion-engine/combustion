@@ -3,14 +3,13 @@
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
 use std::sync::{Arc, RwLock};
-use std::io::prelude::*;
 use std::io::BufReader;
 
 use capnp::serialize_packed;
 use capnp::message::ReaderOptions;
 
 use protocols::traits::Storage;
-use protocols::model::{protocol, EXTENSION};
+use protocols::model::protocol;
 use protocols::model::data::Model;
 use protocols::model::storage;
 

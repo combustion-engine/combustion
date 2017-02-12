@@ -7,7 +7,7 @@ use std::io::BufReader;
 use capnp::serialize_packed;
 use capnp::message::ReaderOptions;
 
-use image::{self, DynamicImage, GenericImage, ImageFormat, ImageError};
+use image::{self, DynamicImage, GenericImage, ImageFormat};
 
 use protocols::traits::Storage;
 use protocols::texture::{protocol, EXTENSION};
