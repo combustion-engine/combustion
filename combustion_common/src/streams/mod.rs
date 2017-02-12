@@ -7,4 +7,4 @@ pub mod read_only;
 
 pub use self::definitions::{Stream, BoxedStream};
 pub use self::lazy_buffer::LazyBuffer;
-pub use self::read_only::ReadOnlyStream;
+pub use self::read_only::ReadOnlySink;
