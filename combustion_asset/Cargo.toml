@@ -19,6 +19,10 @@ trace-error = "0.1.3"
 features = ["default", "compat"]
 git = "https://github.com/combustion-engine/assimp-rs"
 
+[dependencies.bincode]
+optional = true
+version = "1.0.0-alpha2"
+
 [dependencies.capnpc]
 git = "https://github.com/combustion-engine/capnpc-rust"
 
@@ -27,6 +31,10 @@ path = "../combustion_common"
 
 [dependencies.combustion_protocols]
 path = "../combustion_protocols"
+
+[dependencies.flate2]
+optional = true
+version = "0.2.17"
 
 [dependencies.image]
 features = ["default", "gif_codec", "jpeg", "ico", "png_codec", "ppm", "tga", "tiff", "webp", "bmp", "hdr"]
@@ -37,3 +45,33 @@ git = "https://github.com/novacrazy/lz4-rs"
 
 [dependencies.nalgebra]
 git = "https://github.com/combustion-engine/nalgebra"
+
+[dependencies.serde_cbor]
+optional = true
+version = "0.5.2"
+
+[dependencies.serde_json]
+optional = true
+version = "0.9.6"
+
+[dependencies.serde_yaml]
+optional = true
+version = "0.6.1"
+
+[dependencies.tar]
+optional = true
+version = "0.4.10"
+
+[dependencies.toml]
+optional = true
+version = "0.3.0"
+
+[dependencies.zip]
+optional = true
+version = "0.2.0"
+
+[features]
+cbor = ["serde_cbor"]
+default = ["tar", "zip", "flate2", "json", "bincode", "cbor", "yaml", "toml"]
+json = ["serde_json"]
+yaml = ["serde_yaml"]

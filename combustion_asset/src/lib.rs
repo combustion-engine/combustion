@@ -26,6 +26,24 @@ extern crate fnv;
 #[macro_use]
 extern crate matches;
 
+#[cfg(feature = "tar")]
+extern crate tar;
+#[cfg(feature = "flate2")]
+extern crate flate2;
+#[cfg(feature = "zip")]
+extern crate zip;
+
+#[cfg(feature = "json")]
+extern crate serde_json as json;
+#[cfg(feature = "yaml")]
+extern crate serde_yaml as yaml;
+#[cfg(feature = "bincode")]
+extern crate bincode;
+#[cfg(feature = "cbor")]
+extern crate serde_cbor as cbor;
+#[cfg(feature = "toml")]
+extern crate toml;
+
 #[macro_use]
 extern crate trace_error;
 
