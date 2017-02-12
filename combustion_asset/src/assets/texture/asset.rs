@@ -10,14 +10,14 @@ use capnp::message::ReaderOptions;
 use image::{self, DynamicImage, GenericImage, ImageFormat};
 
 use protocols::traits::Storage;
-use protocols::texture::{protocol, EXTENSION};
+use protocols::texture::protocol;
 use protocols::texture::data::{texture, format};
 use protocols::texture::storage::RootTextureQuery;
 
 use ::error::{AssetResult, AssetError};
-use ::asset::{Asset, AssetMedium, AssetQuery};
+use ::asset::{Asset, AssetMedium, AssetQuery, AssetFileFormat};
 
-use super::formats::image_format_from_extension;
+use super::formats::TextureFileFormat;
 
 /// Texture Asset
 pub struct TextureAsset(texture::RootTexture);
@@ -87,7 +87,7 @@ impl<'a> Asset<'a> for TextureAsset {
     fn query(query: TextureAssetQuery) -> AssetResult<bool> {
         Ok(match query {
             TextureAssetQuery::SupportedMedium(medium) => {
-                if let AssetMedium::File(_, _) = medium { true } else { false }
+                if let AssetMedium::File(..) = medium { true } else { false }
             },
         })
     }
@@ -97,58 +97,69 @@ impl<'a> Asset<'a> for TextureAsset {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                let mut reader = BufReader::new(try_throw!(vfs.open(path)));
+                let format = match TextureFileFormat::from_extension(ext.as_str()) {
+                    Some(format) if format.can_import() => format,
+                    _ => throw!(AssetError::UnsupportedFormat),
+                };
 
-                if ext == EXTENSION {
-                    let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
-                        traversal_limit_in_words: u64::max_value(),
-                        nesting_limit: 64,
-                    }));
+                match format {
+                    TextureFileFormat::Native => {
+                        let mut reader = BufReader::new(try_throw!(vfs.open(path)));
 
-                    let root_texture_reader = try_throw!(message_reader.get_root::<protocol::root_texture::Reader>());
+                        let message_reader = try_throw!(serialize_packed::read_message(&mut reader, ReaderOptions {
+                            traversal_limit_in_words: u64::max_value(),
+                            nesting_limit: 64,
+                        }));
 
-                    let query_results = try_rethrow!(texture::RootTexture::query_reader(root_texture_reader.borrow()));
+                        let root_texture_reader = try_throw!(message_reader.get_root::<protocol::root_texture::Reader>());
 
-                    if args.only2d && query_results != RootTextureQuery::Single {
-                        throw!(AssetError::InvalidValue);
-                    }
+                        let query_results = try_rethrow!(texture::RootTexture::query_reader(root_texture_reader.borrow()));
 
-                    let root_texture = try_rethrow!(texture::RootTexture::load_from_reader(root_texture_reader));
+                        if args.only2d && query_results != RootTextureQuery::Single {
+                            throw!(AssetError::InvalidValue);
+                        }
 
-                    return Ok(TextureAsset(root_texture));
-                } else {
-                    let image_format = image_format_from_extension(ext.as_str())?;
+                        let root_texture = try_rethrow!(texture::RootTexture::load_from_reader(root_texture_reader));
 
-                    // Load ordinary image into data structures
-                    let image: DynamicImage = try_throw!(image::load(&mut reader, image_format));
+                        return Ok(TextureAsset(root_texture));
+                    },
+                    TextureFileFormat::Image(image_format) => {
+                        let mut reader = BufReader::new(try_throw!(vfs.open(path)));
 
-                    let format = format::SpecificFormat {
-                        which: format::Which::None(format::Uncompressed {
-                            channels: match image {
-                                DynamicImage::ImageLuma8(_) => protocol::Channels::R,
-                                DynamicImage::ImageLumaA8(_) => protocol::Channels::Rg,
-                                DynamicImage::ImageRgb8(_) => protocol::Channels::Rgb,
-                                DynamicImage::ImageRgba8(_) => protocol::Channels::Rgba,
+                        // Load ordinary image into data structures
+                        let image: DynamicImage = try_throw!(image::load(&mut reader, image_format));
+
+                        let format = format::SpecificFormat {
+                            which: format::Which::None(format::Uncompressed {
+                                channels: match image {
+                                    DynamicImage::ImageLuma8(_) => protocol::Channels::R,
+                                    DynamicImage::ImageLumaA8(_) => protocol::Channels::Rg,
+                                    DynamicImage::ImageRgb8(_) => protocol::Channels::Rgb,
+                                    DynamicImage::ImageRgba8(_) => protocol::Channels::Rgba,
+                                },
+                                data_type: protocol::DataType::UnsignedByte,
+                            }),
+                            srgb: args.srgb
+                        };
+
+                        let (width, height) = image.dimensions();
+
+                        let root_texture = texture::RootTexture::Single(box texture::Texture {
+                            data: image.raw_pixels().into(),
+                            dimensions: texture::Dimensions::new(width, height, 0),
+                            kind: {
+                                if (width == 1 || height == 1) && !args.only2d {
+                                    protocol::TextureKind::Texture1D
+                                } else {
+                                    protocol::TextureKind::Texture2D
+                                }
                             },
-                            data_type: protocol::DataType::UnsignedByte,
-                        }),
-                        srgb: args.srgb
-                    };
+                            format: format,
+                        });
 
-                    let (width, height) = image.dimensions();
-
-                    return Ok(TextureAsset(texture::RootTexture::Single(box texture::Texture {
-                        data: image.raw_pixels().into(),
-                        dimensions: texture::Dimensions::new(width, height, 0),
-                        kind: {
-                            if (width == 1 || height == 1) && !args.only2d {
-                                protocol::TextureKind::Texture1D
-                            } else {
-                                protocol::TextureKind::Texture2D
-                            }
-                        },
-                        format: format,
-                    })));
+                        return Ok(TextureAsset(root_texture));
+                    },
+                    _ => unimplemented!()
                 }
             }
         }
@@ -161,65 +172,76 @@ impl<'a> Asset<'a> for TextureAsset {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                let mut writer = try_throw!(vfs.create_or_truncate(path));
+                let format = match TextureFileFormat::from_extension(ext.as_str()) {
+                    Some(format) if format.can_export() => format,
+                    _ => throw!(AssetError::UnsupportedFormat),
+                };
 
-                if ext == EXTENSION {
-                    let mut message = ::capnp::message::Builder::new_default();
+                match format {
+                    TextureFileFormat::Native => {
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
-                    {
-                        let root_texture_builder = message.init_root::<protocol::root_texture::Builder>();
+                        let mut message = ::capnp::message::Builder::new_default();
 
-                        try_rethrow!(self.0.save_to_builder(root_texture_builder));
-                    }
+                        {
+                            let root_texture_builder = message.init_root::<protocol::root_texture::Builder>();
 
-                    try_throw!(serialize_packed::write_message(&mut writer, &message));
+                            try_rethrow!(self.0.save_to_builder(root_texture_builder));
+                        }
 
-                    return Ok(());
-                } else if let texture::RootTexture::Single(ref texture) = **self {
-                    let image_format = image_format_from_extension(ext.as_str())?;
+                        try_throw!(serialize_packed::write_message(&mut writer, &message));
 
-                    if !texture.is_compressed() {
-                        if texture.kind == protocol::TextureKind::Texture2D ||
-                            texture.kind == protocol::TextureKind::Texture1D {
-                            if let Some(bit_depth) = texture.format.which.data_type().bit_depth() {
-                                let color_type = match texture.format.which.channels() {
-                                    protocol::Channels::R => image::ColorType::Gray(bit_depth),
-                                    protocol::Channels::Rg => image::ColorType::GrayA(bit_depth),
-                                    protocol::Channels::Rgb => image::ColorType::RGB(bit_depth),
-                                    protocol::Channels::Rgba => image::ColorType::RGBA(bit_depth),
-                                };
+                        return Ok(());
+                    },
+                    TextureFileFormat::Image(image_format) => {
+                        if let texture::RootTexture::Single(ref texture) = **self {
+                            if !texture.is_compressed() {
+                                if texture.kind == protocol::TextureKind::Texture2D ||
+                                    texture.kind == protocol::TextureKind::Texture1D {
+                                    if let Some(bit_depth) = texture.format.which.data_type().bit_depth() {
+                                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
-                                let (width, height, _) = texture.dimensions.to_tuple();
+                                        let color_type = match texture.format.which.channels() {
+                                            protocol::Channels::R => image::ColorType::Gray(bit_depth),
+                                            protocol::Channels::Rg => image::ColorType::GrayA(bit_depth),
+                                            protocol::Channels::Rgb => image::ColorType::RGB(bit_depth),
+                                            protocol::Channels::Rgba => image::ColorType::RGBA(bit_depth),
+                                        };
 
-                                let result = match image_format {
-                                    ImageFormat::ICO => {
-                                        image::ico::ICOEncoder::new(writer)
-                                            .encode(texture.data.as_slice(), width, height, color_type)
-                                    },
-                                    ImageFormat::JPEG => {
-                                        image::jpeg::JPEGEncoder::new_with_quality(&mut writer, args.quality)
-                                            .encode(texture.data.as_slice(), width, height, color_type)
-                                    },
-                                    ImageFormat::PNG => {
-                                        image::png::PNGEncoder::new(writer)
-                                            .encode(texture.data.as_slice(), width, height, color_type)
-                                    },
-                                    ImageFormat::PPM => {
-                                        image::ppm::PPMEncoder::new(&mut writer)
-                                            .encode(texture.data.as_slice(), width, height, color_type)
-                                    },
-                                    _ => {
-                                        throw!(AssetError::Unimplemented("Unsupported image format"));
-                                    }
-                                };
+                                        let (width, height, _) = texture.dimensions.to_tuple();
 
-                                try_throw!(result);
+                                        let result = match image_format {
+                                            ImageFormat::ICO => {
+                                                image::ico::ICOEncoder::new(writer)
+                                                    .encode(texture.data.as_slice(), width, height, color_type)
+                                            },
+                                            ImageFormat::JPEG => {
+                                                image::jpeg::JPEGEncoder::new_with_quality(&mut writer, args.quality)
+                                                    .encode(texture.data.as_slice(), width, height, color_type)
+                                            },
+                                            ImageFormat::PNG => {
+                                                image::png::PNGEncoder::new(writer)
+                                                    .encode(texture.data.as_slice(), width, height, color_type)
+                                            },
+                                            ImageFormat::PPM => {
+                                                image::ppm::PPMEncoder::new(&mut writer)
+                                                    .encode(texture.data.as_slice(), width, height, color_type)
+                                            },
+                                            _ => {
+                                                throw!(AssetError::Unimplemented("Unsupported image format"));
+                                            }
+                                        };
 
-                                return Ok(());
-                            } else { throw!(AssetError::Unimplemented("3D texture exporting to non-Combustion image formats")); }
-                        } else { throw!(AssetError::Unimplemented("Uneven or inapplicable bit depth image exporting to non-Combustion image formats")); }
-                    } else { throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats")); }
-                } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to non-Combustion image formats")); }
+                                        try_throw!(result);
+
+                                        return Ok(());
+                                    } else { throw!(AssetError::Unimplemented("3D texture exporting to non-Combustion image formats")); }
+                                } else { throw!(AssetError::Unimplemented("Uneven or inapplicable bit depth image exporting to non-Combustion image formats")); }
+                            } else { throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats")); }
+                        } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to non-Combustion image formats")); }
+                    },
+                    _ => unimplemented!()
+                }
             }
         }
 
