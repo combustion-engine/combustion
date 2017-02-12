@@ -83,6 +83,18 @@ pub trait VirtualFS: Debug + Send + Sync + 'static {
         })
     }
 
+    /// Open a read/write stream, crate the entry if one does not exist,
+    /// and truncrate it if it does exist
+    fn create_or_truncate(&self, path: &Path) -> io::Result<BoxedStream> {
+        self.open_with(path, OpenOptions {
+            read: true,
+            write: true,
+            create: true,
+            truncate: true,
+            ..Default::default()
+        })
+    }
+
     /// Open a stream with the given `OpenOptions`
     fn open_with(&self, path: &Path, options: OpenOptions) -> io::Result<BoxedStream>;
 

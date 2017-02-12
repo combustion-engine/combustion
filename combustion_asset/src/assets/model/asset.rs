@@ -174,7 +174,7 @@ impl<'a> Asset<'a> for ModelAsset {
 
                 match format {
                     ModelFileFormat::Native => {
-                        let mut writer = try_throw!(vfs.open_or_create(path));
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         let mut message = ::capnp::message::Builder::new_default();
 
@@ -192,7 +192,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Bincode => {
                         use bincode::{serialize_into, SizeLimit};
 
-                        let mut writer = try_throw!(vfs.open_or_create(path));
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         try_throw!(serialize_into(&mut writer, &**self, SizeLimit::Infinite));
 
@@ -202,7 +202,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Json => {
                         use json::{to_writer, to_writer_pretty};
 
-                        let mut writer = try_throw!(vfs.open_or_create(path));
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         if args.pretty {
                             try_throw!(to_writer_pretty(&mut writer, &**self));
@@ -216,7 +216,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Yaml => {
                         use yaml::to_writer;
 
-                        let mut writer = try_throw!(vfs.open_or_create(path));
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         try_throw!(to_writer(&mut writer, &**self));
 
@@ -226,7 +226,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Cbor => {
                         use cbor::ser::to_writer_packed_sd;
 
-                        let mut writer = try_throw!(vfs.open_or_create(path));
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                         try_throw!(to_writer_packed_sd(&mut writer, &**self));
 

@@ -161,7 +161,7 @@ impl<'a> Asset<'a> for TextureAsset {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
 
-                let mut writer = try_throw!(vfs.open_or_create(path));
+                let mut writer = try_throw!(vfs.create_or_truncate(path));
 
                 if ext == EXTENSION {
                     let mut message = ::capnp::message::Builder::new_default();
