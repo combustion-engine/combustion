@@ -71,19 +71,26 @@ impl<'a> Asset<'a> for ModelAsset {
     type Query = ModelAssetQuery<'a>;
 
     fn query(query: ModelAssetQuery<'a>) -> AssetResult<bool> {
-        match query {
+        Ok(match query {
             ModelAssetQuery::SupportedImportExtension(ext) => {
-                Ok(if let Some(format) = ModelFileFormat::from_extension(ext) {
-                    format.can_import()
-                } else { false })
+                match ModelFileFormat::from_extension(ext) {
+                    Some(format) if format.can_import() => true,
+                    _ => false
+                }
             },
-            ModelAssetQuery::SupportedExportExtension(ext) |
+            ModelAssetQuery::SupportedExportExtension(ext) => {
+                match ModelFileFormat::from_extension(ext) {
+                    Some(format) if format.can_export() => true,
+                    _ => false
+                }
+            }
             ModelAssetQuery::SupportedExtension(ext) => {
-                Ok(if let Some(format) = ModelFileFormat::from_extension(ext) {
-                    format.can_export() && format.can_import()
-                } else { false })
+                match ModelFileFormat::from_extension(ext) {
+                    Some(format) if format.can_import() && format.can_export() => true,
+                    _ => false
+                }
             },
-        }
+        })
     }
 
     fn load(medium: AssetMedium<'a>, _ /*TODO*/: ModelAssetLoadArgs<'a>) -> AssetResult<ModelAsset> {
