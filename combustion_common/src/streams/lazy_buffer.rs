@@ -4,7 +4,7 @@ use std::io::prelude::*;
 use std::io::{self, Cursor, SeekFrom};
 
 use ::num_utils::round_multiple;
-use ::streams::utils::copy_bytes;
+use ::streams::utils::{copy_bytes, copy_bytes_bufsize};
 
 /// The `LazyBuffer` lazily buffers data from a forward-only reader so it can be seek-ed to.
 pub struct LazyBuffer<R: Read> {
@@ -14,6 +14,8 @@ pub struct LazyBuffer<R: Read> {
     complete: bool,
     /// `Read + Write + Seek` buffer
     buffer: Cursor<Vec<u8>>,
+    /// If set to true, the buffer size will be limited to logarithmic growth after 256 bytes
+    limit_buffer: bool,
 }
 
 impl<R: Read> LazyBuffer<R> {
@@ -23,7 +25,41 @@ impl<R: Read> LazyBuffer<R> {
             reader: reader,
             complete: false,
             buffer: Cursor::new(Vec::new()),
+            limit_buffer: false,
         }
+    }
+
+    /// Create a new `LazyBuffer` from a read-only stream,
+    /// and limit the buffer size used for copying data from the reader to the internal buffer.
+    ///
+    /// If buffer limiting is enabled, buffer size is determined as follows:
+    ///
+    /// ```ignore
+    /// const LOGARITHMIC_BUFFER_THRESHOLD: u64 = 1 << 18;
+    ///
+    /// fn bufsize(bytes: u64) -> u64 {
+    ///     if bytes <= LOGARITHMIC_BUFFER_THRESHOLD { bytes } else {
+    ///         let bytes = bytes / LOGARITHMIC_BUFFER_THRESHOLD + 1;
+    ///         ((bytes as f64).log2().ceil() as u64) * LOGARITHMIC_BUFFER_THRESHOLD
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// where `1 << 18` as bytes is 256 KiB
+    ///
+    /// See [Here](https://www.desmos.com/calculator/rzrvxxvov9) for a graph of the behavior.
+    pub fn limit_buffer_new(reader: R) -> LazyBuffer<R> {
+        LazyBuffer {
+            reader: reader,
+            complete: false,
+            buffer: Cursor::new(Vec::new()),
+            limit_buffer: true,
+        }
+    }
+
+    /// Enable or disable buffer limiting
+    pub fn limit_buffer(&mut self, limit_buffer: bool) {
+        self.limit_buffer = limit_buffer;
     }
 
     /// Consumes self and returns the inner reader
@@ -76,6 +112,39 @@ impl<R: Read> Read for LazyBuffer<R> {
     }
 }
 
+mod internal {
+    pub const LOGARITHMIC_BUFFER_THRESHOLD: u64 = 1 << 18;
+
+    pub fn bufsize(bytes: u64) -> u64 {
+        if bytes <= LOGARITHMIC_BUFFER_THRESHOLD { bytes } else {
+            let bytes = bytes / LOGARITHMIC_BUFFER_THRESHOLD + 1;
+            ((bytes as f64).log2().ceil() as u64) * LOGARITHMIC_BUFFER_THRESHOLD
+        }
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::{bufsize, LOGARITHMIC_BUFFER_THRESHOLD};
+
+        #[test]
+        fn test_bufsize() {
+            assert_eq!(bufsize(0), 0);
+            assert_eq!(bufsize(1), 1);
+            assert_eq!(bufsize(2), 2);
+            assert_eq!(bufsize(13), 13);
+            assert_eq!(bufsize(256), 256);
+            assert_eq!(bufsize(263), 263);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD), LOGARITHMIC_BUFFER_THRESHOLD);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD + 1), LOGARITHMIC_BUFFER_THRESHOLD);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD + 1000), LOGARITHMIC_BUFFER_THRESHOLD);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD * 2), LOGARITHMIC_BUFFER_THRESHOLD * 2);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD * 4), LOGARITHMIC_BUFFER_THRESHOLD * 3);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD * 8), LOGARITHMIC_BUFFER_THRESHOLD * 4);
+            assert_eq!(bufsize(LOGARITHMIC_BUFFER_THRESHOLD * 8 + 200), LOGARITHMIC_BUFFER_THRESHOLD * 4);
+        }
+    }
+}
+
 impl<R: Read> Seek for LazyBuffer<R> {
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
         if self.complete {
@@ -95,7 +164,12 @@ impl<R: Read> Seek for LazyBuffer<R> {
 
                         self.buffer.seek(SeekFrom::End(0))?;
 
-                        let copied = copy_bytes(&mut self.reader, &mut self.buffer, bytes as usize)? as u64;
+                        let copied = if self.limit_buffer {
+                            copy_bytes_bufsize(&mut self.reader, &mut self.buffer, bytes as usize,
+                                               internal::bufsize(bytes) as usize)? as u64
+                        } else {
+                            copy_bytes(&mut self.reader, &mut self.buffer, bytes as usize)? as u64
+                        };
 
                         if copied < bytes {
                             // Everything available has been read in
