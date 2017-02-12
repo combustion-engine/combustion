@@ -38,7 +38,7 @@ pub fn copy_bytes<W, R>(mut reader: &mut R, writer: &mut W, bytes: usize) -> io:
             // Take off the bytes read from remaining
             remaining_bytes -= bytes_read;
 
-            // Copy the buffer to the read
+            // Copy the buffer to the writer
             writer.write(&buffer)?;
         } else {
             // We've hit the end of the stream, so return the number of bytes read
