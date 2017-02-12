@@ -19,9 +19,6 @@ use ::asset::{Asset, AssetMedium, AssetQuery, AssetFileFormat};
 
 use super::formats::TextureFileFormat;
 
-/// Texture Asset
-pub struct TextureAsset(texture::RootTexture);
-
 /// Load arguments for texture assets
 #[derive(Debug, Clone, Copy)]
 pub struct TextureAssetLoadArgs {
@@ -55,6 +52,8 @@ pub struct TextureAssetSaveArgs {
     /// For formats with adjustable encoding quality,
     /// set the quality as a value between 1-100 where 1 is the worst and 100 is the best.
     pub quality: u8,
+    /// For serialization formats that support "pretty-printing", pretty-print the data
+    pub pretty: bool,
 }
 
 impl Default for TextureAssetSaveArgs {
@@ -62,6 +61,7 @@ impl Default for TextureAssetSaveArgs {
         TextureAssetSaveArgs {
             format_hint: None,
             quality: 95,
+            pretty: false,
         }
     }
 }
@@ -77,6 +77,10 @@ impl<'a> AssetQuery for TextureAssetQuery<'a> {
     type Arguments = TextureAssetQuery<'a>;
     type Result = bool;
 }
+
+/// Texture Asset
+#[derive(Serialize, Deserialize)]
+pub struct TextureAsset(texture::RootTexture);
 
 impl<'a> Asset<'a> for TextureAsset {
     type LoadArgs = TextureAssetLoadArgs;
@@ -159,7 +163,38 @@ impl<'a> Asset<'a> for TextureAsset {
 
                         return Ok(TextureAsset(root_texture));
                     },
-                    _ => unimplemented!()
+                    #[cfg(feature = "bincode")]
+                    TextureFileFormat::Bincode => {
+                        use bincode::{deserialize_from, SizeLimit};
+
+                        let mut reader = BufReader::new(try_throw!(vfs.open(path)));
+
+                        return Ok(TextureAsset(try_throw!(deserialize_from(&mut reader, SizeLimit::Infinite))));
+                    },
+                    #[cfg(feature = "json")]
+                    TextureFileFormat::Json => {
+                        use json::from_reader;
+
+                        let reader = BufReader::new(try_throw!(vfs.open(path)));
+
+                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
+                    },
+                    #[cfg(feature = "yaml")]
+                    TextureFileFormat::Yaml => {
+                        use yaml::from_reader;
+
+                        let reader = BufReader::new(try_throw!(vfs.open(path)));
+
+                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
+                    },
+                    #[cfg(feature = "cbor")]
+                    TextureFileFormat::Cbor => {
+                        use cbor::from_reader;
+
+                        let reader = BufReader::new(try_throw!(vfs.open(path)));
+
+                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
+                    },
                 }
             }
         }
@@ -196,8 +231,7 @@ impl<'a> Asset<'a> for TextureAsset {
                     TextureFileFormat::Image(image_format) => {
                         if let texture::RootTexture::Single(ref texture) = **self {
                             if !texture.is_compressed() {
-                                if texture.kind == protocol::TextureKind::Texture2D ||
-                                    texture.kind == protocol::TextureKind::Texture1D {
+                                if texture.kind == protocol::TextureKind::Texture2D || texture.kind == protocol::TextureKind::Texture1D {
                                     if let Some(bit_depth) = texture.format.which.data_type().bit_depth() {
                                         let mut writer = try_throw!(vfs.create_or_truncate(path));
 
@@ -235,12 +269,55 @@ impl<'a> Asset<'a> for TextureAsset {
                                         try_throw!(result);
 
                                         return Ok(());
-                                    } else { throw!(AssetError::Unimplemented("3D texture exporting to non-Combustion image formats")); }
-                                } else { throw!(AssetError::Unimplemented("Uneven or inapplicable bit depth image exporting to non-Combustion image formats")); }
-                            } else { throw!(AssetError::Unimplemented("Saving compressed textures to non-Combustion image formats")); }
-                        } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to non-Combustion image formats")); }
+                                    } else { throw!(AssetError::Unimplemented("3D texture exporting to standard image formats")); }
+                                } else { throw!(AssetError::Unimplemented("Uneven or inapplicable bit depth texture exporting to standard image formats")); }
+                            } else { throw!(AssetError::Unimplemented("Saving compressed textures to standard image formats")); }
+                        } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to standard image formats")); }
                     },
-                    _ => unimplemented!()
+                    #[cfg(feature = "bincode")]
+                    TextureFileFormat::Bincode => {
+                        use bincode::{serialize_into, SizeLimit};
+
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
+
+                        try_throw!(serialize_into(&mut writer, self, SizeLimit::Infinite));
+
+                        return Ok(());
+                    },
+                    #[cfg(feature = "json")]
+                    TextureFileFormat::Json => {
+                        use json::{to_writer, to_writer_pretty};
+
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
+
+                        if args.pretty {
+                            try_throw!(to_writer_pretty(&mut writer, self));
+                        } else {
+                            try_throw!(to_writer(&mut writer, self));
+                        }
+
+                        return Ok(());
+                    },
+                    #[cfg(feature = "yaml")]
+                    TextureFileFormat::Yaml => {
+                        use yaml::to_writer;
+
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
+
+                        try_throw!(to_writer(&mut writer, self));
+
+                        return Ok(());
+                    },
+                    #[cfg(feature = "cbor")]
+                    TextureFileFormat::Cbor => {
+                        use cbor::ser::to_writer_packed_sd;
+
+                        let mut writer = try_throw!(vfs.create_or_truncate(path));
+
+                        try_throw!(to_writer_packed_sd(&mut writer, self));
+
+                        return Ok(());
+                    },
                 }
             }
         }
