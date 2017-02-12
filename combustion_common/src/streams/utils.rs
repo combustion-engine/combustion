@@ -17,7 +17,7 @@ pub fn try_read_exact<R: Read>(reader: &mut R, mut buf: &mut [u8]) -> io::Result
                 let tmp = buf;
                 buf = &mut tmp[n..];
             },
-            Err(ref e) if e.kind() == io::ErrorKind::Interrupted => {},
+            Err(ref e) if e.kind() == io::ErrorKind::Interrupted => continue,
             Err(e) => return Err(e),
         }
     }
@@ -37,13 +37,54 @@ pub fn try_read_exact<R: Read>(reader: &mut R, mut buf: &mut [u8]) -> io::Result
 /// until it has enough bytes to be done.
 pub fn copy_bytes<W, R>(mut reader: &mut R, writer: &mut W, bytes: usize) -> io::Result<usize> where W: Write, R: Read {
     // Reuse the same buffer to save on allocations
-    let mut buffer: Vec<u8> = vec![0x0; bytes];
+    let mut buffer = vec![0x0; bytes];
 
     let bytes_read = try_read_exact(&mut reader, &mut buffer)?;
 
     writer.write_all(&buffer[..bytes_read])?;
 
     Ok(bytes_read)
+}
+
+/// Variation of `copy_bytes` that uses a custom buffer size instead
+/// of allocating `bytes` bytes of space for the buffer.
+///
+/// ## Panics
+///
+/// Panics if `bufsize` is zero.
+pub fn copy_bytes_bufsize<W, R>(mut reader: &mut R, writer: &mut W, bytes: usize, bufsize: usize) -> io::Result<usize> where W: Write, R: Read {
+    if bufsize == 0 {
+        panic!("Invalid buffer size");
+    }
+
+    // Get minimum of bytes and bufsize,
+    // so bufsize is always less than or equal to bytes
+    let bufsize = if bytes < bufsize { bytes } else { bufsize };
+
+    let mut remaining_bytes = bytes;
+
+    let mut buffer = vec![0x0; bufsize];
+
+    while remaining_bytes > 0 {
+        // Don't bother trying to read in more than necessary,
+        // so get the minimum amount we should read in
+        let min = if remaining_bytes < bufsize { remaining_bytes } else { bufsize };
+
+        let min_buffer = &mut buffer[..min];
+
+        let bytes_read = try_read_exact(&mut reader, min_buffer)?;
+
+        // End of stream
+        if bytes_read == 0 {
+            break;
+        }
+
+        writer.write_all(min_buffer)?;
+
+        remaining_bytes -= bytes_read;
+    }
+
+    Ok(bytes - remaining_bytes)
 }
 
 #[cfg(test)]
@@ -101,5 +142,16 @@ mod test {
 
         assert_eq!(bytes_copied, 10);
         assert_eq!(reader.get_ref(), writer.get_ref());
+    }
+
+    #[test]
+    fn test_copy_bytes_buf() {
+        let mut reader = Cursor::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        let mut writer = Cursor::new(Vec::new());
+
+        let bytes_copied = copy_bytes_bufsize(&mut reader, &mut writer, 5, 15).unwrap();
+
+        assert_eq!(bytes_copied, 5);
+        assert_eq!(writer.get_ref(), &[1, 2, 3, 4, 5]);
     }
 }
