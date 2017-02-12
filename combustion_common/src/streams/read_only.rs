@@ -2,7 +2,6 @@
 
 use std::io::prelude::*;
 use std::io::{self, SeekFrom};
-use std::ops::{Deref, DerefMut};
 
 /// This defines a stream adapter that adds `Write` capability to a read-only stream.
 ///
@@ -30,20 +29,6 @@ impl<R> ReadOnlySink<R> where R: Seek + Read + 'static {
     /// Unwraps the `ReadOnlySink` and returns the underlying reader.
     pub fn into_inner(self) -> R {
         self.0
-    }
-}
-
-impl<R> Deref for ReadOnlySink<R> where R: Seek + Read + 'static {
-    type Target = R;
-
-    fn deref(&self) -> &R {
-        &self.0
-    }
-}
-
-impl<R> DerefMut for ReadOnlySink<R> where R: Seek + Read + 'static {
-    fn deref_mut(&mut self) -> &mut R {
-        &mut self.0
     }
 }
 
@@ -82,17 +67,5 @@ impl<R> BufRead for ReadOnlySink<R> where R: Seek + Read + BufRead + 'static {
     #[inline(always)]
     fn consume(&mut self, amt: usize) {
         self.0.consume(amt)
-    }
-}
-
-impl<R> AsRef<R> for ReadOnlySink<R> where R: Seek + Read + 'static {
-    fn as_ref(&self) -> &R {
-        self.get_ref()
-    }
-}
-
-impl<R> AsMut<R> for ReadOnlySink<R> where R: Seek + Read + 'static {
-    fn as_mut(&mut self) -> &mut R {
-        self.get_mut()
     }
 }
