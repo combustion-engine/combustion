@@ -1,5 +1,6 @@
 //! All assets which can be loaded and saved
 
+pub mod standard;
 pub mod texture;
 pub mod model;
 
