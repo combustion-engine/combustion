@@ -1,13 +1,24 @@
 Combustion Game Engine
 ----------------------
 
-# WIP
+A game engine written in Rust.
+
+# Motivation
+
+Because it's fun.
+
+No, really. Rust is the most enjoyable language I've ever worked with, and even a massive undertaking
+like a game engine is legitimately *fun* to work on.
+ 
+Of course, I do intend to make a game on top of this eventually, and perhaps place this engine on my resume. 
+
+# Work In Progress Warning
 
 This project is a total mess right now. I've been rewriting and refining everything from the bottom up. This message will be removed whenever things get a bit more stable.
 
 # Roadmap/Todo List
 
-Currently the engine is in the stages of going from "I got things working" to "I got things working in an organized way".
+Currently the engine is in the stages of going from "I got some things working" to "I got things working in an flexible, organized and extensible way".
 
 That is to say, I've been splitting up functionality into crates to simplify each component and to make compiling the engine more incremental.
 
@@ -20,10 +31,6 @@ This does NOT mean all parts of feature-complete. Off the top of my head, animat
 - [x] Common utilities (`combustion_common` crate)
 - [x] Engine protocols (`combustion_protocols` crate)
 - [x] Asset importing/exporting (`combustion_asset` crate)
-
-#### Points of improvement
-
-* Spawn a child process for logging to prevent data loss on crash.
 
 ## TODO
 
