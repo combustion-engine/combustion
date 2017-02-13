@@ -131,7 +131,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Standard(standard_format) => {
                         let reader = BufReader::new(try_throw!(vfs.open(path)));
 
-                        return ::assets::standard::asset::load_standard_format(reader, standard_format);
+                        return ::assets::standard::generic::load_standard_format(reader, standard_format);
                     },
                 }
             }
@@ -169,7 +169,7 @@ impl<'a> Asset<'a> for ModelAsset {
                     ModelFileFormat::Standard(standard_format) => {
                         let writer = try_throw!(vfs.create_or_truncate(path));
 
-                        return ::assets::standard::asset::save_standard_format(writer, standard_format, self, args.pretty);
+                        return ::assets::standard::generic::save_standard_format(writer, standard_format, self, args.pretty);
                     },
                     _ => throw!(AssetError::UnsupportedFormat),
                 }
