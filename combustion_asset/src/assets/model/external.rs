@@ -10,6 +10,25 @@ use protocols::model::data::{Model, Node};
 
 use ::error::{AssetResult, AssetError};
 
+/// Converts an Assimp `Scene` into a Combustion `Model`
+pub fn scene_to_model(scene: assimp::Scene) -> AssetResult<Model> {
+    let raw_meshes = try_throw!(scene.meshes().ok_or(AssetError::UnsupportedFormat));
+
+    let mut meshes = Vec::new();
+
+    for raw_mesh in raw_meshes {
+        meshes.push(assimp_mesh_to_mesh(raw_mesh)?);
+    }
+
+    let root = try_rethrow!(assimp_node_to_node(scene.root()));
+
+    Ok(Model {
+        meshes: meshes,
+        root: root,
+        materials: Vec::new(),
+    })
+}
+
 fn assimp_mesh_to_mesh(mesh: assimp::Mesh) -> AssetResult<Mesh> {
     let vertices = MeshVertices::Discrete({
         let raw_positions = try_throw!(mesh.vertices().ok_or(AssetError::UnsupportedFormat));
@@ -56,24 +75,5 @@ fn assimp_node_to_node(node: assimp::Node) -> AssetResult<Node> {
         // Create a single-element Vec with the converted node transform
         transforms: vec![Transform::Matrix(node.transformation().clone().into())],
         children: children,
-    })
-}
-
-/// Converts an Assimp `Scene` into a Combustion `Model`
-pub fn scene_to_model(scene: assimp::Scene) -> AssetResult<Model> {
-    let raw_meshes = try_throw!(scene.meshes().ok_or(AssetError::UnsupportedFormat));
-
-    let mut meshes = Vec::new();
-
-    for raw_mesh in raw_meshes {
-        meshes.push(assimp_mesh_to_mesh(raw_mesh)?);
-    }
-
-    let root = try_rethrow!(assimp_node_to_node(scene.root()));
-
-    Ok(Model {
-        meshes: meshes,
-        root: root,
-        materials: Vec::new(),
     })
 }

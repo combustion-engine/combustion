@@ -124,7 +124,7 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         let scene = try_rethrow!(assimp::Scene::import_from(path, None, &mut io));
 
-                        let model = try_rethrow!(::external::assimp::scene_to_model(scene));
+                        let model = try_rethrow!(super::external::scene_to_model(scene));
 
                         return Ok(ModelAsset(model));
                     },
