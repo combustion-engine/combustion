@@ -163,38 +163,11 @@ impl<'a> Asset<'a> for TextureAsset {
 
                         return Ok(TextureAsset(root_texture));
                     },
-                    #[cfg(feature = "bincode")]
-                    TextureFileFormat::Bincode => {
-                        use bincode::{deserialize_from, SizeLimit};
-
-                        let mut reader = BufReader::new(try_throw!(vfs.open(path)));
-
-                        return Ok(TextureAsset(try_throw!(deserialize_from(&mut reader, SizeLimit::Infinite))));
-                    },
-                    #[cfg(feature = "json")]
-                    TextureFileFormat::Json => {
-                        use json::from_reader;
-
+                    TextureFileFormat::StandardFormat(standard_format) => {
                         let reader = BufReader::new(try_throw!(vfs.open(path)));
 
-                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
-                    },
-                    #[cfg(feature = "yaml")]
-                    TextureFileFormat::Yaml => {
-                        use yaml::from_reader;
-
-                        let reader = BufReader::new(try_throw!(vfs.open(path)));
-
-                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
-                    },
-                    #[cfg(feature = "cbor")]
-                    TextureFileFormat::Cbor => {
-                        use cbor::from_reader;
-
-                        let reader = BufReader::new(try_throw!(vfs.open(path)));
-
-                        return Ok(TextureAsset(try_throw!(from_reader(reader))));
-                    },
+                        return ::assets::standard::asset::load_standard_format(reader, standard_format);
+                    }
                 }
             }
         }
@@ -274,49 +247,10 @@ impl<'a> Asset<'a> for TextureAsset {
                             } else { throw!(AssetError::Unimplemented("Saving compressed textures to standard image formats")); }
                         } else { throw!(AssetError::Unimplemented("Saving multiple textures or cubemaps to standard image formats")); }
                     },
-                    #[cfg(feature = "bincode")]
-                    TextureFileFormat::Bincode => {
-                        use bincode::{serialize_into, SizeLimit};
+                    TextureFileFormat::StandardFormat(standard_format) => {
+                        let writer = try_throw!(vfs.create_or_truncate(path));
 
-                        let mut writer = try_throw!(vfs.create_or_truncate(path));
-
-                        try_throw!(serialize_into(&mut writer, self, SizeLimit::Infinite));
-
-                        return Ok(());
-                    },
-                    #[cfg(feature = "json")]
-                    TextureFileFormat::Json => {
-                        use json::{to_writer, to_writer_pretty};
-
-                        let mut writer = try_throw!(vfs.create_or_truncate(path));
-
-                        if args.pretty {
-                            try_throw!(to_writer_pretty(&mut writer, self));
-                        } else {
-                            try_throw!(to_writer(&mut writer, self));
-                        }
-
-                        return Ok(());
-                    },
-                    #[cfg(feature = "yaml")]
-                    TextureFileFormat::Yaml => {
-                        use yaml::to_writer;
-
-                        let mut writer = try_throw!(vfs.create_or_truncate(path));
-
-                        try_throw!(to_writer(&mut writer, self));
-
-                        return Ok(());
-                    },
-                    #[cfg(feature = "cbor")]
-                    TextureFileFormat::Cbor => {
-                        use cbor::ser::to_writer_packed_sd;
-
-                        let mut writer = try_throw!(vfs.create_or_truncate(path));
-
-                        try_throw!(to_writer_packed_sd(&mut writer, self));
-
-                        return Ok(());
+                        return ::assets::standard::asset::save_standard_format(writer, standard_format, self, args.pretty);
                     },
                 }
             }

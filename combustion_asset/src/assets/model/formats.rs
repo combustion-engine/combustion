@@ -5,6 +5,7 @@ use assimp;
 use protocols::model::EXTENSION;
 
 use ::asset::AssetFileFormat;
+use ::assets::standard::formats::StandardFileFormat;
 
 /// Supported file formats
 #[derive(Debug, Clone, Copy, PartialEq, Hash, PartialOrd)]
@@ -13,42 +14,34 @@ pub enum ModelFileFormat {
     Native,
     /// Any format supported by Assimp
     Assimp,
-    /// Bincode
-    #[cfg(feature = "bincode")]
-    Bincode,
-    /// JSON
-    #[cfg(feature = "json")] Json,
-    /// YAML
-    #[cfg(feature = "yaml")] Yaml,
-    /// CBOR
-    #[cfg(feature = "cbor")] Cbor,
+    /// Any standard file format
+    Standard(StandardFileFormat)
 }
 
 impl AssetFileFormat for ModelFileFormat {
     fn from_extension(ext: &str) -> Option<ModelFileFormat> {
-        Some(if ext == EXTENSION { ModelFileFormat::Native } else {
-            match ext {
-                #[cfg(feature = "bincode")]
-                "bc" | "bincode" => ModelFileFormat::Bincode,
-                #[cfg(feature = "json")]
-                "json" => ModelFileFormat::Json,
-                #[cfg(feature = "yaml")]
-                "yaml" => ModelFileFormat::Yaml,
-                #[cfg(feature = "cbor")]
-                "cbor" => ModelFileFormat::Cbor,
-                _ if assimp::formats::is_extension_supported(ext) => {
-                    ModelFileFormat::Assimp
-                },
-                _ => { return None; },
-            }
+        Some(if ext == EXTENSION {
+            ModelFileFormat::Native
+        } else if assimp::formats::is_extension_supported(ext) {
+            ModelFileFormat::Assimp
+        } else if let Some(format) = StandardFileFormat::from_extension(ext) {
+            ModelFileFormat::Standard(format)
+        } else {
+            return None;
         })
     }
 
-    fn can_import(&self) -> bool { true }
+    fn can_import(&self) -> bool {
+        match *self {
+            ModelFileFormat::Standard(standard_format) if !standard_format.can_import() => false,
+            _ => true,
+        }
+    }
 
     fn can_export(&self) -> bool {
         match *self {
             ModelFileFormat::Assimp => false,
+            ModelFileFormat::Standard(standard_format) if !standard_format.can_export() => false,
             _ => true,
         }
     }
