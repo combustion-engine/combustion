@@ -77,16 +77,16 @@ impl AssetFileFormat for TextureFileFormat {
 
     fn can_import(&self) -> bool {
         match *self {
-            TextureFileFormat::Image(image_format) if !image_format.can_import() => false,
-            TextureFileFormat::StandardFormat(standard_format) if !standard_format.can_import() => false,
+            TextureFileFormat::Image(image_format) => image_format.can_import(),
+            TextureFileFormat::StandardFormat(standard_format) => standard_format.can_import(),
             _ => true,
         }
     }
 
     fn can_export(&self) -> bool {
         match *self {
-            TextureFileFormat::Image(image_format) if !image_format.can_export() => false,
-            TextureFileFormat::StandardFormat(standard_format) if !standard_format.can_export() => false,
+            TextureFileFormat::Image(image_format) => image_format.can_export(),
+            TextureFileFormat::StandardFormat(standard_format) => standard_format.can_export(),
             _ => true,
         }
     }

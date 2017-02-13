@@ -33,7 +33,7 @@ impl AssetFileFormat for ModelFileFormat {
 
     fn can_import(&self) -> bool {
         match *self {
-            ModelFileFormat::Standard(standard_format) if !standard_format.can_import() => false,
+            ModelFileFormat::Standard(standard_format) => standard_format.can_import(),
             _ => true,
         }
     }
@@ -41,7 +41,7 @@ impl AssetFileFormat for ModelFileFormat {
     fn can_export(&self) -> bool {
         match *self {
             ModelFileFormat::Assimp => false,
-            ModelFileFormat::Standard(standard_format) if !standard_format.can_export() => false,
+            ModelFileFormat::Standard(standard_format) => standard_format.can_export(),
             _ => true,
         }
     }
