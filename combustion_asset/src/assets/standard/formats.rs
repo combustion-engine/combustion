@@ -1,9 +1,5 @@
 //! File formats for standard (de)serializable formats
 
-// Just allow everything if no standard formats are enabled
-#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml")),
-allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
-
 use ::asset::AssetFileFormat;
 
 /// Supported file formats
@@ -16,12 +12,13 @@ pub enum StandardFileFormat {
     #[cfg(feature = "json")] Json,
     /// YAML
     #[cfg(feature = "yaml")] Yaml,
-    // Used when no features are enabled
+    // Avoids errors when no standard formats are enabled
     #[doc(hidden)]
     __Invalid,
 }
 
 impl AssetFileFormat for StandardFileFormat {
+    #[cfg(any(feature = "bincode", feature = "json", feature = "yaml"))]
     fn from_extension(ext: &str) -> Option<StandardFileFormat> {
         Some(match ext {
             #[cfg(feature = "bincode")]
@@ -34,16 +31,18 @@ impl AssetFileFormat for StandardFileFormat {
         })
     }
 
+    // Simple version for when all standard formats are disabled
+    #[cfg(not(any(feature = "bincode", feature = "json", feature = "yaml")))]
+    #[inline(always)]
+    fn from_extension(_: &str) -> Option<StandardFileFormat> { None }
+
+    #[inline(always)]
     fn can_import(&self) -> bool {
-        match *self {
-            StandardFileFormat::__Invalid => false,
-            _ => true,
-        }
+        *self != StandardFileFormat::__Invalid
     }
+
+    #[inline(always)]
     fn can_export(&self) -> bool {
-        match *self {
-            StandardFileFormat::__Invalid => false,
-            _ => true,
-        }
+        *self != StandardFileFormat::__Invalid
     }
 }

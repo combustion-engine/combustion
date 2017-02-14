@@ -1,9 +1,5 @@
 //! Load and Save routines for standard (de)serializable assets
 
-// Just allow everything if no standard formats are enabled
-#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml")),
-allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
-
 use std::io::prelude::*;
 
 use serde::{Serialize, Deserialize};
@@ -14,6 +10,8 @@ use ::asset::Asset;
 use ::assets::standard::formats::StandardFileFormat;
 
 /// Load any `T: Asset` from a standard deserializable format
+#[cfg_attr(not(feature = "bincode"), allow(unused_mut))]
+#[cfg_attr(not(any(feature = "json", feature = "yaml", feature = "bincode")), allow(unused_variables, unreachable_code))]
 pub fn load_standard_format<'a, T: 'a, R>(mut reader: R, format: StandardFileFormat) -> AssetResult<T>
     where R: Read, T: Asset<'a> + Deserialize
 {
@@ -43,6 +41,8 @@ pub fn load_standard_format<'a, T: 'a, R>(mut reader: R, format: StandardFileFor
 }
 
 /// Save any `T: Asset` to a standard serializable format
+#[cfg_attr(not(feature = "json"), allow(unused_variables))]
+#[cfg_attr(not(any(feature = "json", feature = "yaml", feature = "bincode")), allow(unused_mut, unreachable_code))]
 pub fn save_standard_format<'a, T: 'a, W>(mut writer: W, format: StandardFileFormat, asset: &T, pretty: bool) -> AssetResult<()>
     where W: Write, T: Asset<'a> + Serialize
 {
