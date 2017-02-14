@@ -1,7 +1,7 @@
 //! File formats for standard (de)serializable formats
 
 // Just allow everything if no standard formats are enabled
-#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml", feature = "cbor")),
+#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml")),
 allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
 
 use ::asset::AssetFileFormat;
@@ -16,8 +16,6 @@ pub enum StandardFileFormat {
     #[cfg(feature = "json")] Json,
     /// YAML
     #[cfg(feature = "yaml")] Yaml,
-    /// CBOR
-    #[cfg(feature = "cbor")] Cbor,
     // Used when no features are enabled
     #[doc(hidden)]
     __Invalid,
@@ -32,8 +30,6 @@ impl AssetFileFormat for StandardFileFormat {
             "json" => StandardFileFormat::Json,
             #[cfg(feature = "yaml")]
             "yaml" => StandardFileFormat::Yaml,
-            #[cfg(feature = "cbor")]
-            "cbor" => StandardFileFormat::Cbor,
             _ => { return None; },
         })
     }

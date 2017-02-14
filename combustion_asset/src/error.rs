@@ -20,8 +20,6 @@ use json;
 use yaml;
 #[cfg(feature = "bincode")]
 use bincode;
-#[cfg(feature = "cbor")]
-use cbor;
 #[cfg(feature = "toml")]
 use toml;
 
@@ -113,9 +111,6 @@ pub enum AssetError {
     /// YAML errors
     #[cfg(feature = "yaml")]
     YamlError(yaml::Error),
-    /// CBOR errors
-    #[cfg(feature = "cbor")]
-    CBORError(cbor::Error),
     /// Bincode errors
     #[cfg(feature = "bincode")]
     BincodeError(bincode::Error),
@@ -156,8 +151,6 @@ impl Error for AssetError {
             AssetError::JsonError(ref err) => err.description(),
             #[cfg(feature = "yaml")]
             AssetError::YamlError(ref err) => err.description(),
-            #[cfg(feature = "cbor")]
-            AssetError::CBORError(ref err) => err.description(),
             #[cfg(feature = "bincode")]
             AssetError::BincodeError(ref err) => err.description(),
             #[cfg(feature = "toml")]
@@ -254,17 +247,6 @@ impl From<json::Error> for AssetError {
 impl From<yaml::Error> for AssetError {
     fn from(err: yaml::Error) -> AssetError {
         AssetError::YamlError(err)
-    }
-}
-
-#[cfg(feature = "cbor")]
-impl From<cbor::Error> for AssetError {
-    fn from(err: cbor::Error) -> AssetError {
-        match err {
-            cbor::Error::Io(err) => AssetError::Io(err),
-            cbor::Error::FromUtf8(err) => AssetError::FromUtf8Error(err),
-            _ => AssetError::CBORError(err),
-        }
     }
 }
 

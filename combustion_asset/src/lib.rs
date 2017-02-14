@@ -39,8 +39,6 @@ extern crate serde_json as json;
 extern crate serde_yaml as yaml;
 #[cfg(feature = "bincode")]
 extern crate bincode;
-#[cfg(feature = "cbor")]
-extern crate serde_cbor as cbor;
 #[cfg(feature = "toml")]
 extern crate toml;
 
@@ -53,6 +51,5 @@ extern crate combustion_protocols as protocols;
 pub mod error;
 pub mod vfs;
 pub mod asset;
-pub mod external;
 pub mod cache;
 pub mod assets;

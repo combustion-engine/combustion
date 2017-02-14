@@ -1,7 +1,7 @@
 //! Load and Save routines for standard (de)serializable assets
 
 // Just allow everything if no standard formats are enabled
-#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml", feature = "cbor")),
+#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml")),
 allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
 
 use std::io::prelude::*;
@@ -33,12 +33,6 @@ pub fn load_standard_format<'a, T: 'a, R>(mut reader: R, format: StandardFileFor
         #[cfg(feature = "yaml")]
         StandardFileFormat::Yaml => {
             use yaml::from_reader;
-
-            try_throw!(from_reader(reader))
-        },
-        #[cfg(feature = "cbor")]
-        StandardFileFormat::Cbor => {
-            use cbor::from_reader;
 
             try_throw!(from_reader(reader))
         },
@@ -74,12 +68,6 @@ pub fn save_standard_format<'a, T: 'a, W>(mut writer: W, format: StandardFileFor
             use yaml::to_writer;
 
             try_throw!(to_writer(&mut writer, asset));
-        },
-        #[cfg(feature = "cbor")]
-        StandardFileFormat::Cbor => {
-            use cbor::ser::to_writer_packed_sd;
-
-            try_throw!(to_writer_packed_sd(&mut writer, asset));
         },
         _ => throw!(AssetError::UnsupportedFormat),
     }

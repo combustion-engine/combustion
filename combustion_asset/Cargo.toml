@@ -46,10 +46,6 @@ git = "https://github.com/novacrazy/lz4-rs"
 [dependencies.nalgebra]
 git = "https://github.com/combustion-engine/nalgebra"
 
-[dependencies.serde_cbor]
-optional = true
-version = "0.5.2"
-
 [dependencies.serde_json]
 optional = true
 version = "0.9.6"
@@ -72,7 +68,6 @@ version = "0.2.0"
 
 [features]
 default = ["all"]
-all = ["tar", "zip", "flate2", "json", "bincode", "cbor", "yaml", "toml"]
-cbor = ["serde_cbor"]
+all = ["tar", "zip", "flate2", "json", "bincode", "yaml", "toml"]
 json = ["serde_json"]
 yaml = ["serde_yaml"]
