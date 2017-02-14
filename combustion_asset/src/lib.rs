@@ -20,11 +20,13 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate image;
-extern crate assimp;
 extern crate lz4;
 extern crate fnv;
 #[macro_use]
 extern crate matches;
+
+#[cfg(feature = "assimp")]
+extern crate assimp;
 
 #[cfg(feature = "tar")]
 extern crate tar;

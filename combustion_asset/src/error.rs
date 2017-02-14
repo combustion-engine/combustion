@@ -27,6 +27,7 @@ use image::ImageError;
 
 use capnp::Error as CapnpError;
 
+#[cfg(feature = "assimp")]
 use assimp::error::AiError;
 
 use protocols::error::ProtocolError;
@@ -80,6 +81,7 @@ pub enum AssetError {
     /// Image error
     ImageError(ImageError),
     /// Assimp error
+    #[cfg(feature = "assimp")]
     AssimpError(AiError),
     /// I/O error
     Io(io::Error),
@@ -141,6 +143,7 @@ impl Error for AssetError {
             AssetError::Utf8Error(ref err) => err.description(),
             AssetError::FromUtf8Error(ref err) => err.description(),
             AssetError::NulError(ref err) => err.description(),
+            #[cfg(feature = "assimp")]
             AssetError::AssimpError(ref err) => err.description(),
             AssetError::UnsupportedFormat => "Unsupported Format",
             #[cfg(feature = "flate2")]
@@ -208,6 +211,7 @@ impl From<FromUtf8Error> for AssetError {
     }
 }
 
+#[cfg(feature = "assimp")]
 impl From<AiError> for AssetError {
     fn from(err: AiError) -> AssetError {
         match err {

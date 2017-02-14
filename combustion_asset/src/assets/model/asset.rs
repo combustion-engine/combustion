@@ -2,7 +2,6 @@
 
 use std::ops::{Deref, DerefMut};
 use std::ascii::AsciiExt;
-use std::sync::{Arc, RwLock};
 use std::io::BufReader;
 
 use capnp::serialize_packed;
@@ -13,16 +12,10 @@ use protocols::model::protocol;
 use protocols::model::data::Model;
 use protocols::model::storage;
 
-use assimp::{self, Scene};
-
-use ::cache::AssetHashMapCache;
 use ::error::{AssetResult, AssetError};
 use ::asset::{Asset, AssetMedium, AssetQuery, AssetFileFormat};
 
 use super::formats::ModelFileFormat;
-
-/// Cache object for Assimp scenes
-pub type AssimpSceneCache<'a> = AssetHashMapCache<'a, String, Scene<'a>>;
 
 /// Model Asset queries
 #[derive(Debug, Clone, Copy)]
@@ -40,17 +33,6 @@ impl<'a> AssetQuery for ModelAssetQuery<'a> {
     type Result = bool;
 }
 
-/// Arguments for loading models
-#[derive(Default, Clone)]
-pub struct ModelAssetLoadArgs<'a> {
-    /// Assimp scene cache
-    pub scene_cache: Arc<RwLock<AssimpSceneCache<'a>>>,
-}
-
-unsafe impl<'a> Send for ModelAssetLoadArgs<'a> {}
-
-unsafe impl<'a> Sync for ModelAssetLoadArgs<'a> {}
-
 /// Arguments for model save routines
 #[derive(Debug, Default, Clone)]
 pub struct ModelAssetSaveArgs {
@@ -65,7 +47,7 @@ pub struct ModelAssetSaveArgs {
 pub struct ModelAsset(Model);
 
 impl<'a> Asset<'a> for ModelAsset {
-    type LoadArgs = ModelAssetLoadArgs<'a>;
+    type LoadArgs = ();
     type SaveArgs = ModelAssetSaveArgs;
 
     type Query = ModelAssetQuery<'a>;
@@ -93,7 +75,7 @@ impl<'a> Asset<'a> for ModelAsset {
         })
     }
 
-    fn load(medium: AssetMedium<'a>, _ /*TODO*/: ModelAssetLoadArgs<'a>) -> AssetResult<ModelAsset> {
+    fn load(medium: AssetMedium<'a>, _: ()) -> AssetResult<ModelAsset> {
         if let AssetMedium::File(path, vfs) = medium {
             if let Some(ext) = path.extension() {
                 let ext = try_throw!(ext.to_str().ok_or(AssetError::InvalidValue)).to_ascii_lowercase();
@@ -118,11 +100,12 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         return Ok(ModelAsset(model));
                     },
+                    #[cfg(feature = "assimp")]
                     ModelFileFormat::Assimp => {
                         // Use custom IO for Assimp so it can use the virtual filesystem to interact with data
-                        let mut io = assimp::io::CustomIO::callback(move |path| vfs.open(path));
+                        let mut io = ::assimp::io::CustomIO::callback(move |path| vfs.open(path));
 
-                        let scene = try_rethrow!(assimp::Scene::import_from(path, None, &mut io));
+                        let scene = try_rethrow!(::assimp::Scene::import_from(path, None, &mut io));
 
                         let model = try_rethrow!(super::external::assimp::scene_to_model(scene));
 
@@ -171,7 +154,8 @@ impl<'a> Asset<'a> for ModelAsset {
 
                         return ::assets::standard::generic::save_standard_format(writer, standard_format, self, args.pretty);
                     },
-                    _ => throw!(AssetError::UnsupportedFormat),
+                    #[cfg(feature = "assimp")]
+                    ModelFileFormat::Assimp => throw!(AssetError::UnsupportedFormat),
                 }
             }
         }

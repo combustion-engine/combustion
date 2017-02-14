@@ -17,6 +17,7 @@ trace-error = "0.1.3"
 
 [dependencies.assimp]
 features = ["default", "compat"]
+optional = true
 git = "https://github.com/combustion-engine/assimp-rs"
 
 [dependencies.bincode]
@@ -68,6 +69,8 @@ version = "0.2.0"
 
 [features]
 default = ["all"]
-all = ["tar", "zip", "flate2", "json", "bincode", "yaml", "toml"]
+all = ["standard", "bundle", "assimp"]
+bundle = ["tar", "zip", "flate2"]
+standard = ["json", "bincode", "yaml", "toml"]
 json = ["serde_json"]
 yaml = ["serde_yaml"]
