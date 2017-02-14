@@ -119,7 +119,7 @@ impl<'a> Asset<'a> for TextureAsset {
 
                         let query_results = try_rethrow!(texture::RootTexture::query_reader(root_texture_reader.borrow()));
 
-                        if args.only2d && query_results != RootTextureQuery::Single {
+                        if args.only2d && query_results != RootTextureQuery::Texture {
                             throw!(AssetError::InvalidValue);
                         }
 
@@ -148,7 +148,7 @@ impl<'a> Asset<'a> for TextureAsset {
 
                         let (width, height) = image.dimensions();
 
-                        let root_texture = texture::RootTexture::Single(box texture::Texture {
+                        let root_texture = texture::RootTexture::Texture(box texture::Texture {
                             data: image.raw_pixels().into(),
                             dimensions: texture::Dimensions::new(width, height, 0),
                             kind: {
@@ -202,7 +202,7 @@ impl<'a> Asset<'a> for TextureAsset {
                         return Ok(());
                     },
                     TextureFileFormat::Image(image_format) => {
-                        if let texture::RootTexture::Single(ref texture) = **self {
+                        if let texture::RootTexture::Texture(ref texture) = **self {
                             if !texture.is_compressed() {
                                 if texture.kind == protocol::TextureKind::Texture2D || texture.kind == protocol::TextureKind::Texture1D {
                                     if let Some(bit_depth) = texture.format.which.data_type().bit_depth() {
