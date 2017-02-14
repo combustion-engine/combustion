@@ -71,7 +71,8 @@ optional = true
 version = "0.2.0"
 
 [features]
+default = ["all"]
+all = ["tar", "zip", "flate2", "json", "bincode", "cbor", "yaml", "toml"]
 cbor = ["serde_cbor"]
-default = ["tar", "zip", "flate2", "json", "bincode", "cbor", "yaml", "toml"]
 json = ["serde_json"]
 yaml = ["serde_yaml"]
