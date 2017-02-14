@@ -4,14 +4,25 @@ use std::fmt::{Debug, Formatter, Result as FmtResult};
 
 use nalgebra::*;
 
+fn skip_serializing_if_none_or_empty<T>(value: &Option<Vec<T>>) -> bool {
+    match *value {
+        Some(ref seq) => seq.is_empty(),
+        None => true,
+    }
+}
+
 /// Whole mesh with vertices, indices and material indices
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Mesh {
     /// Vertex data
     pub vertices: MeshVertices,
     /// Vertex indices
+    #[serde(skip_serializing_if = "skip_serializing_if_none_or_empty")]
+    #[serde(default)]
     pub indices: Option<Vec<u32>>,
     /// Layered material indices
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     pub materials: Vec<u32>,
 }
 
@@ -26,6 +37,7 @@ impl Debug for Mesh {
 
 /// Enum for different vertex layouts
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum MeshVertices {
     /// Represents vertices as multiple discrete arrays of data.
     ///
@@ -34,6 +46,7 @@ pub enum MeshVertices {
     /// N1, N2, N3, N4...
     /// T1, T2, T3, T4...
     /// ```
+    #[serde(rename = "discrete")]
     Discrete(Vertices),
     /// Represents vertices as interleaved data in a single array.
     ///
@@ -41,6 +54,7 @@ pub enum MeshVertices {
     ///
     /// However, if Normals, TexCoords and so forth are not given, they just waste space, so
     /// perhaps Discrete data streams would be more appropriate
+    #[serde(rename = "interleaved")]
     Interleaved(Vec<Vertex>),
 }
 
@@ -107,8 +121,12 @@ pub struct Vertices {
     /// Vertex positions
     pub positions: Vec<Point3<f32>>,
     /// Optional vertex normals
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub normals: Option<Vec<Vector3<f32>>>,
     /// Optional vertex texture coordinates
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub uvs: Option<Vec<TexCoord>>,
 }
 

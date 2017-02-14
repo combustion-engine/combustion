@@ -2,6 +2,7 @@
 
 pub mod protocol;
 pub mod data;
+pub mod defaults;
 pub mod storage;
 
 /// File extension to Combustion model files

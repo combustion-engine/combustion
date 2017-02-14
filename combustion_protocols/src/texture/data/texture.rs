@@ -7,12 +7,16 @@ use super::format::SpecificFormat;
 
 /// Represents the variations of textures that can be used
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum RootTexture {
     /// Cubemap variant
+    #[serde(rename = "cubemap")]
     Cubemap(Box<Cubemap>),
     /// Single texture variant
-    Single(Box<Texture>),
+    #[serde(rename = "texture")]
+    Texture(Box<Texture>),
     /// Array of textures variant
+    #[serde(rename = "array")]
     Array(Vec<Texture>),
 }
 
@@ -20,7 +24,7 @@ impl RootTexture {
     /// Checks if any textures in `RootTexture` are compressed
     pub fn has_compressed(&self) -> bool {
         match *self {
-            RootTexture::Single(ref texture) => texture.is_compressed(),
+            RootTexture::Texture(ref texture) => texture.is_compressed(),
             RootTexture::Cubemap(ref cubemap) => cubemap.any_compressed(),
             RootTexture::Array(ref array) => array.iter().any(|texture| texture.is_compressed())
         }
@@ -33,8 +37,10 @@ pub struct Dimensions {
     /// Texture width
     pub width: u32,
     /// Texture height
+    #[serde(default)]
     pub height: u32,
     /// Texture depth
+    #[serde(default)]
     pub depth: u32,
 }
 

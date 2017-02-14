@@ -9,6 +9,7 @@ pub use ::texture::protocol::BlockSize;
 /// DXT versions to use with the S3TC algorithm
 ///
 /// See https://en.wikipedia.org/wiki/S3_Texture_Compression for more information on each version
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum DXTVersion {
     /// DXT1 variant
     DXT1 = 1,
@@ -62,21 +63,27 @@ impl Channels {
 }
 
 /// Represents a non-sRGB compression format in symbolic form
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum Which {
     /// Uncompressed raw pixel data
+    #[serde(rename = "none")]
     None(Uncompressed),
 
     /// https://www.opengl.org/wiki/Red_Green_Texture_Compression
+    #[serde(rename = "rgtc")]
     Rgtc(protocol::Rgtc),
 
     /// https://www.opengl.org/wiki/BPTC_Texture_Compression
+    #[serde(rename = "bptc")]
     Bptc(protocol::Bptc),
 
     /// https://www.opengl.org/wiki/S3_Texture_Compression
+    #[serde(rename = "s3tc")]
     S3tc(protocol::S3tc),
 
     /// https://www.opengl.org/wiki/ASTC_Texture_Compression
+    #[serde(rename = "astc")]
     Astc(protocol::BlockSize),
 }
 
@@ -171,7 +178,7 @@ impl Which {
 /// Structure to store random properties until it needs to be converted into a `SpecificFormat`
 ///
 /// Can be used to build up formats
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct GenericFormat {
     /// Channels to be used in this format
     pub channels: Channels,
@@ -295,7 +302,7 @@ impl GenericFormat {
 
 /// Represents a specific compression format in symbolic form. As in, there are no
 /// OpenGL, DirectX or whatever enum values associated with it.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct SpecificFormat {
     /// Which format is used
     pub which: Which,
@@ -330,9 +337,7 @@ impl SpecificFormat {
 
 impl ::std::fmt::Display for SpecificFormat {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        if self.srgb {
-            f.write_str("sRGB ")?;
-        }
+        if self.srgb { f.write_str("sRGB ")?; }
 
         write!(f, "{} compression", self.which)
     }

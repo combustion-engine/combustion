@@ -11,7 +11,7 @@ use super::protocol;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RootTextureQuery {
     /// Single texture variant
-    Single,
+    Texture,
     /// Cubemap variant
     Cubemap,
     /// Array of textures variant
@@ -133,7 +133,7 @@ impl<'a> Storage<'a> for RootTexture {
 
                 let texture = Texture::load_from_reader(texture_reader)?;
 
-                Ok(RootTexture::Single(box texture))
+                Ok(RootTexture::Texture(box texture))
             },
             protocol::root_texture::texture::Cubemap(cubemap_reader) => {
                 let cubemap_reader = try_throw!(cubemap_reader);
@@ -172,7 +172,7 @@ impl<'a> Storage<'a> for RootTexture {
         let texture_union_builder = builder.init_texture();
 
         match *self {
-            RootTexture::Single(ref texture) => {
+            RootTexture::Texture(ref texture) => {
                 texture.save_to_builder(texture_union_builder.init_single())
             },
             RootTexture::Cubemap(ref cubemap) => {
@@ -203,7 +203,7 @@ impl<'a> Storage<'a> for RootTexture {
 
     fn query_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<RootTextureQuery> {
         Ok(match try_throw!(reader.get_texture().which()) {
-            protocol::root_texture::texture::Single(_) => RootTextureQuery::Single,
+            protocol::root_texture::texture::Single(_) => RootTextureQuery::Texture,
             protocol::root_texture::texture::Cubemap(_) => RootTextureQuery::Cubemap,
             protocol::root_texture::texture::Array(_) => RootTextureQuery::Array,
         })
