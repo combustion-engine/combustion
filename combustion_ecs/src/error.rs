@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use common::error::TraceResult;
+use trace_error::TraceResult;
 
 pub type SystemResult<T> = TraceResult<T, SystemError>;
 

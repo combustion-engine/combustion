@@ -6,7 +6,7 @@ extern crate petgraph;
 extern crate fnv;
 
 #[macro_use]
-extern crate combustion_common as common;
+extern crate trace_error;
 
 pub mod error;
 pub mod builder;
