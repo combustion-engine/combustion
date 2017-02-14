@@ -33,6 +33,19 @@ struct VerticesRaw {
     uvs         @2: Util.Option(Data);
 }
 
+enum MeshPrimitive {
+    points          @0;
+    lines           @1;
+    lineStrip       @2;
+    lineLoop        @3;
+    triangles       @4;
+    triangleStrip   @5;
+    triangleFan     @6;
+    quads           @7;
+    quadStrip       @8;
+    polygon         @9;
+}
+
 # The Mesh structure, which defines materials, vertex data and optionally vertex indices.
 struct Mesh {
     # List of materials for the given mesh. Materials are layered in the order given.
@@ -46,5 +59,6 @@ struct Mesh {
         discreteRaw     @5: VerticesRaw;  # Discrete UNSAFE vertex data
     }
 
-    indices @3: Util.Option(List(UInt32));
+    indices     @3: Util.Option(List(UInt32));
+    primitive   @6: MeshPrimitive;
 }

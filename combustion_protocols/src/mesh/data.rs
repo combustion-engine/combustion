@@ -4,6 +4,8 @@ use std::fmt::{Debug, Formatter, Result as FmtResult};
 
 use nalgebra::*;
 
+use super::protocol::MeshPrimitive;
+
 fn skip_serializing_if_none_or_empty<T>(value: &Option<Vec<T>>) -> bool {
     match *value {
         Some(ref seq) => seq.is_empty(),
@@ -24,11 +26,14 @@ pub struct Mesh {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
     pub materials: Vec<u32>,
+    /// Rendering primitive for the mesh
+    pub primitive: MeshPrimitive,
 }
 
 impl Debug for Mesh {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "Mesh {{vertices: {:?}, indices: {:?}, materials: {}}}",
+        write!(f, "Mesh {{{:?} primitive, vertices: {:?}, indices: {:?}, materials: {}}}",
+               self.primitive,
                self.vertices,
                self.indices.as_ref().map(|indices| indices.len()),
                self.materials.len())

@@ -61,6 +61,8 @@ impl<'a> Storage<'a> for Mesh {
             materials.push(material);
         }
 
+        let primitive = try_throw!(reader.get_primitive());
+
         let vertices = match try_throw!(vertices_reader.which()) {
             protocol::mesh::vertices::Interleaved(vertices) => {
                 let vertices = try_throw!(vertices);
@@ -220,6 +222,7 @@ impl<'a> Storage<'a> for Mesh {
             vertices: vertices,
             indices: indices,
             materials: materials,
+            primitive: primitive,
         })
     }
 
@@ -245,6 +248,8 @@ impl<'a> Storage<'a> for Mesh {
                 materials_builder.set(i as u32, *material);
             }
         }
+
+        builder.set_primitive(self.primitive);
 
         {
             let mut vertices_builder = builder.borrow().init_vertices();
