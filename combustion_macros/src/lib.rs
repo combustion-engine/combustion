@@ -18,7 +18,7 @@ pub fn derive_ecs_component(input: TokenStream) -> TokenStream {
     codegen::ecs::derive_component::expand(&ast)
         .expect("Failed to run codegen")
         .parse()
-        .expect("Failed to generate code")
+        .expect("Failed to generate token stream")
 }
 
 #[proc_macro_derive(Named)]
@@ -30,5 +30,5 @@ pub fn derive_named(input: TokenStream) -> TokenStream {
     codegen::named::derive_named::expand(&ast)
         .expect("Failed to run codegen")
         .parse()
-        .expect("Failed to generate code")
+        .expect("Failed to generate token stream")
 }
