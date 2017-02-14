@@ -1,5 +1,9 @@
 //! File formats for standard (de)serializable formats
 
+// Just allow everything if no standard formats are enabled
+#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml", feature = "cbor")),
+allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
+
 use ::asset::AssetFileFormat;
 
 /// Supported file formats

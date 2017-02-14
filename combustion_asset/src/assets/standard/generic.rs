@@ -1,5 +1,9 @@
 //! Load and Save routines for standard (de)serializable assets
 
+// Just allow everything if no standard formats are enabled
+#![cfg_attr(not(any(feature = "bincode", feature = "json", feature = "yaml", feature = "cbor")),
+allow(unused_variables, dead_code, unreachable_code, unused_mut, unreachable_patterns))]
+
 use std::io::prelude::*;
 
 use serde::{Serialize, Deserialize};
