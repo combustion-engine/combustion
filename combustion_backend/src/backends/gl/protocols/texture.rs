@@ -1,6 +1,6 @@
 //! OpenGL specific texture components
-use ::gl::bindings as glb;
-use ::gl::types::*;
+use ::backends::gl::bindings as glb;
+use ::backends::gl::types::*;
 
 use protocols::texture::protocol::{Channels, BlockSize, Bptc, Rgtc, S3tc};
 use protocols::texture::data::format::{Which, GenericFormat, SpecificFormat};

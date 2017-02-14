@@ -20,7 +20,7 @@ pub trait GLObject {
 
 macro_rules! impl_simple_globject {
     ($name:ident, $is:ident $(, { $extra_cond:expr } )*) => {
-        impl $crate::gl::wrapper::GLObject for $name {
+        impl $crate::backends::gl::wrapper::GLObject for $name {
             #[inline(always)]
             fn raw(&self) -> GLuint { self.0 }
 
@@ -31,7 +31,7 @@ macro_rules! impl_simple_globject {
 
             #[inline(always)]
             fn is_valid(&self) -> bool {
-                $($extra_cond(self) ||)* TRUE == unsafe { $crate::gl::bindings::$is(self.0) }
+                $($extra_cond(self) ||)* TRUE == unsafe { $crate::backends::gl::bindings::$is(self.0) }
             }
         }
     }

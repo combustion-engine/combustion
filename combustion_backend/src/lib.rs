@@ -6,6 +6,7 @@
 #![allow(unused_imports, unknown_lints, inline_always)]
 
 extern crate libc;
+
 #[cfg(all(feature = "dx11", target_os = "windows"))]
 extern crate winapi;
 
@@ -31,19 +32,8 @@ extern crate combustion_common as common;
 #[macro_use]
 extern crate combustion_protocols as protocols;
 
+pub mod backends;
+pub mod platform;
+
 pub mod window;
-pub mod traits;
-
-#[cfg(feature = "gl")]
-pub mod gl;
-
-#[cfg(feature = "vulkan")]
-pub mod vulkan;
-
-#[cfg(all(feature = "dx11", target_os = "windows"))]
-pub mod dx11;
-
-#[cfg(target_os = "windows")]
-pub mod win32;
-
 pub mod command;

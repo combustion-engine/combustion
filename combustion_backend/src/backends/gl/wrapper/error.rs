@@ -61,6 +61,7 @@ impl GLError {
     /// Check if there are any errors in the OpenGL error queue
     ///
     /// If check was disabled, this functions returns `Ok(())` immediately
+    #[inline(never)]
     pub fn check() -> GLResult<()> {
         if unsafe { !CHECK_DISABLED.load(Ordering::SeqCst) } {
             //Get last error from OpenGL
@@ -91,11 +92,13 @@ impl GLError {
     ///
     /// The only real reason to do this is to improve performance in very hot loops,
     /// just don't forget to re-enable it and check as soon as possible.
+    #[inline(always)]
     pub unsafe fn disable_check() {
         CHECK_DISABLED.store(true, Ordering::SeqCst);
     }
 
     /// Enable the `check` function, resuming its normal behavior after it had been disabled
+    #[inline(always)]
     pub unsafe fn enable_check() {
         CHECK_DISABLED.store(false, Ordering::SeqCst);
     }
