@@ -10,6 +10,6 @@ struct Option(SomeType) {
 
 # Equivalent to C++ std::pair
 struct Pair(FirstType, SecondType) {
-    first @0: FirstType;
-    second @1: SecondType;
+    first   @0: FirstType;
+    second  @1: SecondType;
 }

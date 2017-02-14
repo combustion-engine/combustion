@@ -10,21 +10,16 @@ struct RootModel {
 }
 
 struct Model {
-    # Root node
-    root @0: Node;
-
-    # List of meshes in the model
-    meshes @1: List(Mesh);
-
-    # List of materials used in this model
-    materials @2: List(Text);
+    root        @0: Node;       # Root node
+    meshes      @1: List(Mesh); # List of meshes in the model
+    materials   @2: List(Text); # List of materials used in this model
 }
 
 struct Node {
-    name @0: Text;
-    meshes @1: List(UInt32);
-    children @2: List(Node);
+    name        @0: Text;
+    meshes      @1: List(UInt32);
+    children    @2: List(Node);
 
     # Transforms to apply to node members, in order
-    transforms @3: List(Math.Transform);
+    transforms  @3: List(Math.Transform);
 }
