@@ -128,7 +128,7 @@ impl<'a> Storage<'a> for RootTexture {
         let which_texture_reader = reader.get_texture();
 
         match try_throw!(which_texture_reader.which()) {
-            protocol::root_texture::texture::Single(texture_reader) => {
+            protocol::root_texture::texture::Texture(texture_reader) => {
                 let texture_reader = try_throw!(texture_reader);
 
                 let texture = Texture::load_from_reader(texture_reader)?;
@@ -173,7 +173,7 @@ impl<'a> Storage<'a> for RootTexture {
 
         match *self {
             RootTexture::Texture(ref texture) => {
-                texture.save_to_builder(texture_union_builder.init_single())
+                texture.save_to_builder(texture_union_builder.init_texture())
             },
             RootTexture::Cubemap(ref cubemap) => {
                 let mut cubemap_builder = texture_union_builder.init_cubemap();
@@ -203,7 +203,7 @@ impl<'a> Storage<'a> for RootTexture {
 
     fn query_reader_args(reader: Self::Reader, _: ()) -> ProtocolResult<RootTextureQuery> {
         Ok(match try_throw!(reader.get_texture().which()) {
-            protocol::root_texture::texture::Single(_) => RootTextureQuery::Texture,
+            protocol::root_texture::texture::Texture(_) => RootTextureQuery::Texture,
             protocol::root_texture::texture::Cubemap(_) => RootTextureQuery::Cubemap,
             protocol::root_texture::texture::Array(_) => RootTextureQuery::Array,
         })

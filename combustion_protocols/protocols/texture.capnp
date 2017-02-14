@@ -17,10 +17,10 @@ enum Bptc {
 
 # https://www.opengl.org/wiki/S3_Texture_Compression
 enum S3tc {
-    rgb1   @0;  # RGB DXT1
-    rgba1  @1;  # RGBA DXT1
-    rgba3  @2;  # RGBA DXT3
-    rgba5  @3;  # RGBA DXT5
+    rgb1   @0; # RGB DXT1
+    rgba1  @1; # RGBA DXT1
+    rgba3  @2; # RGBA DXT3
+    rgba5  @3; # RGBA DXT5
 }
 
 # ASTC Block size
@@ -51,25 +51,25 @@ enum Channels {
 }
 
 enum DataType {
-    unsignedByte @0;            # UNSIGNED_BYTE
-    byte @1;                    # BYTE
-    unsignedShort @2;           # UNSIGNED_SHORT
-    short @3;                   # SHORT
-    unsignedInt @4;             # UNSIGNED_INT
-    int @5;                     # INT
-    float @6;                   # FLOAT
-    unsignedByte332 @7;         # UNSIGNED_BYTE_3_3_2
-    unsignedByte233Rev @8;      # UNSIGNED_BYTE_2_3_3_REV
-    unsignedShort565 @9;        # UNSIGNED_SHORT_5_6_5
-    unsignedShort565Rev @10;    # UNSIGNED_SHORT_5_6_5_REV
-    unsignedShort4444 @11;      # UNSIGNED_SHORT_4_4_4_4
-    unsignedShort4444Rev @12;   # UNSIGNED_SHORT_4_4_4_4_REV
-    unsignedShort5551 @13;      # UNSIGNED_SHORT_5_5_5_1
-    unsignedShort1555Rev @14;   # UNSIGNED_SHORT_1_5_5_5_REV
-    unsignedInt8888 @15;        # UNSIGNED_INT_8_8_8_8
-    unsignedInt8888Rev @16;     # UNSIGNED_INT_8_8_8_8_REV
-    unsignedInt1010102 @17;     # UNSIGNED_INT_10_10_10_2
-    unsignedInt2101010Rev @18;  # UNSIGNED_INT_2_10_10_10_REV
+    unsignedByte            @0;  # UNSIGNED_BYTE
+    byte                    @1;  # BYTE
+    unsignedShort           @2;  # UNSIGNED_SHORT
+    short                   @3;  # SHORT
+    unsignedInt             @4;  # UNSIGNED_INT
+    int                     @5;  # INT
+    float                   @6;  # FLOAT
+    unsignedByte332         @7;  # UNSIGNED_BYTE_3_3_2
+    unsignedByte233Rev      @8;  # UNSIGNED_BYTE_2_3_3_REV
+    unsignedShort565        @9;  # UNSIGNED_SHORT_5_6_5
+    unsignedShort565Rev     @10; # UNSIGNED_SHORT_5_6_5_REV
+    unsignedShort4444       @11; # UNSIGNED_SHORT_4_4_4_4
+    unsignedShort4444Rev    @12; # UNSIGNED_SHORT_4_4_4_4_REV
+    unsignedShort5551       @13; # UNSIGNED_SHORT_5_5_5_1
+    unsignedShort1555Rev    @14; # UNSIGNED_SHORT_1_5_5_5_REV
+    unsignedInt8888         @15; # UNSIGNED_INT_8_8_8_8
+    unsignedInt8888Rev      @16; # UNSIGNED_INT_8_8_8_8_REV
+    unsignedInt1010102      @17; # UNSIGNED_INT_10_10_10_2
+    unsignedInt2101010Rev   @18; # UNSIGNED_INT_2_10_10_10_REV
 
     # No data type given. This will assume `unsignedByte` most likely, depending on the situation
     unspecified @19;
@@ -77,7 +77,7 @@ enum DataType {
 
 struct Uncompressed {
     format @0: Channels;
-    type @1: DataType;
+    type   @1: DataType;
 }
 
 enum TextureKind {
@@ -124,8 +124,8 @@ struct Cubemap {
 
 struct RootTexture {
     texture: union {
-        single @0: Texture;
+        texture @0: Texture;
         cubemap @1: Cubemap;
-        array @2: List(Texture);
+        array   @2: List(Texture);
     }
 }
