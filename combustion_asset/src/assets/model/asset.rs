@@ -105,7 +105,8 @@ impl<'a> Asset<'a> for ModelAsset {
                         // Use custom IO for Assimp so it can use the virtual filesystem to interact with data
                         let mut io = ::assimp::io::CustomIO::callback(move |path| vfs.open(path));
 
-                        let scene = try_rethrow!(::assimp::Scene::import_from(path, None, &mut io));
+                        // Since Assimp only supports Triangles or Polygons, convert everything to triangles for importing
+                        let scene = try_rethrow!(::assimp::Scene::import_from(path, Some(::assimp::postprocess::TRIANGULATE), &mut io));
 
                         let model = try_rethrow!(super::external::assimp::scene_to_model(scene));
 

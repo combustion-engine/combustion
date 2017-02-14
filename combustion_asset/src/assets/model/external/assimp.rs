@@ -5,6 +5,7 @@ use nalgebra::Vector3;
 use assimp::{self, Named};
 
 use protocols::math::data::Transform;
+use protocols::mesh::protocol::MeshPrimitive;
 use protocols::mesh::data::{Mesh, MeshVertices, Vertices, TexCoord};
 use protocols::model::data::{Model, Node};
 
@@ -52,6 +53,7 @@ fn assimp_mesh_to_mesh(mesh: assimp::Mesh) -> AssetResult<Mesh> {
         vertices: vertices,
         indices: indices,
         materials: Vec::new(),
+        primitive: MeshPrimitive::Triangles,
     })
 }
 
