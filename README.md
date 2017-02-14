@@ -26,7 +26,7 @@ That is to say, I've been splitting up functionality into crates to simplify eac
 
 These are either fully working or in a state in which new features can be easily added. Their API is relatively stable. 
 
-This does NOT mean all parts of feature-complete. Off the top of my head, animations need to be incorporated somehow.
+This does NOT mean all parts are feature-complete. Off the top of my head, animations need to be incorporated somehow.
 
 - [x] Common utilities (`combustion_common` crate)
 - [x] Engine protocols (`combustion_protocols` crate)
@@ -47,7 +47,7 @@ Most parts of the engine have been separated into multiple crates for both organ
 All crates beginning with `combustion_` are integral parts of the engine. See each crate's README for specific information.
 
 -----
-## Developing on Windows:
+## Developing on Windows (slightly outdated already):
 
 ##### Dependencies:
 * [MSVC 2015 with C++ components](https://www.visualstudio.com/vs/cplusplus/) (Community Edition should work)
@@ -98,5 +98,8 @@ All crates beginning with `combustion_` are integral parts of the engine. See ea
     1. **TODO**: It's a pain.
     
 ## Developing on Linux
+
+Although I am trying to write things in a platform agnostic manner, 
+I haven't yet had a good chance to work on anything on Linux.
 
 * **TODO**
