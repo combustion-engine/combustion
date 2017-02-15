@@ -1,7 +1,5 @@
 //! Memory mapped buffers as a virtual filesystem
 
-#![allow(missing_docs)]
-
 use std::io;
 use std::fs;
 use std::path::Path;
@@ -13,15 +11,19 @@ use common::streams::{BoxedStream, ReadOnlySink};
 use super::{VirtualFS, BoxedMetadata, OpenOptions};
 use super::default::DefaultMetadata;
 
+/// Read-only memory mapped buffer virtual filesystem
 #[derive(Debug, Clone, Copy)]
 pub struct MmapFS;
 
+// Internal stream representation which holds the Mmap instance and the associated file handle
 #[derive(Debug)]
 struct MmapStream {
     file: fs::File,
     mmap: memmap::Mmap,
 }
 
+// So the MmapStream can be used in an io::Cursor,
+// AsRef is implemented for it which accesses the internal buffer
 impl AsRef<[u8]> for MmapStream {
     fn as_ref(&self) -> &[u8] {
         unsafe { self.mmap.as_slice() }
@@ -30,6 +32,7 @@ impl AsRef<[u8]> for MmapStream {
 
 impl VirtualFS for MmapFS {
     fn open_with(&self, path: &Path, options: OpenOptions) -> io::Result<BoxedStream> {
+        //TODO: Add Write functionality
         if options.write || options.append || options.create || options.create_new {
             return Err(io::Error::new(io::ErrorKind::Other,
                                       "Cannot open write streams for memory mapped files at this time"));
