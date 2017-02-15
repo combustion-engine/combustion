@@ -8,6 +8,7 @@ use std::io::{self, SeekFrom};
 /// It does this by totally ignoring all writes. Try to avoid using it if possible.
 ///
 /// This is loosely modeled after `std::io::Sink`, but with `Read + Seek` capabilities.
+#[derive(Debug)]
 pub struct ReadOnlySink<R>(R) where R: Seek + Read + 'static;
 
 impl<R> ReadOnlySink<R> where R: Seek + Read + 'static {
