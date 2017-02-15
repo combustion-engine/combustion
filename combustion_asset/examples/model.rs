@@ -14,12 +14,13 @@ use asset::vfs;
 use asset::assets::model;
 
 fn main() {
-    // Create the virtual filesystem handle
-    let vfs = Arc::new(box vfs::default::DefaultFS as vfs::BoxedVFS);
+    // Create the virtual filesystem handles
+    let read_vfs = Arc::new(box vfs::mmap::MmapFS as vfs::BoxedVFS);
+    let write_vfs = Arc::new(box vfs::default::DefaultFS as vfs::BoxedVFS);
 
     // Indicate an appropriate asset medium
-    let load_medium = AssetMedium::File(Path::new("examples/sphere.dae"), vfs.clone());
-    let save_medium = AssetMedium::File(Path::new("examples/sphere.bc"), vfs.clone());
+    let load_medium = AssetMedium::File(Path::new("examples/sphere.dae"), read_vfs.clone());
+    let save_medium = AssetMedium::File(Path::new("examples/sphere.bc"), write_vfs.clone());
 
     // Load the model asset
     let model = model::ModelAsset::load(load_medium, Default::default()).unwrap();
