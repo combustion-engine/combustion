@@ -17,8 +17,8 @@ trace-error = "0.1.3"
 
 [dependencies.assimp]
 features = ["default", "compat"]
-optional = true
 git = "https://github.com/combustion-engine/assimp-rs"
+optional = true
 
 [dependencies.bincode]
 optional = true
@@ -44,6 +44,10 @@ version = "0.12.2"
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
 
+[dependencies.memmap]
+optional = true
+version = "0.5.0"
+
 [dependencies.nalgebra]
 git = "https://github.com/combustion-engine/nalgebra"
 
@@ -68,9 +72,10 @@ optional = true
 version = "0.2.0"
 
 [features]
-default = ["all"]
-all = ["standard", "bundle", "assimp"]
+all = ["standard", "bundle", "assimp", "mmap"]
+mmap = ["memmap"]
 bundle = ["tar", "zip", "flate2"]
-standard = ["json", "bincode", "yaml", "toml"]
+default = ["all"]
 json = ["serde_json"]
+standard = ["json", "bincode", "yaml", "toml"]
 yaml = ["serde_yaml"]

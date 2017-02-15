@@ -15,6 +15,9 @@ use std::fmt::Debug;
 pub mod default;
 pub mod null;
 
+#[cfg(feature = "mmap")]
+pub mod mmap;
+
 use common::streams::definitions::BoxedStream;
 
 /// Options to open a data stream with

@@ -1,9 +1,9 @@
 //! Default VFS that just uses the real filesystem on the hard disk.
 
 use std::io;
+use std::fs;
 use std::path::Path;
 use std::time::SystemTime;
-use std::fs;
 use std::ops::Deref;
 
 use common::streams::BoxedStream;

@@ -44,6 +44,9 @@ extern crate bincode;
 #[cfg(feature = "toml")]
 extern crate toml;
 
+#[cfg(feature = "mmap")]
+extern crate memmap;
+
 #[macro_use]
 extern crate trace_error;
 
