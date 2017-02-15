@@ -14,3 +14,7 @@ Asset importing, exporting and conversion routines.
     * Import and export:
         - [x] Combustion texture format
         - [x] External images via the `image` crate
+- [x] Virtual File System support
+    - [x] Standard files
+    - [x] `/dev/null`-like VFS
+    - [x] Read-only memory mapped files
