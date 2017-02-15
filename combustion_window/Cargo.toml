@@ -8,7 +8,7 @@ trace-error = "0.1.4"
 
 [dependencies.glfw]
 optional = true
-git = "https://github.com/novacrazy/glfw-rs"
+version = "0.13.0"
 
 [dependencies.glutin]
 optional = true
