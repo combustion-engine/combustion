@@ -13,3 +13,10 @@ version = "0.13.0"
 [dependencies.glutin]
 optional = true
 version = "0.7.4"
+
+[dependencies.winit]
+optional = true
+version = "0.5.11"
+
+[features]
+default = ["glfw", "glutin", "winit"]

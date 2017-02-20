@@ -8,6 +8,9 @@ use glfw;
 #[cfg(feature = "glutin")]
 use glutin;
 
+#[cfg(feature = "winit")]
+use winit;
+
 #[cfg(feature = "glfw")]
 pub mod glfw_error {
     use std::error::Error;
@@ -99,10 +102,13 @@ pub mod glutin_error {
 #[derive(Debug)]
 pub enum WindowError {
     Io(io::Error),
+    OsError(String),
     #[cfg(feature = "glfw")]
     GlfwError(glfw_error::GlfwError),
     #[cfg(feature = "glutin")]
     GlutinError(glutin_error::GlutinError),
+    #[cfg(feature = "winit")]
+    WinitError(winit::CreationError),
 }
 
 impl Display for WindowError {
@@ -115,10 +121,13 @@ impl Error for WindowError {
     fn description(&self) -> &str {
         match *self {
             WindowError::Io(ref err) => err.description(),
+            WindowError::OsError(ref s) => s.as_str(),
             #[cfg(feature = "glfw")]
             WindowError::GlfwError(ref err) => err.description(),
             #[cfg(feature = "glutin")]
             WindowError::GlutinError(ref err) => err.description(),
+            #[cfg(feature = "winit")]
+            WindowError::WinitError(ref err) => err.description(),
         }
     }
 }
@@ -140,7 +149,10 @@ impl From<glfw::InitError> for WindowError {
 #[cfg(feature = "glutin")]
 impl From<glutin::CreationError> for WindowError {
     fn from(err: glutin::CreationError) -> WindowError {
-        WindowError::GlutinError(err.into())
+        match err {
+            glutin::CreationError::OsError(s) => WindowError::OsError(s),
+            _ => WindowError::GlutinError(err.into())
+        }
     }
 }
 
@@ -150,6 +162,16 @@ impl From<glutin::ContextError> for WindowError {
         match err {
             glutin::ContextError::IoError(err) => WindowError::Io(err),
             _ => WindowError::GlutinError(err.into())
+        }
+    }
+}
+
+#[cfg(feature = "winit")]
+impl From<winit::CreationError> for WindowError {
+    fn from(err: winit::CreationError) -> WindowError {
+        match err {
+            winit::CreationError::OsError(s) => WindowError::OsError(s),
+            _ => WindowError::WinitError(err),
         }
     }
 }
