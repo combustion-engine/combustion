@@ -1,11 +1,11 @@
 #[cfg(feature = "glfw")]
-extern crate glfw;
+pub extern crate glfw;
 
 #[cfg(feature = "glutin")]
-extern crate glutin;
+pub extern crate glutin;
 
 #[cfg(feature = "winit")]
-extern crate winit;
+pub extern crate winit;
 
 pub mod error;
 pub mod provider;

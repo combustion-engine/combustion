@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use winit;
+pub use winit;
 
 use ::error::WindowError;
 use ::provider::{WindowBuilder, WindowProvider};
@@ -45,6 +45,10 @@ impl WindowBuilder for WinitWindowBuilder {
         self.builder
     }
 
+    fn with_raw<F>(self, f: F) -> Self where F: FnOnce(Self::Raw) -> Self::Raw {
+        WinitWindowBuilder { builder: f(self.builder) }
+    }
+
     fn size(self, width: u32, height: u32) -> Self {
         WinitWindowBuilder { builder: self.builder.with_dimensions(width, height) }
     }
@@ -53,7 +57,7 @@ impl WindowBuilder for WinitWindowBuilder {
         WinitWindowBuilder { builder: self.builder.with_title(title) }
     }
 
-    fn create(self) -> Result<Self::Provider, WindowError> {
+    fn build(self) -> Result<Self::Provider, WindowError> {
         let window = self.builder.build()?;
 
         Ok(WinitWindowProvider { window: window })

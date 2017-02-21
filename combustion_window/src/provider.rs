@@ -13,7 +13,9 @@ pub trait WindowBuilder {
     fn from_raw(builder: Self::Raw) -> Self;
     fn into_raw(self) -> Self::Raw;
 
+    fn with_raw<F>(self, F) -> Self where F: FnOnce(Self::Raw) -> Self::Raw;
+
     fn size(self, width: u32, height: u32) -> Self;
     fn title(self, title: &str) -> Self;
-    fn create(self) -> Result<Self::Provider, WindowError>;
+    fn build(self) -> Result<Self::Provider, WindowError>;
 }

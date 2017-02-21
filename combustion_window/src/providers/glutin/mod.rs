@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use glutin;
+pub use glutin;
 
 use ::error::WindowError;
 use ::provider::{WindowBuilder, WindowProvider};
@@ -45,6 +45,10 @@ impl<'a> WindowBuilder for GlutinWindowBuilder<'a> {
         self.builder
     }
 
+    fn with_raw<F>(self, f: F) -> Self where F: FnOnce(Self::Raw) -> Self::Raw {
+        GlutinWindowBuilder { builder: f(self.builder) }
+    }
+
     fn size(self, width: u32, height: u32) -> Self {
         GlutinWindowBuilder { builder: self.builder.with_dimensions(width, height) }
     }
@@ -53,7 +57,7 @@ impl<'a> WindowBuilder for GlutinWindowBuilder<'a> {
         GlutinWindowBuilder { builder: self.builder.with_title(title) }
     }
 
-    fn create(self) -> Result<Self::Provider, WindowError> {
+    fn build(self) -> Result<Self::Provider, WindowError> {
         let window = self.builder.build()?;
 
         Ok(GlutinWindowProvider { window: window })
