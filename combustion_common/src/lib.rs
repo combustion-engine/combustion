@@ -7,7 +7,6 @@
 #![deny(missing_docs)]
 #![allow(unknown_lints, inline_always)]
 
-extern crate regex;
 extern crate vec_map;
 extern crate num_traits;
 #[macro_use]
@@ -42,7 +41,6 @@ extern crate trace_error;
 pub mod traits;
 pub mod macros;
 pub mod compression;
-pub mod preprocessor;
 pub mod num_utils;
 pub mod stopwatch;
 pub mod humanize;
