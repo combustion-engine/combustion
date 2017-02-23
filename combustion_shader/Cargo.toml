@@ -1,0 +1,11 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+name = "combustion_shader"
+version = "0.1.0"
+
+[dependencies]
+nom = "2.1.0"
+trace-error = "0.1.4"
+
+[dependencies.combustion_common]
+path = "../combustion_common"
