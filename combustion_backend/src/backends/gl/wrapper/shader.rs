@@ -7,10 +7,7 @@ use std::ptr;
 use std::ffi::CString;
 use std::io::prelude::*;
 use std::ops::Deref;
-use std::fs::File;
 use std::path::{Path, PathBuf};
-
-use ::common::preprocessor::*;
 
 use super::error::*;
 use super::shader_program::*;
@@ -73,13 +70,6 @@ impl GLShaderBuilder {
     }
 
     #[inline(always)]
-    pub fn file<P: AsRef<Path>>(mut self, path: P) -> GLResult<Self> {
-        try_rethrow!(self.0.load_from_file(path));
-
-        Ok(self)
-    }
-
-    #[inline(always)]
     pub fn compile(mut self) -> GLResult<Self> {
         try_rethrow!(self.0.compile());
 
@@ -95,16 +85,6 @@ impl GLShader {
         let mut shader: GLShader = try_rethrow!(GLShader::new(variant));
 
         try_rethrow!(shader.set_source(source));
-
-        try_rethrow!(shader.compile());
-
-        Ok(shader)
-    }
-
-    pub fn from_file<P: AsRef<Path>>(path: P, variant: GLShaderVariant) -> GLResult<GLShader> {
-        let mut shader: GLShader = try_rethrow!(GLShader::new(variant));
-
-        try_rethrow!(shader.load_from_file(path));
 
         try_rethrow!(shader.compile());
 
@@ -127,16 +107,6 @@ impl GLShader {
         unsafe { ShaderSource(self.0, 1, &source_c.as_ptr(), ptr::null()); }
 
         check_gl_errors!();
-
-        Ok(())
-    }
-
-    pub fn load_from_file<P: AsRef<Path>>(&mut self, path: P) -> GLResult<()> {
-        try_rethrow!(self.check());
-
-        let IncludeResult { source, .. } = try_throw!(include(path));
-
-        try_rethrow!(self.set_source(source.clone()));
 
         Ok(())
     }
