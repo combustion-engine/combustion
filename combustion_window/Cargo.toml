@@ -6,6 +6,9 @@ version = "0.1.0"
 [dependencies]
 trace-error = "0.1.4"
 
+[dependencies.combustion_common]
+path = "../combustion_common"
+
 [dependencies.glfw]
 optional = true
 version = "0.13.0"

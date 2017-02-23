@@ -2,6 +2,10 @@ use std::io;
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+use trace_error::TraceResult;
+
+pub type WindowResult<T> = TraceResult<T, WindowError>;
+
 #[cfg(feature = "glfw")]
 use glfw;
 
