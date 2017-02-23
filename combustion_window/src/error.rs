@@ -130,6 +130,8 @@ pub enum WindowError {
     /// Winit Errors
     #[cfg(feature = "winit")]
     WinitError(winit::CreationError),
+    /// Procedure address not found
+    ProcAddressNotFound,
 }
 
 impl Display for WindowError {
@@ -149,6 +151,7 @@ impl Error for WindowError {
             WindowError::GlutinError(ref err) => err.description(),
             #[cfg(feature = "winit")]
             WindowError::WinitError(ref err) => err.description(),
+            WindowError::ProcAddressNotFound => "Procedure Address Not Found",
         }
     }
 }

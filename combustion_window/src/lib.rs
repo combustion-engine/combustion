@@ -3,6 +3,8 @@
 #![feature(conservative_impl_trait)]
 #![deny(missing_docs)]
 
+extern crate libc;
+
 #[cfg(feature = "glfw")]
 pub extern crate glfw;
 

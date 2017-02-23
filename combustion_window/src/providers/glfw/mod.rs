@@ -2,12 +2,14 @@
 
 use std::sync::{mpsc, Arc};
 
+use libc::c_void;
+
 pub use glfw;
 
 use glfw::{Context, Glfw, WindowHint, WindowMode, OpenGlProfileHint};
 
-use ::error::WindowResult;
-use ::provider::{WindowBuilder, WindowProvider, WindowProviderExt, RenderContext};
+use ::error::{WindowError, WindowResult};
+use ::provider::{WindowBuilder, WindowProvider, WindowProviderExt, RenderContext, GetProcAddressProvider};
 
 /// `WindowProvider` for GLFW windows. It includes the underlying GLFW handle, the window itself,
 /// and the event receiver.
@@ -24,6 +26,18 @@ pub struct GlfwWindowProvider {
     pub window: glfw::Window,
     /// Window event receiver
     pub event_receiver: Arc<mpsc::Receiver<(f64, glfw::WindowEvent)>>,
+}
+
+impl GetProcAddressProvider for GlfwWindowProvider {
+    unsafe fn get_proc_address(&mut self, name: &str) -> WindowResult<*const c_void> {
+        let proc_address = self.window.get_proc_address(name) as *const c_void;
+
+        if proc_address.is_null() {
+            throw!(WindowError::ProcAddressNotFound);
+        } else {
+            Ok(proc_address)
+        }
+    }
 }
 
 impl GlfwWindowProvider {

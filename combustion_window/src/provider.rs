@@ -1,5 +1,7 @@
 //! Traits for defining providers and builders
 
+use libc::c_void;
+
 use ::error::WindowResult;
 
 /// Defines methods for thread-safe render contexts
@@ -10,6 +12,12 @@ pub trait RenderContext {
     fn swap_buffers(&mut self) -> WindowResult<()>;
     /// Check if this context is the currently active context
     fn is_current(&self) -> bool;
+}
+
+/// Defines the `get_proc_address` method
+pub trait GetProcAddressProvider {
+    /// Gets the address of a function, usually an OpenGL call
+    unsafe fn get_proc_address(&mut self, &str) -> WindowResult<*const c_void>;
 }
 
 /// Defines methods for interacting with a window
