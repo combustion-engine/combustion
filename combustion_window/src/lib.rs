@@ -1,3 +1,5 @@
+#![feature(conservative_impl_trait)]
+
 #[cfg(feature = "glfw")]
 pub extern crate glfw;
 
