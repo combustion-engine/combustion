@@ -23,7 +23,13 @@ impl DerefMut for GlutinWindowProvider {
     }
 }
 
-impl WindowProvider for GlutinWindowProvider {}
+impl WindowProvider for GlutinWindowProvider {
+    #[inline(always)]
+    fn show(&self) { self.window.show() }
+
+    #[inline(always)]
+    fn hide(&self) { self.window.hide() }
+}
 
 pub struct GlutinWindowBuilder<'a> {
     builder: glutin::WindowBuilder<'a>,

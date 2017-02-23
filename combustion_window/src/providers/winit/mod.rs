@@ -23,7 +23,13 @@ impl DerefMut for WinitWindowProvider {
     }
 }
 
-impl WindowProvider for WinitWindowProvider {}
+impl WindowProvider for WinitWindowProvider {
+    #[inline(always)]
+    fn show(&self) { self.window.show() }
+
+    #[inline(always)]
+    fn hide(&self) { self.window.hide() }
+}
 
 pub struct WinitWindowBuilder {
     builder: winit::WindowBuilder,
