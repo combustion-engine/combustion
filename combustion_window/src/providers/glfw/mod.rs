@@ -1,3 +1,5 @@
+//! GLFW Window Provider and Builder implementations
+
 use std::sync::{mpsc, Arc};
 
 pub use glfw;
@@ -25,8 +27,17 @@ pub struct GlfwWindowProvider {
 }
 
 impl GlfwWindowProvider {
+    /// Create a `RenderContext` compatible render context for the window
     pub fn render_context(&mut self) -> impl RenderContext {
         self.window.render_context()
+    }
+
+    /// Flush messages to an iterator
+    ///
+    /// Note that modifying the provider while the iterator lifetime is active isn't possible,
+    /// so using `glfw::flush_messages(&*provider.event_receiver)` directly might be required.
+    pub fn flush_messages(&self) -> glfw::FlushedMessages<(f64, glfw::WindowEvent)> {
+        glfw::flush_messages(&*self.event_receiver)
     }
 }
 
