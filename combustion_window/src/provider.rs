@@ -1,3 +1,5 @@
+//! Traits for defining providers and builders
+
 use ::error::WindowResult;
 
 /// Defines methods for thread-safe render contexts
@@ -10,6 +12,7 @@ pub trait RenderContext {
     fn is_current(&self) -> bool;
 }
 
+/// Defines methods for interacting with a window
 pub trait WindowProvider {
     /// Show the window
     fn show(&mut self);

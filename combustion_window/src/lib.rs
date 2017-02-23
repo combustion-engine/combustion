@@ -1,4 +1,7 @@
+//! Window Providers and Builders for the engine
+
 #![feature(conservative_impl_trait)]
+#![deny(missing_docs)]
 
 #[cfg(feature = "glfw")]
 pub extern crate glfw;

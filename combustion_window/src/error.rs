@@ -1,9 +1,12 @@
+//! Error handling
+
 use std::io;
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use trace_error::TraceResult;
 
+/// Traceable result for for `WindowError`s
 pub type WindowResult<T> = TraceResult<T, WindowError>;
 
 #[cfg(feature = "glfw")]
@@ -15,6 +18,7 @@ use glutin;
 #[cfg(feature = "winit")]
 use winit;
 
+/// Glfw errors wrapper
 #[cfg(feature = "glfw")]
 pub mod glfw_error {
     use std::error::Error;
@@ -22,9 +26,12 @@ pub mod glfw_error {
 
     use glfw;
 
+    /// Glfw errors wrapper
     #[derive(Debug)]
     pub enum GlfwError {
+        /// Generic GLFW Error
         GenericError(glfw::Error),
+        /// GLFW Initialization Error
         InitializationError(glfw::InitError),
     }
 
@@ -59,6 +66,7 @@ pub mod glfw_error {
     }
 }
 
+/// Glutin errors wrapper
 #[cfg(feature = "glutin")]
 pub mod glutin_error {
     use std::error::Error;
@@ -66,9 +74,12 @@ pub mod glutin_error {
 
     use glutin::{CreationError, ContextError};
 
+    /// Glutin errors wrapper
     #[derive(Debug)]
     pub enum GlutinError {
+        /// Gluton `CreationError`
         CreationError(CreationError),
+        /// Glutin `ContextError`
         ContextError(ContextError),
     }
 
@@ -103,14 +114,20 @@ pub mod glutin_error {
     }
 }
 
+/// Error kinds that might occur when working with windows
 #[derive(Debug)]
 pub enum WindowError {
+    /// IO Errors
     Io(io::Error),
+    /// OS Errors
     OsError(String),
+    /// GLFW Errors
     #[cfg(feature = "glfw")]
     GlfwError(glfw_error::GlfwError),
+    /// Glutin Errors
     #[cfg(feature = "glutin")]
     GlutinError(glutin_error::GlutinError),
+    /// Winit Errors
     #[cfg(feature = "winit")]
     WinitError(winit::CreationError),
 }

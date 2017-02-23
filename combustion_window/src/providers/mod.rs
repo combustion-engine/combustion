@@ -1,3 +1,5 @@
+//! Cross-platform window providers and window builders
+
 #[cfg(feature = "glfw")]
 pub mod glfw;
 
