@@ -1,6 +1,6 @@
 //! Numeric utilities
 
-use num_traits::Num;
+use num_traits::{Num, Float};
 
 /// Generic min function for any `PartialOrd`
 ///
@@ -53,37 +53,14 @@ pub fn round_multiple<T: Num + Copy>(num: T, multiple: T) -> T {
 /// ```
 pub trait ClampExt {
     /// Clamps the value to `min` and `max` bounds.
-    fn clamp(&self, min: Self, max: Self) -> Self;
+    fn clamp(self, min: Self, max: Self) -> Self;
 }
 
-macro_rules! impl_clamp {
-    ($t:ident) => {
-        impl ClampExt for $t {
-            #[inline]
-            fn clamp(&self, min: Self, max: Self) -> Self {
-                if *self < min { min } else if *self > max { max } else { *self }
-            }
-        }
+impl<T> ClampExt for T where T: PartialOrd {
+    fn clamp(self, min: T, max: T) -> T {
+        if self < min { min } else if self > max { max } else { self }
     }
 }
-
-impl_clamp!(usize);
-impl_clamp!(isize);
-
-impl_clamp!(u8);
-impl_clamp!(i8);
-
-impl_clamp!(u16);
-impl_clamp!(i16);
-
-impl_clamp!(u32);
-impl_clamp!(i32);
-
-impl_clamp!(u64);
-impl_clamp!(i64);
-
-impl_clamp!(f32);
-impl_clamp!(f64);
 
 /// Extension that provides approximate equality comparison for floating point numbers
 ///
@@ -113,26 +90,19 @@ pub trait AlmostEqExt {
     fn almost_eq_fast(&self, b: Self, accuracy: Self) -> bool;
 }
 
-macro_rules! impl_almost_eq_ext {
-    ($t:ident) => {
-        impl AlmostEqExt for $t {
-            fn almost_eq(&self, b: $t, accuracy: $t) -> bool {
-                if self.is_infinite() || b.is_infinite() {
-                    *self == b
-                } else if self.is_nan() && b.is_nan() {
-                    false
-                } else {
-                    (*self - b).abs() < accuracy
-                }
-            }
-
-            #[inline(always)]
-            fn almost_eq_fast(&self, b: $t, accuracy: $t) -> bool {
-                (*self - b).abs() < accuracy
-            }
+impl<T> AlmostEqExt for T where T: Float {
+    fn almost_eq(&self, b: T, accuracy: T) -> bool {
+        if self.is_infinite() || b.is_infinite() {
+            *self == b
+        } else if self.is_nan() && b.is_nan() {
+            false
+        } else {
+            (*self - b).abs() < accuracy
         }
     }
-}
 
-impl_almost_eq_ext!(f32);
-impl_almost_eq_ext!(f64);
+    #[inline(always)]
+    fn almost_eq_fast(&self, b: T, accuracy: T) -> bool {
+        (*self - b).abs() < accuracy
+    }
+}
