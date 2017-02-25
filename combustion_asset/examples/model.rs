@@ -3,14 +3,16 @@
 #[macro_use]
 extern crate trace_error;
 
+extern crate combustion_common as common;
 extern crate combustion_protocols as protocols;
 extern crate combustion_asset as asset;
 
 use std::path::Path;
 use std::sync::Arc;
 
+use common::vfs;
+
 use asset::asset::{Asset, AssetMedium};
-use asset::vfs;
 use asset::assets::model;
 
 fn main() {

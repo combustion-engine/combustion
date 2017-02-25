@@ -4,7 +4,7 @@ use std::io;
 use std::path::Path;
 use std::time::SystemTime;
 
-use common::streams::BoxedStream;
+use ::streams::BoxedStream;
 
 use super::{VirtualFS, VirtualMetadata, BoxedMetadata, OpenOptions};
 

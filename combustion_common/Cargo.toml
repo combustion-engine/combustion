@@ -36,3 +36,11 @@ git = "git://github.com/Ogeon/palette.git"
 
 [dependencies.tinyfiledialogs]
 git = "https://github.com/novacrazy/tinyfiledialogs-rs"
+
+[dependencies.memmap]
+optional = true
+version = "0.5.0"
+
+[features]
+default = ["mmap"]
+mmap = ["memmap"]

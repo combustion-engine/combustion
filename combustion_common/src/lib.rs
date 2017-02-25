@@ -22,6 +22,9 @@ extern crate slog_stream;
 extern crate slog_scope;
 extern crate slog_atomic;
 
+#[cfg(feature = "mmap")]
+extern crate memmap;
+
 extern crate nalgebra;
 extern crate tinyfiledialogs;
 extern crate palette;
@@ -49,3 +52,4 @@ pub mod log;
 pub mod color;
 pub mod ext;
 pub mod streams;
+pub mod vfs;

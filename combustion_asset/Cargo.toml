@@ -28,6 +28,7 @@ version = "1.0.0-alpha2"
 git = "https://github.com/combustion-engine/capnpc-rust"
 
 [dependencies.combustion_common]
+features = ["default", "mmap"]
 path = "../combustion_common"
 
 [dependencies.combustion_protocols]
@@ -43,10 +44,6 @@ version = "0.12.2"
 
 [dependencies.lz4]
 git = "https://github.com/novacrazy/lz4-rs"
-
-[dependencies.memmap]
-optional = true
-version = "0.5.0"
 
 [dependencies.nalgebra]
 git = "https://github.com/combustion-engine/nalgebra"
@@ -72,8 +69,7 @@ optional = true
 version = "0.2.0"
 
 [features]
-all = ["standard", "bundle", "assimp", "mmap"]
-mmap = ["memmap"]
+all = ["standard", "bundle", "assimp"]
 bundle = ["tar", "zip", "flate2"]
 default = ["all"]
 json = ["serde_json"]

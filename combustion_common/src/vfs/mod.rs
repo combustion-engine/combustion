@@ -18,7 +18,7 @@ pub mod null;
 #[cfg(feature = "mmap")]
 pub mod mmap;
 
-use common::streams::definitions::BoxedStream;
+use ::streams::definitions::BoxedStream;
 
 /// Options to open a data stream with
 #[derive(Default, Debug, Clone, Copy, PartialEq)]

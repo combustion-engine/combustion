@@ -3,10 +3,12 @@
 #[macro_use]
 extern crate trace_error;
 
+extern crate combustion_common as common;
 extern crate combustion_asset as asset;
 
+use common::vfs;
+
 use asset::asset::{Asset, AssetMedium};
-use asset::vfs;
 use asset::assets::texture;
 
 use std::path::Path;

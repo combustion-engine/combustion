@@ -6,7 +6,7 @@ use std::path::Path;
 use std::time::SystemTime;
 use std::ops::Deref;
 
-use common::streams::BoxedStream;
+use ::streams::BoxedStream;
 
 use super::{VirtualFS, VirtualMetadata, BoxedMetadata, OpenOptions};
 
@@ -48,10 +48,10 @@ impl VirtualFS for DefaultFS {
             .create(options.create)
             .truncate(options.truncate)
             .create_new(options.create_new)
-            .open(path).map(|file| box file as BoxedStream)
+            .open(path).map(|file| Box::new(file) as BoxedStream)
     }
 
     fn metadata(&self, path: &Path) -> io::Result<BoxedMetadata> {
-        fs::metadata(path).map(|metadata| box DefaultMetadata(metadata) as BoxedMetadata)
+        fs::metadata(path).map(|metadata| Box::new(DefaultMetadata(metadata)) as BoxedMetadata)
     }
 }

@@ -6,7 +6,7 @@ use std::path::Path;
 
 use memmap;
 
-use common::streams::{BoxedStream, ReadOnlySink};
+use ::streams::{BoxedStream, ReadOnlySink};
 
 use super::{VirtualFS, BoxedMetadata, OpenOptions};
 use super::default::DefaultMetadata;
@@ -53,10 +53,10 @@ impl VirtualFS for MmapFS {
             mmap: mmap,
         }));
 
-        Ok(box stream)
+        Ok(Box::new(stream))
     }
 
     fn metadata(&self, path: &Path) -> io::Result<BoxedMetadata> {
-        fs::metadata(path).map(|metadata| box DefaultMetadata(metadata) as BoxedMetadata)
+        fs::metadata(path).map(|metadata| Box::new(DefaultMetadata(metadata)) as BoxedMetadata)
     }
 }

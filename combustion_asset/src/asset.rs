@@ -4,9 +4,9 @@ use std::path::Path;
 use std::sync::Arc;
 
 use common::streams::BoxedStream;
+use common::vfs::BoxedVFS;
 
 use ::error::AssetResult;
-use ::vfs::BoxedVFS;
 
 /// Helper trait for formalizing asset file format enums
 pub trait AssetFileFormat {
