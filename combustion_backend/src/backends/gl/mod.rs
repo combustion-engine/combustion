@@ -4,3 +4,4 @@ pub use self::bindings::types as types;
 
 pub mod wrapper;
 pub mod protocols;
+pub mod traits;
