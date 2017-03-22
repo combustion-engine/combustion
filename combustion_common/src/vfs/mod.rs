@@ -4,7 +4,7 @@
 //! whether they be real files on the hard disk, virtual files within a compressed archive,
 //! or even some network protocol.
 //!
-//! By using this, the asset load/save routines don't care about the underlying structure of the data,
+//! By using this, routines don't care about the underlying structure of the data,
 //! just that the data exists and can be read.
 
 use std::io;
