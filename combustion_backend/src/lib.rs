@@ -19,7 +19,6 @@ extern crate image;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate glfw;
 extern crate void;
 extern crate fnv;
 
