@@ -32,6 +32,5 @@ extern crate combustion_common as common;
 extern crate combustion_protocols as protocols;
 
 pub mod backends;
-pub mod platform;
 
 pub mod command;
