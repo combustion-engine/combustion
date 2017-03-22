@@ -33,7 +33,7 @@ pub enum GLShaderVariant {
     ComputeShader = COMPUTE_SHADER,
     GeometryShader = GEOMETRY_SHADER,
     TessEvaluationShader = TESS_EVALUATION_SHADER,
-    TessControlShader = TESS_CONTROL_SHADER
+    TessControlShader = TESS_CONTROL_SHADER,
 }
 
 /// `GLShaderInfo` represents the types of info that the shader can be queried for
@@ -44,13 +44,13 @@ pub enum GLShaderInfo {
     DeleteStatus = DELETE_STATUS,
     CompileStatus = COMPILE_STATUS,
     InfoLogLength = INFO_LOG_LENGTH,
-    ShaderSourceLength = SHADER_SOURCE_LENGTH
+    ShaderSourceLength = SHADER_SOURCE_LENGTH,
 }
 
 /// `GLShaderString` represents the strings that can be obtained from a shader
 pub enum GLShaderString {
     InfoLog,
-    ShaderSource
+    ShaderSource,
 }
 
 /// `GLShaderBuilder` can be used to chain together

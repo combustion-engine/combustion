@@ -1,6 +1,6 @@
 use super::bindings::types::*;
 use super::bindings::*;
-use super::GLObject;
+use super::{GLObject, GLBindable};
 
 use std::mem;
 use std::ptr;
@@ -15,6 +15,16 @@ pub struct GLRenderbuffer(GLuint);
 
 impl_simple_globject!(GLRenderbuffer, IsRenderbuffer);
 
+impl GLBindable for GLRenderbuffer {
+    fn bind(&self) -> GLResult<()> {
+        unsafe { BindRenderbuffer(RENDERBUFFER, self.0); }
+
+        check_gl_errors!();
+
+        Ok(())
+    }
+}
+
 impl GLRenderbuffer {
     pub fn new() -> GLResult<GLRenderbuffer> {
         let mut buffer: GLuint = 0;
@@ -28,14 +38,6 @@ impl GLRenderbuffer {
         check_gl_errors!();
 
         Ok(GLRenderbuffer(buffer))
-    }
-
-    pub fn bind(&self) -> GLResult<()> {
-        unsafe { BindRenderbuffer(RENDERBUFFER, self.0); }
-
-        check_gl_errors!();
-
-        Ok(())
     }
 
     pub fn set_storage(&mut self, width: usize, height: usize) -> GLResult<()> {

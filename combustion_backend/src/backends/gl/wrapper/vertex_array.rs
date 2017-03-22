@@ -1,6 +1,6 @@
 use super::bindings::types::*;
 use super::bindings::*;
-use super::GLObject;
+use super::{GLObject, GLBindable};
 
 use std::mem;
 use std::ptr;
@@ -18,6 +18,16 @@ lazy_static! {
     pub static ref DEFAULT_VERTEXARRAY: GLVertexArray = GLVertexArray::default();
 }
 
+impl GLBindable for GLVertexArray {
+    fn bind(&self) -> GLResult<()> {
+        unsafe { BindVertexArray(self.0); }
+
+        check_gl_errors!();
+
+        Ok(())
+    }
+}
+
 impl GLVertexArray {
     pub fn default() -> GLVertexArray { GLVertexArray(0) }
 
@@ -33,14 +43,6 @@ impl GLVertexArray {
         check_gl_errors!();
 
         Ok(GLVertexArray(vao))
-    }
-
-    pub fn bind(&self) -> GLResult<()> {
-        unsafe { BindVertexArray(self.0); }
-
-        check_gl_errors!();
-
-        Ok(())
     }
 
     pub fn delete(&mut self) -> GLResult<()> {

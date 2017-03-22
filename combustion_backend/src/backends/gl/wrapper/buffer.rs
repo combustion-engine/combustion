@@ -1,6 +1,6 @@
 use super::bindings::types::*;
 use super::bindings::*;
-use super::GLObject;
+use super::{GLObject, GLBindable};
 
 use std::mem;
 use std::ptr;
@@ -45,6 +45,18 @@ pub struct GLBuffer(GLuint, GLBufferTarget, usize);
 
 impl_simple_globject!(GLBuffer, IsBuffer);
 
+impl GLBindable for GLBuffer {
+    fn bind(&self) -> GLResult<()> {
+        try_rethrow!(self.check());
+
+        unsafe { BindBuffer(self.1 as GLenum, self.0); }
+
+        check_gl_errors!();
+
+        Ok(())
+    }
+}
+
 impl GLBuffer {
     /// Create a new empty OpenGL Buffer and bind it
     pub fn new(target: GLBufferTarget) -> GLResult<GLBuffer> {
@@ -64,16 +76,6 @@ impl GLBuffer {
     /// Returns the buffer target.
     #[inline]
     pub fn target(&self) -> GLBufferTarget { self.1 }
-
-    pub fn bind(&self) -> GLResult<()> {
-        try_rethrow!(self.check());
-
-        unsafe { BindBuffer(self.1 as GLenum, self.0); }
-
-        check_gl_errors!();
-
-        Ok(())
-    }
 
     /// Returns the last number of bytes buffered
     #[inline(always)]

@@ -1,6 +1,6 @@
 use super::bindings::types::*;
 use super::bindings::*;
-use super::GLObject;
+use super::{GLObject, GLBindable};
 
 use std::mem;
 use std::ptr;
@@ -23,6 +23,18 @@ lazy_static! {
     pub static ref DEFAULT_FRAMEBUFFER: GLFramebuffer = GLFramebuffer::default();
 }
 
+impl GLBindable for GLFramebuffer {
+    fn bind(&self) -> GLResult<()> {
+        try_rethrow!(self.check());
+
+        unsafe { BindFramebuffer(FRAMEBUFFER, self.0); }
+
+        check_gl_errors!();
+
+        Ok(())
+    }
+}
+
 impl GLFramebuffer {
     pub fn default() -> GLFramebuffer {
         GLFramebuffer(0)
@@ -40,16 +52,6 @@ impl GLFramebuffer {
         check_gl_errors!();
 
         Ok(GLFramebuffer(framebuffer))
-    }
-
-    pub fn bind(&self) -> GLResult<()> {
-        try_rethrow!(self.check());
-
-        unsafe { BindFramebuffer(FRAMEBUFFER, self.0); }
-
-        check_gl_errors!();
-
-        Ok(())
     }
 
     pub fn is_complete(&self) -> GLResult<bool> {
