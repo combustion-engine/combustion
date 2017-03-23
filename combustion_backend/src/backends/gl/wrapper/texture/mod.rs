@@ -111,7 +111,6 @@ pub struct GLBaseTexture {
     handle: GLuint,
     format: Option<GLenum>,
     internal_format: Option<GLenum>,
-    kind: GLTextureKind,
 }
 
 impl super::GLObject for GLBaseTexture {
@@ -145,8 +144,6 @@ impl GLBaseTexture {
 
         Ok(())
     }
-
-    pub fn kind(&self) -> GLTextureKind { self.kind }
 }
 
 impl Drop for GLBaseTexture {
@@ -156,30 +153,8 @@ impl Drop for GLBaseTexture {
 }
 
 macro_rules! declare_gl_texture {
-    ($name:ident, $kind:ident, $gl_kind:ident) => {
+    ($name:ident, $kind:ident, $dim:ident) => {
         pub struct $name(GLBaseTexture);
-
-        impl Deref for $name {
-            type Target = GLBaseTexture;
-
-            fn deref(&self) -> &GLBaseTexture { &self.0 }
-        }
-
-        impl DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut GLBaseTexture { &mut self.0 }
-        }
-
-        impl $crate::backends::gl::traits::GLBindable for $name {
-            fn bind(&self) -> GLResult<()> {
-                try_rethrow!(self.check());
-
-                unsafe { BindTexture($gl_kind as GLenum, self.raw()); }
-
-                check_gl_errors!();
-
-                Ok(())
-            }
-        }
 
         impl $name {
             pub fn new() -> GLResult<$name> {
@@ -189,7 +164,7 @@ macro_rules! declare_gl_texture {
 
                 check_gl_errors!();
 
-                unsafe { BindTexture($gl_kind as GLenum, texture); }
+                unsafe { BindTexture(GLTextureKind::$kind as GLenum, texture); }
 
                 check_gl_errors!();
 
@@ -197,8 +172,31 @@ macro_rules! declare_gl_texture {
                     handle: texture,
                     format: None,
                     internal_format: None,
-                    kind: GLTextureKind::$kind,
                 }))
+            }
+        }
+
+        impl Deref for $name {
+            type Target = GLBaseTexture;
+
+            #[inline(always)]
+            fn deref(&self) -> &GLBaseTexture { &self.0 }
+        }
+
+        impl DerefMut for $name {
+            #[inline(always)]
+            fn deref_mut(&mut self) -> &mut GLBaseTexture { &mut self.0 }
+        }
+
+        impl $crate::backends::gl::traits::GLBindable for $name {
+            fn bind(&self) -> GLResult<()> {
+                try_rethrow!(self.check());
+
+                unsafe { BindTexture(GLTextureKind::$kind as GLenum, self.raw()); }
+
+                check_gl_errors!();
+
+                Ok(())
             }
         }
 
@@ -209,6 +207,15 @@ macro_rules! declare_gl_texture {
         }
 
         impl GLGenericTexture for $name {}
+
+        impl GLTextureVariant for $name {
+            #[inline(always)]
+            fn kind(&self) -> GLTextureKind {
+                GLTextureKind::$kind
+            }
+        }
+
+        impl GLDimensionalTexture<$dim> for $name {}
     }
 }
 
@@ -226,17 +233,17 @@ pub enum GLTexture {
     Texture2DMultisampleArray(GLTexture2DMultisampleArray),
 }
 
-declare_gl_texture!(GLTexture1D,                 Texture1D,                 TEXTURE_1D);
-declare_gl_texture!(GLTexture2D,                 Texture2D,                 TEXTURE_2D);
-declare_gl_texture!(GLTexture3D,                 Texture3D,                 TEXTURE_3D);
-declare_gl_texture!(GLRectangle,                 Rectangle,                 TEXTURE_RECTANGLE);
-declare_gl_texture!(GLBufferTexture,             BufferTexture,             TEXTURE_BUFFER);
-declare_gl_texture!(GLCubemap,                   Cubemap,                   TEXTURE_CUBE_MAP);
-declare_gl_texture!(GLTexture1DArray,            Texture1DArray,            TEXTURE_1D_ARRAY);
-declare_gl_texture!(GLTexture2DArray,            Texture2DArray,            TEXTURE_2D_ARRAY);
-declare_gl_texture!(GLCubemapArray,              CubemapArray,              TEXTURE_CUBE_MAP_ARRAY);
-declare_gl_texture!(GLTexture2DMultisample,      Texture2DMultisample,      TEXTURE_2D_MULTISAMPLE);
-declare_gl_texture!(GLTexture2DMultisampleArray, Texture2DMultisampleArray, TEXTURE_2D_MULTISAMPLE_ARRAY);
+declare_gl_texture!(GLTexture1D,                 Texture1D,                 GLOneDimension);
+declare_gl_texture!(GLTexture2D,                 Texture2D,                 GLTwoDimensions);
+declare_gl_texture!(GLTexture3D,                 Texture3D,                 GLThreeDimensions);
+declare_gl_texture!(GLRectangle,                 Rectangle,                 GLTwoDimensions);
+declare_gl_texture!(GLBufferTexture,             BufferTexture,             GLOneDimension);
+declare_gl_texture!(GLCubemap,                   Cubemap,                   GLThreeDimensions);
+declare_gl_texture!(GLTexture1DArray,            Texture1DArray,            GLOneDimension);
+declare_gl_texture!(GLTexture2DArray,            Texture2DArray,            GLTwoDimensions);
+declare_gl_texture!(GLCubemapArray,              CubemapArray,              GLThreeDimensions);
+declare_gl_texture!(GLTexture2DMultisample,      Texture2DMultisample,      GLTwoDimensions);
+declare_gl_texture!(GLTexture2DMultisampleArray, Texture2DMultisampleArray, GLTwoDimensions);
 
 impl Deref for GLTexture {
     type Target = GLBaseTexture;
@@ -294,11 +301,31 @@ impl GLBindable for GLTexture {
     }
 }
 
-pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable {
+impl GLTextureVariant for GLTexture {
+    fn kind(&self) -> GLTextureKind {
+        match *self {
+            GLTexture::Texture1D(ref texture) => texture.kind(),
+            GLTexture::Texture2D(ref texture) => texture.kind(),
+            GLTexture::Texture3D(ref texture) => texture.kind(),
+            GLTexture::Rectangle(ref texture) => texture.kind(),
+            GLTexture::BufferTexture(ref texture) => texture.kind(),
+            GLTexture::Cubemap(ref texture) => texture.kind(),
+            GLTexture::Texture1DArray(ref texture) => texture.kind(),
+            GLTexture::Texture2DArray(ref texture) => texture.kind(),
+            GLTexture::CubemapArray(ref texture) => texture.kind(),
+            GLTexture::Texture2DMultisample(ref texture) => texture.kind(),
+            GLTexture::Texture2DMultisampleArray(ref texture) => texture.kind(),
+        }
+    }
+}
+
+impl GLGenericTexture for GLTexture {}
+
+pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable + GLTextureVariant {
     fn generate_mipmap(&mut self) -> GLResult<()> {
         try_rethrow!(self.bind());
 
-        unsafe { GenerateMipmap(self.kind as GLenum); }
+        unsafe { GenerateMipmap(self.kind() as GLenum); }
 
         check_gl_errors!();
 
@@ -365,9 +392,11 @@ pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable 
     }
 }
 
-impl GLGenericTexture for GLTexture {}
+pub trait GLTextureVariant {
+    fn kind(&self) -> GLTextureKind;
+}
 
-pub trait GLDimensionalTexture<D: GLDimensions>: Deref<Target=GLBaseTexture> + DerefMut + GLBindable {
+pub trait GLDimensionalTexture<D: GLDimensions>: Deref<Target=GLBaseTexture> + DerefMut + GLBindable + GLTextureVariant {
     fn set_wrap(&mut self, mode: GLTextureWrap) -> GLResult<()> {
         try_rethrow!(D::iterate(|dim| {
             self.set_wrap_dim(mode, dim)
@@ -388,8 +417,6 @@ pub trait GLDimensionalTexture<D: GLDimensions>: Deref<Target=GLBaseTexture> + D
         Ok(())
     }
 }
-
-impl GLDimensionalTexture<GLTwoDimensions> for GLTexture2D {}
 
 /*
 impl GLTexture {
