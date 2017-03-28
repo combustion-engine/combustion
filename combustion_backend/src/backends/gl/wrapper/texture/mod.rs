@@ -322,7 +322,7 @@ impl GLTextureVariant for GLTexture {
 impl GLGenericTexture for GLTexture {}
 
 pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable + GLTextureVariant {
-    fn generate_mipmap(&mut self) -> GLResult<()> {
+    fn generate_mipmaps(&mut self) -> GLResult<()> {
         try_rethrow!(self.bind());
 
         unsafe { GenerateMipmap(self.kind() as GLenum); }
@@ -332,7 +332,7 @@ pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable 
         Ok(())
     }
 
-    fn get_max_anisotropy(&mut self) -> GLResult<f32> {
+    fn get_max_anisotropy(&self) -> GLResult<f32> {
         try_rethrow!(self.bind());
 
         let mut max_anisoptopy: GLfloat = 0.0;
@@ -354,7 +354,7 @@ pub trait GLGenericTexture: Deref<Target=GLBaseTexture> + DerefMut + GLBindable 
         Ok(())
     }
 
-    fn set_filter(&mut self, filter: GLTextureFilter, mipmap: Option<GLTextureFilter>) -> GLResult<()> {
+    fn set_filtering(&mut self, filter: GLTextureFilter, mipmap: Option<GLTextureFilter>) -> GLResult<()> {
         try_rethrow!(self.bind());
 
         let min_filter;
