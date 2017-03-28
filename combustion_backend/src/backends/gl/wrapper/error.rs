@@ -35,7 +35,6 @@ pub enum GLError {
     //Errors from the `image` library
     Image(ImageError),
     //Errors from this program
-    MissingScene,
     Unsupported,
     IncompleteFramebuffer,
     PoisonError,
@@ -163,7 +162,6 @@ impl Error for GLError {
             GLError::InvalidFramebufferOperation => "Invalid Framebuffer Operation",
             GLError::ContextLost => "GPU Context Lost",
             GLError::UnknownError(_) => "Unknown Error",
-            GLError::MissingScene => "Missing scene",
             GLError::Image(ref err) => err.description(),
             GLError::Unsupported => "Unsupported",
             GLError::IncompleteFramebuffer => "Incomplete Framebuffer",
