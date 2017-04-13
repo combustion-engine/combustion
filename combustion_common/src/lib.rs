@@ -15,8 +15,6 @@ extern crate memmap;
 extern crate nalgebra;
 extern crate palette;
 extern crate time;
-extern crate chrono;
-extern crate statrs;
 extern crate void;
 extern crate serde;
 #[macro_use]

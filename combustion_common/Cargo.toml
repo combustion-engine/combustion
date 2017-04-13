@@ -8,12 +8,10 @@ version = "0.2.0"
 publish = false
 
 [dependencies]
-chrono = "0.3"
 num-traits = "0.1"
 rand = "0.3"
 serde = "0.9"
 serde_derive = "0.9"
-statrs = "0.5"
 time = "0.1"
 vec_map = "0.7"
 void = "1.0"
