@@ -16,7 +16,7 @@ use super::Ix;
 
 pub struct SceneGraph {
     graph: StableDiGraph<SceneNode, SceneEdge, Ix>,
-    cycle_state: DfsSpace<NodeIndex<Ix>, < StableDiGraph<SceneNode, SceneEdge, Ix> as Visitable >::Map>,
+    cycle_state: DfsSpace<NodeIndex<Ix>, <StableDiGraph<SceneNode, SceneEdge, Ix> as Visitable>::Map>,
     root: NodeIndex<Ix>,
     entity_table: FnvHashMap<Entity, NodeIndex<Ix>>,
 }
