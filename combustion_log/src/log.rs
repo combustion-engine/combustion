@@ -15,13 +15,15 @@ use chrono;
 
 pub use slog_scope::logger;
 
+pub const LOG_DATE_FORMAT: &'static str = "%Y%m%dT%H%M%SZ";
+
 /// Create a new logger
 pub fn new_logger<P: AsRef<Path>>(path: P) -> io::Result<slog::Logger> {
     let mut dir: PathBuf = path.as_ref().to_path_buf();
 
     try!(create_dir_all(dir.as_path()));
 
-    dir.push(chrono::UTC::now().format("%Y%m%dT%H%M%SZ").to_string());
+    dir.push(chrono::UTC::now().format(LOG_DATE_FORMAT).to_string());
     dir.set_extension("log");
 
     let log_file = try!(File::create(dir.as_path()));
