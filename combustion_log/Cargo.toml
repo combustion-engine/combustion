@@ -4,11 +4,13 @@ name = "combustion_log"
 version = "0.1.0"
 
 [dependencies]
-slog = "2.0.2"
-slog-async = "2.0.0"
+chrono = "0.3.0"
+slog = "2.0"
+slog-async = "2.0"
 slog-atomic = "2.0.0-3.1"
-slog-scope = "2.0.0"
+slog-scope = "2.0"
 slog-term = "2.0.0-4.0"
+trace-error = "0.1"
 
 [dependencies.tinyfiledialogs]
 git = "https://github.com/novacrazy/tinyfiledialogs-rs"
