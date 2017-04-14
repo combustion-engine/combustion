@@ -9,6 +9,7 @@
 \usepackage{pgfplots}
 \usepackage{tcolorbox}
 \usepackage{hyperref}
+\usepackage{color}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 
 \pgfplotsset{compat=1.13}
@@ -393,7 +394,7 @@ It's usually computed anyway for the specular component, so it's effectively fre
 
 However, it does not account for surface roughness, so things get kind of weird looking in PBR heavy workflows.
 
-You can see this effect more in Figure \ref{fig:lambert_orennayar_comparison} on the next page.
+You can see this effect more in Figure {\color{blue}\ref{fig:lambert_orennayar_comparison}} on the next page.
 
 \newpage
 
@@ -445,7 +446,8 @@ where $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface
 The Fresnel equations determine how much light is reflected off of a surface, versus how much light is transmitted into it. Therefore,
 they are critical for correctly rendering any realistic material.
 
-\noindent Most of these equations were taken from \href{https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/}{Memo on Fresnel equations by Sébastien Lagarde}
+\noindent Most of these equations were taken from 
+{\color{blue}\href{https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/}{Memo on Fresnel equations by Sébastien Lagarde}}
 
 The full Dielectric-Conductor Fresnel equations are as follows:
 
