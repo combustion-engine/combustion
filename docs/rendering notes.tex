@@ -7,6 +7,8 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{pgfplots}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 
 \pgfplotsset{compat=1.13}
@@ -214,15 +216,19 @@ $$
 
 The Cook-Torrance equation is the core component for specular reflections today.
 
-Variables for equations:
-\begin{align*}
-N &= \text{unit surface normal}\\
-V &= \text{view vector}\\
-L &= \text{light vector}\\
-H &= \frac{V + L}{\lVert V + L \rVert} = \text{halfway vector and microfacet normal}\\
-\eta &= \text{Index of Refraction}\\
-\alpha &= \text{surface roughness}\\
-\end{align*}
+\begin{tcolorbox}[colback=white]
+    Variables for equations:
+    \\
+    \rule{2in}{0.4pt}
+	\begin{flalign*}
+		N &= \text{unit surface normal}&\\
+		V &= \text{view vector}\\
+		L &= \text{light vector}\\
+		H &= \frac{V + L}{\lVert V + L \rVert} = \text{halfway vector and microfacet normal}\\
+		\eta &= \text{Index of Refraction}\\
+		\alpha &= \text{surface roughness}
+	\end{flalign*}
+\end{tcolorbox}
 
 It should be noted that these are ONLY specular reflections. That is, light which is reflected without diffusing into the material surface.
 For diffuse materials and how to mix diffuse and specular reflections, keep reading.
@@ -269,12 +275,12 @@ F = \frac{1}{2}\frac{{\left( g - c \right)}^2}{{\left( g + c \right)}^2}
     \right\rbrace
 $$
 where
-\begin{align*}
-c &= \cos \theta = V \cdot H\\
+\begin{flalign*}
+c &= \cos\theta = V \cdot H&\\
 g^2 &= \eta^2 + c^2 - 1\\
 \eta &= \frac{1 + \sqrt{F_0}}{1 - \sqrt{F_0}}
-\end{align*}
-where $F_0$ is defined as:
+\end{flalign*}
+and $F_0$ is defined as:
 \begin{align*}
 F_0 &= {\left\lbrace \frac{\eta - 1}{\eta + 1} \right\rbrace}^2
 \end{align*}
@@ -301,13 +307,13 @@ Also note the replacement of $\pi$ with just $4$. I often see these used interch
 For the GGX equations, $G_l$ is defined as:
 $$
 G_l(v) = \chi^+ \left(\frac{\omega_v \cdot \omega_g}{\omega_v \cdot \omega_m} \right)
-\frac{2}{1 + \sqrt{1 + \alpha^2 \tan^2 \theta_v}}
+\frac{2}{1 + \sqrt{1 + \alpha^2 \tan^2\theta_v}}
 $$
 where $\omega_v$ is the view direction, $\omega_g$ is the unit surface normal, $\omega_m$ is the halfway vector, and $\omega_v$ is the incoming or outgoing direction.
 
 The GGX Distribution function ($D$) is defined as:
 $$
-D = \chi^+\left(n \cdot m\right) \frac{\alpha^2}{\pi \cos^4 \theta {\left(  \alpha^2 + \tan^2 \theta \right)}^2}
+D = \chi^+\left(n \cdot m\right) \frac{\alpha^2}{\pi \cos^4\theta {\left(  \alpha^2 + \tan^2\theta \right)}^2}
 $$
 or simplified to:
 $$
@@ -337,7 +343,7 @@ For perfectly smooth surfaces, diffuse reflectance can be approximated by a sing
 $$
 f_{diffuse} = N \cdot L
 $$
-which is simply $\cos \theta$ between the light and normal vectors, which has a curve like this:
+which is simply $\cos\theta$ between the light and normal vectors, which has a curve like this:
 \begin{figure}[htbp]
   \begin{minipage}[b]{0.5\linewidth}
     \centering
@@ -375,7 +381,7 @@ which is simply $\cos \theta$ between the light and normal vectors, which has a 
 		    domain=-90:90,
 		]
 		{cos(x)*cos(y)};
-		\addlegendentry{$\cos \theta_x \cos \theta_y$}
+		\addlegendentry{$\cos\theta_x \cos\theta_y$}
 		\end{axis}
 	\end{tikzpicture}
     \caption{3D plot}
@@ -387,15 +393,20 @@ It's usually computed anyway for the specular component, so it's effectively fre
 
 However, it does not account for surface roughness, so things get kind of weird looking in PBR heavy workflows.
 
+You can see this effect more in Figure \ref{fig:lambert_orennayar_comparison} on the next page.
+
 \newpage
 
 \subsection{Oren-Nayar Diffuse Model}
 
 Oren-Nayar is a "newer" (1994) set of equations based on empirical data that more accurately simulates surfaces of varying roughness.
 
-\begin{center}
+\begin{figure}[htbp]
+    \centering
     \includegraphics[width=20em]{Oren-nayar-vase2}
-\end{center}
+    \caption{Comparison of Lambertian and Oren-Nayar models}
+    \label{fig:lambert_orennayar_comparison}
+\end{figure}
 
 As you can see, Oren-Nayar does a much better job than traditional Lambertian diffuse. 
 It more accurately simulates rough surfaces, and is therefore much more useful in modern PBR workflows.
@@ -403,15 +414,15 @@ It more accurately simulates rough surfaces, and is therefore much more useful i
 The full form of the Oren-Nayar equation is defined as:
 
 $$
-L_{r}={\frac{\rho}{\pi}}\cdot \cos \theta_{i} \cdot (A + (B \cdot \max[0, \cos(\phi_i - \phi_r)] \cdot \sin \alpha \cdot \tan \beta )) \cdot E_{0}
+L_{r}={\frac{\rho}{\pi}}\cdot \cos\theta_{i} \cdot (A + (B \cdot \max[0, \cos(\phi_i - \phi_r)] \cdot \sin \alpha \cdot \tan \beta )) \cdot E_{0}
 $$
 where
-\begin{align*}
-A &= 1 - 0.5{\frac{\sigma^{2}}{\sigma^{2} + 0.57}}\\
+\begin{flalign*}
+A &= 1 - 0.5{\frac{\sigma^{2}}{\sigma^{2} + 0.57}}&\\
 B &= 0.45 {\frac{\sigma^{2}}{\sigma^{2} + 0.09}}\\
 \alpha &= \max(\theta_{i}, \theta_{r})\\
 \beta &= \min(\theta_{i}, \theta_{r})
-\end{align*}
+\end{flalign*}
 where $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface roughness, and $\phi_i$ and $\phi_r$ are the azimuth angles
 \begin{figure}[htbp]
     \begin{minipage}[b]{0.5\linewidth}
@@ -429,7 +440,47 @@ where $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface
 
 \newpage
 
+\section{Fresnel Equations}
 
+The Fresnel equations determine how much light is reflected off of a surface, versus how much light is transmitted into it. Therefore,
+they are critical for correctly rendering any realistic material.
+
+\noindent Most of these equations were taken from \href{https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/}{Memo on Fresnel equations by Sébastien Lagarde}
+
+The full Dielectric-Conductor Fresnel equations are as follows:
+
+\begin{align*}
+    a^2 &= \frac{1}{2\eta_i^2}\left(\sqrt{{\left(\eta_t^2 - k_t^2 - \eta_i^2 \sin^2\theta\right)}^2 + 4\eta_t^2 k_t^2} + \eta_t^2 - k_t^2 - \eta_i^2 \sin^2\theta\right)\\
+    b^2 &= \frac{1}{2\eta_i^2}\left(\sqrt{{\left(\eta_t^2 - k_t^2 - \eta_i^2 \sin^2\theta\right)}^2 + 4\eta_t^2 k_t^2} - \eta_t^2 + k_t^2 + \eta_i^2 \sin^2\theta\right)\\
+    R_s &= \frac{a^2 + b^2 - 2a \cos\theta + \cos^2\theta }{a^2 + b^2 + 2a \cos\theta + \cos^2\theta}\\
+    R_p &= R_s \frac{a^2 + b^2 - 2a \sin\theta \tan\theta + \sin^2\theta \tan^2\theta}{a^2+b^2+2 a\sin\theta \tan\theta + \sin^2\theta \tan^2\theta}\\
+\end{align*}
+where
+\begin{flalign*}
+    \eta_t &= \text{Surface IOR ($t$ for transmitted)}&\\
+    k_t    &= \text{Surface Extinction Coefficient}\\
+    \eta_i &= \text{External IOR ($i$ for incoming)}
+\end{flalign*}
+
+Furthermore, this gives us two reflectance values, $R_s$ and $R_p$, for parallel and perpendicular polarization of light.
+If light polarization is not important, these can be average together into a single reflectance value like so:
+$$
+R = \frac{R_s + R_p}{2}
+$$
+or if polarization is important, these values should be linearly interpolated like so:
+$$
+R = \left(1 - \omega_t\right) R_s + \omega_t R_p
+$$
+where $\omega_t$ is the polarity weight in the domain $\left[0,1\right]$, so that $0$ is fully perpendicular polarized light, 
+and $1$ is fully parallel polarized light. A weight of $\frac{1}{2}$ is equal to the first form 
+where they are averaged together.
+
+As mentioned in the Fresnel Effect theory section, the external IOR plays a very important role for scene that are not in air or vacuum. In air and/or vacuum, 
+the external IOR is usually assumed to be 1 so the equation can be simplified, but for underwater scenes or something more exotic this parameter is absolutely necessary.
+
+For metals, the extinction coefficient term ($k$) is important because it effectively represents how conductive the material is.
+For Dielectric materials, $k$ is \textbf{always} set to zero. It's also worth noting that we can only trust up to two or so decimal places because of floating point limitations
+in computers. They might as well be equal to zero, so by just rounding infinitesimal $k$ values to zero will just improve accuracy overall.
 
 \end{document}
 \makeatother
