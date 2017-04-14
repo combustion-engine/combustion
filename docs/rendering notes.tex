@@ -1,0 +1,435 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+
+\pgfplotsset{compat=1.13}
+\graphicspath{ {images/} }
+
+\author{Aaron Trent}
+\title{Rendering Notes}
+
+\newcommand{\iu}{{i\mkern1mu}}
+
+\newenvironment{tight_enumerate}{
+\begin{enumerate}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+}{\end{enumerate}}
+
+\setcounter{secnumdepth}{3}
+
+\makeatletter
+\begin{document}
+
+\maketitle
+
+\begin{center}
+Collection of equations and algorithms for use in the Combustion Engine, 
+as well as general reference for developers wishing to understand the final equations and how I came to them.
+\end{center}
+
+\tableofcontents
+
+\setlength{\parindent}{4em}
+\setlength{\parskip}{0.8em}
+
+\newpage
+
+\part{Theory}
+
+\section{Physically Based Rendering (PBR)}
+
+Physically Based Rendering (or Physically Based Shading) is simply the technique of using real-world-like parameters to represent
+a material, for example \textbf{Roughness}, \textbf{Anisotropy}, \textbf{Metalness}, \textbf{Index of Refraction} ($\eta$), and so forth.
+
+\subsection{Physical Correctness}
+
+By itself, PBR does not guarantee a realistic image. The equations and algorithms used to render the image must be physically correct.
+That is, they must obey the laws of physics to properly simulate light.
+
+\section{Microfacet Theory}
+
+Microfacet theory describes the surface of an object as being composed of incredibly tiny mirrors called microfacets. 
+The microfacets are oriented in different directions based on surface roughness. The more smooth the surface, the more mirrors line up with the surface normal,
+forming a more mirrored macroscopic surface. Rougher surfaces are equivalent to the microfacets being oriented in ever more random directions,
+up until a point of entirely rough surfaces where the microfacets are totally randomly oriented and 
+scatter light in all directions.
+
+Since microfacets themselves are less intuitive, they are usually abstracted to become microgeometry, 
+which is the microscopic ridges and crevices of a surface, where roughness and smoothness are as we know them traditionally.
+
+At this abstraction level, it makes more sense that rougher surfaces are blurrier, while smoother surfaces are shinier.
+
+\newpage
+
+\section{Fresnel Effect}
+
+\textit{"Everything has Fresnel!" - Internet}
+
+If you haven't heard this before, you have now. Everything has Fresnel. However, what is Fresnel?
+
+Put simply, the Fresnel effect determines how much light is reflected off of or transmitted into a surface. 
+Reflected light forms specular highlights, while transmitted light becomes diffuse reflections or subsurface scattering.
+
+For transparent materials, like glass, transmitted light is also refracted and passes all the way through it.
+
+The Fresnel effect is governed by three primary variables (excluding any vectors):
+
+\begin{tight_enumerate}
+    \item The Internal Index of Refraction ($\eta_i$)
+    \item The Extinction Coefficient ($k$)
+    \item The External Index of Refraction ($\eta_o$)
+\end{tight_enumerate}
+
+where the internal IOR ($\eta_i$) is the index of refraction of the material itself, 
+the extinction coefficient ($k$) is effectively how conductive the material is, and the external IOR ($\eta_o$) is the 
+index of refraction of the material the object is contained in. 
+
+Normally, the external IOR is approximately 1.0, because the IOR of Air is approximately 1.0, 
+so many forms of the Fresnel equations simply omit it.
+
+However, if you wish to render an object as it appears underwater, the external IOR must be set to approximately 1.33 (the IOR of Water), 
+or it will appear incorrect.
+
+For metals, the interal IOR and extinction coefficient form a complex IOR in the form:
+$$\eta + \iu k$$
+where the color of the metal can be derived from it's wavelength-specific IORs.
+
+\newpage
+
+\section{Wavelength Response}
+
+\subsection{Computer Color}
+
+Color in computer graphics is primarily RGB. Despite HSV/HSL/YUV/etc. color representations, RGB remains the primary way to 
+represent color in computers. The reason for this is that the human eye only perceives Red, Green and Blue colors for its three cone type.
+The science of human color perception is quite in-depth and not necessary here, but the gist of it is that humans see a range of wavelengths
+for each primary color, with perception strength in roughly Gaussian curve shapes.
+
+\subsection{RGB Wavelengths and Human Eyesight}
+
+Here are the wavelengths used in Combustion:
+\begin{align*}
+    \text{Red}   &= 620\text{nm} - 740\text{nm}\\
+    \text{Green} &= 495\text{nm} - 570\text{nm}\\
+    \text{Blue}  &= 450\text{nm} - 495\text{nm}\\
+\end{align*}
+
+where the human eye's response to individual wavelengths is this:
+\begin{center}
+\includegraphics[width=20em]{Cone-fundamentals-with-srgb-spectrum}
+\end{center}
+
+which can be approximated using a modified Gaussian function like this:
+\begin{center}
+	\pgfplotsset{width=15em}
+	\begin{tikzpicture}
+		\begin{axis}[
+		    legend pos=south east,
+		    axis lines = left,
+		    xlabel = $x$,
+		    ylabel = {$f(x)$},
+		    clip = false,
+		]
+		\addplot [
+		    domain=-1.5:2.5,
+		    samples=50,
+		    color=black,
+		]
+		{e^(-(x - (1/2))^2)};
+		\addlegendentry{$e^{-{\left( x - \frac{1}{2} \right)}^2}$}
+		%\draw (axis cs:0.5,0) -- (axis cs:0.5,1) node [above]{$f(0.5) = 1$};
+		\end{axis}
+	\end{tikzpicture}
+\end{center}
+
+to form:
+
+\begin{center}
+	\pgfplotsset{width=30em, height=15em}
+	\begin{tikzpicture}
+		\begin{axis}[
+		    legend pos=south east,
+		    axis lines = left,
+		    xlabel = $\mu\text{m}$,
+		    ylabel = {Weight},
+		]
+		\addplot [
+		    domain=0.35:0.8,
+		    samples=100,
+		    color=red,
+		]
+		{e^-(((((x-0.62)/(0.74-0.62)) - (1/2)))^2)};
+		\addlegendentry{Red}
+	    \addplot [
+		    domain=0.35:0.8,
+		    samples=100,
+		    color=green,
+		]
+		{e^-(((((x-0.495)/(0.57-0.495)) - (1/2)))^2)};
+		\addlegendentry{Green}
+		\addplot [
+		    domain=0.35:0.8,
+		    samples=100,
+		    color=blue,
+		]
+		{e^-(((((x-0.45)/(0.495-0.45)) - (1/2)))^2)};
+		\addlegendentry{Blue}
+		\end{axis}
+	\end{tikzpicture}
+\end{center}
+which is similar to our perception of pure Red, Green and Blue. Note that they don't line up exactly, 
+because there is a difference between wavelength and RGB color.
+
+So by using this simple form to our advantage, we can perform a weighted average of 
+any wavelength dependent optical properties like so:
+
+$$
+V = \frac{\int_{w_{min}}^{w_{max}}{f\left(x\right)p\left(x\right)dx}}
+     {\left( w_{max} - w_{min} \right) \int_{w_{min}}^{w_{max}}{p\left(x\right)dx}}
+$$
+where $p(x)$ is:
+$$
+p(x) = e^{-{\left( \frac{x-w_{min}}{w_{max}-w_{min}} - \frac{1}{2} \right)}^2}
+$$
+or the original distribution scaled to the wavelength range like so:
+$$
+p(\frac{x-w_{min}}{w_{max}-w_{min}}) = e^{-{\left( x - \frac{1}{2} \right)}^2}
+$$
+
+\newpage
+
+\part{Light Equations}
+
+\section{Specular Reflectance}
+
+\subsection{Cook-Torrance}
+
+The Cook-Torrance equation is the core component for specular reflections today.
+
+Variables for equations:
+\begin{align*}
+N &= \text{unit surface normal}\\
+V &= \text{view vector}\\
+L &= \text{light vector}\\
+H &= \frac{V + L}{\lVert V + L \rVert} = \text{halfway vector and microfacet normal}\\
+\eta &= \text{Index of Refraction}\\
+\alpha &= \text{surface roughness}\\
+\end{align*}
+
+It should be noted that these are ONLY specular reflections. That is, light which is reflected without diffusing into the material surface.
+For diffuse materials and how to mix diffuse and specular reflections, keep reading.
+
+\newpage
+
+\subsubsection{R. Cook and K. Torrance 1981}
+
+Original Definition:
+
+$$
+f_{spec} = \frac{D F G}{\pi \left( \omega_o \cdot n \right) \left( \omega_i \cdot n \right) }
+$$
+where $\omega_o$ is the view direction and $\omega_i$ is the incoming light direction.
+
+$G$, the \textbf{Geometric Attenuation} function, which describes self-shadowing due to microfacet orientation and roughness, is defined as:
+$$
+G_{Cook-Torrance} = min \left\lbrace1, 
+              \frac{2 \left( N \cdot H \right) \left( N \cdot V \right)}{\left( V \cdot H \right)}, 
+              \frac{2 \left( N \cdot H \right) \left( N \cdot L \right)}{\left( V \cdot H \right)}
+        \right\rbrace
+$$
+
+$D$, the \textbf{Microfacet Distribution} function, is the Beckmann distribution,\\
+which is defined as:
+$$
+D_{Beckmann} = \frac{
+    \text{exp}\left(
+                    \frac{{\left( n \cdot m \right)}^2 - 1}
+                         {\alpha^2 {\left( n \cdot m \right)}^2} \right)}
+    {\pi \alpha^2 {\left( n \cdot m \right)}^4}
+$$
+where $\alpha$ is the surface roughness from $\left[0,1\right]$, but it has been simplified to:
+
+$F$ is the \textbf{Fresnel} term, which was originally defined as:
+$$
+F = \frac{1}{2}\frac{{\left( g - c \right)}^2}{{\left( g + c \right)}^2} 
+    \left\lbrace
+        1 + \frac{
+            {\left[c\left( g + c \right) - 1\right]}^2
+                }{
+            {\left[c\left( g - c \right) + 1\right]}^2
+                }
+    \right\rbrace
+$$
+where
+\begin{align*}
+c &= \cos \theta = V \cdot H\\
+g^2 &= \eta^2 + c^2 - 1\\
+\eta &= \frac{1 + \sqrt{F_0}}{1 - \sqrt{F_0}}
+\end{align*}
+where $F_0$ is defined as:
+\begin{align*}
+F_0 &= {\left\lbrace \frac{\eta - 1}{\eta + 1} \right\rbrace}^2
+\end{align*}
+where $\eta$ is the Index of Refraction of the material. Depending on how you do things, $F_0$ can be avoided entirely by just using the raw IOR $\eta$.
+
+\newpage
+
+\subsubsection{Walter 2007 (GGX)}
+
+Walter 2007 updates the Cook-Torrance model with a better set of equations that are commonly referred to as GGX.
+
+GGX Cook-Torrance form:
+
+$$
+f_{spec} = \frac{D F G}{4 \left( \omega_o \cdot n \right) \left( \omega_i \cdot n \right) }
+$$
+where $G$ is split into two functions like so:
+$$G = G_l(\omega_i) G_l(\omega_o)$$
+
+Here, the Geometric Attenuation term is broken into two functions, collectively referred to as the Smith shadow-masking function. Each partial geometric attenuation function is the same, but is passed separate vector for light and view directions, then multiplied together.
+
+Also note the replacement of $\pi$ with just $4$. I often see these used interchangeably around the internet, but they should remain distinct depending on how it is used. GGX works better with $4$.
+
+For the GGX equations, $G_l$ is defined as:
+$$
+G_l(v) = \chi^+ \left(\frac{\omega_v \cdot \omega_g}{\omega_v \cdot \omega_m} \right)
+\frac{2}{1 + \sqrt{1 + \alpha^2 \tan^2 \theta_v}}
+$$
+where $\omega_v$ is the view direction, $\omega_g$ is the unit surface normal, $\omega_m$ is the halfway vector, and $\omega_v$ is the incoming or outgoing direction.
+
+The GGX Distribution function ($D$) is defined as:
+$$
+D = \chi^+\left(n \cdot m\right) \frac{\alpha^2}{\pi \cos^4 \theta {\left(  \alpha^2 + \tan^2 \theta \right)}^2}
+$$
+or simplified to:
+$$
+D = \chi^+\left(n \cdot m\right) \frac{\alpha^2}{\pi {\left( {\left( n \cdot m \right)}^2 \left(\alpha^2 - 1\right) + 1 \right)}^2}
+$$
+with an anisotropic form defined as:
+$$
+D = \chi^+\left(n \cdot m\right) \frac{1}{\pi \alpha_x \alpha_y} \frac{1}{{\left(
+    \frac{{\left( x \cdot m \right)}^2}{\alpha^{2}_{x}} +
+    \frac{{\left( y \cdot m \right)}^2}{\alpha^{2}_{y}} +
+    {\left( n \cdot m \right)}^2
+\right)}^2}
+$$
+as you can see, it takes two $\alpha$ (roughness) values and two anisotropy direction values ($x$ and $y$) to control anisotropy.
+
+\newpage
+
+\section{Diffuse Reflectance}
+
+What light isn't directly reflected in the form of specular highlights is transmitted into the surface. However, most surfaces simply scatter the light 
+below the surface and re-emit it in the form of colored diffuse light.
+
+\subsection{Lambertian Diffuse Model}
+
+For perfectly smooth surfaces, diffuse reflectance can be approximated by a single operation:
+
+$$
+f_{diffuse} = N \cdot L
+$$
+which is simply $\cos \theta$ between the light and normal vectors, which has a curve like this:
+\begin{figure}[htbp]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \pgfplotsset{width=15em}
+	\begin{tikzpicture}
+		\begin{axis}[
+		    legend pos=south west,
+		    axis lines = left,
+		    xlabel = $\theta \left(\text{Incident Angle}\right)$,
+		    ylabel = {Reflectance},
+		]
+		\addplot [
+		    domain=0:90,
+		    samples=25,
+		    color=red,
+		]{cos(x)};
+		\addlegendentry{Lambertian}
+		\end{axis}
+	\end{tikzpicture}
+    \caption{Lambertian reflectance}
+  \end{minipage}
+  \hspace{-16pt}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+	\pgfplotsset{width=20em}
+	\begin{tikzpicture}
+		\begin{axis}[
+		    hide axis,
+		    colormap/bluered,
+		    view={30}{70}
+		]
+		\addplot3[
+		    surf,
+		    samples=25,
+		    domain=-90:90,
+		]
+		{cos(x)*cos(y)};
+		\addlegendentry{$\cos \theta_x \cos \theta_y$}
+		\end{axis}
+	\end{tikzpicture}
+    \caption{3D plot}
+  \end{minipage}
+\end{figure}
+
+Lambertian is the most commonly used diffuse model mostly because of its simplicity. 
+It's usually computed anyway for the specular component, so it's effectively free.
+
+However, it does not account for surface roughness, so things get kind of weird looking in PBR heavy workflows.
+
+\newpage
+
+\subsection{Oren-Nayar Diffuse Model}
+
+Oren-Nayar is a "newer" (1994) set of equations based on empirical data that more accurately simulates surfaces of varying roughness.
+
+\begin{center}
+    \includegraphics[width=20em]{Oren-nayar-vase2}
+\end{center}
+
+As you can see, Oren-Nayar does a much better job than traditional Lambertian diffuse. 
+It more accurately simulates rough surfaces, and is therefore much more useful in modern PBR workflows.
+
+The full form of the Oren-Nayar equation is defined as:
+
+$$
+L_{r}={\frac{\rho}{\pi}}\cdot \cos \theta_{i} \cdot (A + (B \cdot \max[0, \cos(\phi_i - \phi_r)] \cdot \sin \alpha \cdot \tan \beta )) \cdot E_{0}
+$$
+where
+\begin{align*}
+A &= 1 - 0.5{\frac{\sigma^{2}}{\sigma^{2} + 0.57}}\\
+B &= 0.45 {\frac{\sigma^{2}}{\sigma^{2} + 0.09}}\\
+\alpha &= \max(\theta_{i}, \theta_{r})\\
+\beta &= \min(\theta_{i}, \theta_{r})
+\end{align*}
+where $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface roughness, and $\phi_i$ and $\phi_r$ are the azimuth angles
+\begin{figure}[htbp]
+    \begin{minipage}[b]{0.5\linewidth}
+        \centering
+        \includegraphics[width=15em]{Oren-nayar-reflection}
+        \caption{Reflectance Diagram}
+    \end{minipage}
+    \hspace{-6pt}
+    \begin{minipage}[b]{0.5\linewidth}
+        \centering
+        \includegraphics[width=15em]{Angle_overview}
+        \caption{Angle Diagram}
+    \end{minipage}    
+\end{figure}
+
+\newpage
+
+
+
+\end{document}
+\makeatother
