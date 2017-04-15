@@ -352,7 +352,7 @@ f_{diffuse} = N \cdot L
 $$
 which is simply $\cos\theta$ between the light and normal vectors, which has a curve like this:
 \begin{figure}[htbp]
-  \begin{minipage}[b]{0.5\linewidth}
+  \begin{minipage}[t]{0.5\linewidth}
     \centering
     \pgfplotsset{width=15em}
 	\begin{tikzpicture}
@@ -373,7 +373,7 @@ which is simply $\cos\theta$ between the light and normal vectors, which has a c
     \caption{Lambertian reflectance}
   \end{minipage}
   \hspace{-16pt}
-  \begin{minipage}[b]{0.5\linewidth}
+  \begin{minipage}[t]{0.5\linewidth}
     \centering
 	\pgfplotsset{width=20em}
 	\begin{tikzpicture}
@@ -432,13 +432,13 @@ B &= 0.45 {\frac{\sigma^{2}}{\sigma^{2} + 0.09}}\\
 \end{flalign*}
 and $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface roughness, and $\phi_i$ and $\phi_r$ are the azimuth angles
 \begin{figure}[htbp]
-    \begin{minipage}[b]{0.5\linewidth}
+    \begin{minipage}[t]{0.5\linewidth}
         \centering
         \includegraphics[width=15em]{Oren-nayar-reflection}
         \caption{Reflectance Diagram}
     \end{minipage}
     \hspace{-6pt}
-    \begin{minipage}[b]{0.5\linewidth}
+    \begin{minipage}[t]{0.5\linewidth}
         \centering
         \includegraphics[width=15em]{Angle_overview}
         \caption{Angle Diagram}
@@ -498,7 +498,7 @@ Gold behaves very differently depending on wavelength. It absorbs blue-ish light
 its characteristic yellow color.
 
 \begin{figure}[htbp]
-    \begin{minipage}[b]{0.5\linewidth}
+    \begin{minipage}[t]{0.5\linewidth}
         \centering
 		\begin{tikzpicture}
 		    \begin{axis}[
@@ -546,7 +546,7 @@ its characteristic yellow color.
         \label{fig:gold_eta_t}
     \end{minipage}
     \hspace{-6pt}
-    \begin{minipage}[b]{0.5\linewidth}
+    \begin{minipage}[t]{0.5\linewidth}
         \centering
 		\begin{tikzpicture}
 		    \begin{axis}[
@@ -595,10 +595,19 @@ its characteristic yellow color.
     \end{minipage}
 \end{figure}
 
+Consequently, because metals have different behaviors for different wavelengths of light, 
+their color is created by the varying reflectance values at a given angle.
+
+As you can see below in Figures \ref{fig:gold_reflectance} and \ref{fig:copper_reflectance}, 
+Gold and Copper are given their unique colors by only the Fresnel effect, 
+and reflecting more white light at greater grazing angle.
+
 \begin{figure}[htbp]
+  \begin{minipage}[t]{0.5\linewidth}
     \centering
 	\begin{tikzpicture}
 		\begin{axis}[
+		    width=3in,
             ytick=\empty,
 		    enlargelimits=false, 
 		    axis equal=false, 
@@ -609,8 +618,28 @@ its characteristic yellow color.
  			\addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Gold-Reflectance};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Gold Reflectance at various incident angles \textbf{without} using the averaged wavelength response technique}
+	\caption{Gold}
 	\label{fig:gold_reflectance}
+  \end{minipage}
+  \hspace{-6pt}
+  \begin{minipage}[t]{0.5\linewidth}
+    \centering
+	\begin{tikzpicture}
+		\begin{axis}[
+		    width=3in,
+            ytick=\empty,
+		    enlargelimits=false, 
+		    axis equal=false, 
+		    scale only axis,
+		    axis equal image,
+		    xtick={0,15,...,90},
+		    xlabel = {Incident Angle in Degrees}]
+ 			\addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Copper-Reflectance};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Copper}
+	\label{fig:copper_reflectance}
+  \end{minipage}
 \end{figure}
 
 \newpage
