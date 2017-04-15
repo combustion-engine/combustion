@@ -139,64 +139,67 @@ where the human eye's response to individual wavelengths is this:
 
 which can be approximated using a modified Gaussian function like this:
 \begin{center}
-	\pgfplotsset{width=15em}
-	\begin{tikzpicture}
-		\begin{axis}[
-		    legend pos=south east,
-		    axis lines = left,
-		    xlabel = $x$,
-		    ylabel = {$f(x)$},
-		    clip = false,
-		]
-		\addplot [
-		    domain=-1.5:2.5,
-		    samples=50,
-		    color=black,
-		]
-		{e^(-(x - (1/2))^2)};
-		\addlegendentry{$e^{-{\left( x - \frac{1}{2} \right)}^2}$}
-		%\draw (axis cs:0.5,0) -- (axis cs:0.5,1) node [above]{$f(0.5) = 1$};
-		\end{axis}
-	\end{tikzpicture}
+    \pgfplotsset{width=15em}
+    \begin{tikzpicture}
+        \begin{axis}[
+            legend pos=south east,
+            axis lines = left,
+            xlabel = $x$,
+            ylabel = {$f(x)$},
+            ytick = {0,0.25,...,1.0},
+            clip = false,
+            ymax=1.0,
+        ]
+        \addplot [
+            domain=-1.5:2.5,
+            samples=50,
+            color=black,
+        ]
+        {e^(-(x - (1/2))^2)};
+        \addlegendentry{$e^{-{\left( x - \frac{1}{2} \right)}^2}$}
+        %\draw (axis cs:0.5,0) -- (axis cs:0.5,1) node [above]{$f(0.5) = 1$};
+        \end{axis}
+    \end{tikzpicture}
 \end{center}
 
 to form:
 
 \begin{figure}[htbp]
     \centering
-	\pgfplotsset{width=30em, height=15em}
-	\begin{tikzpicture}
-		\begin{axis}[
-		    legend pos=south east,
-		    axis lines = left,
-		    xlabel = $\mu\text{m}$,
-		    ylabel = {Weight},
-		]
-		\addplot [
-		    domain=0.35:0.8,
-		    samples=100,
-		    color=red,
-		]
-		{e^-(((((x-0.62)/(0.74-0.62)) - (1/2)))^2)};
-		\addlegendentry{Red}
-	    \addplot [
-		    domain=0.35:0.8,
-		    samples=100,
-		    color=green,
-		]
-		{e^-(((((x-0.495)/(0.57-0.495)) - (1/2)))^2)};
-		\addlegendentry{Green}
-		\addplot [
-		    domain=0.35:0.8,
-		    samples=100,
-		    color=blue,
-		]
-		{e^-(((((x-0.45)/(0.495-0.45)) - (1/2)))^2)};
-		\addlegendentry{Blue}
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Weighted RGB Wavelength Response}
-	\label{fig:rgb_wavelength_response}
+    \pgfplotsset{width=30em, height=15em}
+    \begin{tikzpicture}
+        \begin{axis}[
+            legend pos=south east,
+            axis lines = left,
+            xlabel = $\mu\text{m}$,
+            ylabel = {Weight},
+               ymax=1.0,
+        ]
+        \addplot [
+            domain=0.35:0.8,
+            samples=100,
+            color=red,
+        ]
+        {e^-(((((x-0.62)/(0.74-0.62)) - (1/2)))^2)};
+        \addlegendentry{Red}
+        \addplot [
+            domain=0.35:0.8,
+            samples=100,
+            color=green,
+        ]
+        {e^-(((((x-0.495)/(0.57-0.495)) - (1/2)))^2)};
+        \addlegendentry{Green}
+        \addplot [
+            domain=0.35:0.8,
+            samples=100,
+            color=blue,
+        ]
+        {e^-(((((x-0.45)/(0.495-0.45)) - (1/2)))^2)};
+        \addlegendentry{Blue}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Weighted RGB Wavelength Response}
+    \label{fig:rgb_wavelength_response}
 \end{figure}
 which is similar to our perception of pure Red, Green and Blue. Note that they don't line up exactly, 
 because there is a difference between wavelength and RGB color.
@@ -231,14 +234,14 @@ The Cook-Torrance equation is the core component for specular reflections today.
     Variables for equations:
     \\
     \rule{2in}{0.4pt}
-	\begin{flalign*}
-		N &= \text{unit surface normal}&\\
-		V &= \text{view vector}\\
-		L &= \text{light vector}\\
-		H &= \frac{V + L}{\lVert V + L \rVert} = \text{halfway vector and microfacet normal}\\
-		\eta &= \text{Index of Refraction}\\
-		\alpha &= \text{surface roughness}
-	\end{flalign*}
+    \begin{flalign*}
+        N &= \text{unit surface normal}&\\
+        V &= \text{view vector}\\
+        L &= \text{light vector}\\
+        H &= \frac{V + L}{\lVert V + L \rVert} = \text{halfway vector and microfacet normal}\\
+        \eta &= \text{Index of Refraction}\\
+        \alpha &= \text{surface roughness}
+    \end{flalign*}
 \end{tcolorbox}
 
 It should be noted that these are ONLY specular reflections. That is, light which is reflected without diffusing into the material surface.
@@ -361,43 +364,44 @@ Lambertian diffuse has a reflectance curve like this:
   \begin{minipage}[t]{0.5\linewidth}
     \centering
     \pgfplotsset{width=15em}
-	\begin{tikzpicture}
-		\begin{axis}[
-		    legend pos=south west,
-		    axis lines = left,
-		    xlabel = $\theta \left(\text{Incident Angle}\right)$,
-		    ylabel = {Reflectance},
-   		    xtick={0,15,...,90},
-		]
-		\addplot [
-		    domain=0:90,
-		    samples=25,
-		    color=red,
-		]{cos(x)};
-		\addlegendentry{Lambertian}
-		\end{axis}
-	\end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis}[
+            legend pos=south west,
+            axis lines = left,
+            xlabel = $\theta \left(\text{Incident Angle}\right)$,
+            ylabel = {Reflectance},
+               xtick={0,15,...,90},
+               ymax=1.0,
+        ]
+        \addplot [
+            domain=0:90,
+            samples=25,
+            color=red,
+        ]{cos(x)};
+        \addlegendentry{Lambertian}
+        \end{axis}
+    \end{tikzpicture}
     \caption{Lambertian reflectance}
   \end{minipage}
   \hspace{-16pt}
   \begin{minipage}[t]{0.5\linewidth}
     \centering
-	\pgfplotsset{width=20em}
-	\begin{tikzpicture}
-		\begin{axis}[
-		    hide axis,
-		    colormap/bluered,
-		    view={30}{70}
-		]
-		\addplot3[
-		    surf,
-		    samples=25,
-		    domain=-90:90,
-		]
-		{cos(x)*cos(y)};
-		\addlegendentry{$\cos\theta_x \cos\theta_y$}
-		\end{axis}
-	\end{tikzpicture}
+    \pgfplotsset{width=20em}
+    \begin{tikzpicture}
+        \begin{axis}[
+            hide axis,
+            colormap/bluered,
+            view={30}{70}
+        ]
+        \addplot3[
+            surf,
+            samples=25,
+            domain=-90:90,
+        ]
+        {cos(x)*cos(y)};
+        \addlegendentry{$\cos\theta_x \cos\theta_y$}
+        \end{axis}
+    \end{tikzpicture}
     \caption{3D plot}
   \end{minipage}
 \end{figure}
@@ -507,96 +511,96 @@ its characteristic yellow color.
 \begin{figure}[htbp]
     \begin{minipage}[t]{0.5\linewidth}
         \centering
-		\begin{tikzpicture}
-		    \begin{axis}[
-		        xlabel = $\mu\text{m}$,
-		        ylabel = $\eta_t$
-		    ]
-		        \addplot [mark=none, color=red] coordinates {
-				    (0.43678, 1.44930)
-					(0.44390, 1.41260)
-					(0.45114, 1.36610)
-					(0.45850, 1.30950)
-					(0.46598, 1.24270)
-					(0.47358, 1.16640)
-					(0.48130, 1.08210)
-					(0.48915, 0.99182)
-					(0.49712, 0.89849)
-					(0.50523, 0.80543)
-					(0.51347, 0.71590)
-					(0.52184, 0.63260)
-					(0.53035, 0.55731)
-					(0.53900, 0.49085)
-					(0.54779, 0.43326)
-					(0.55672, 0.38405)
-					(0.56580, 0.34242)
-					(0.57503, 0.30751)
-					(0.58440, 0.27843)
-					(0.59393, 0.25437)
-					(0.60362, 0.23457)
-					(0.61346, 0.21841)
-					(0.62346, 0.20533)
-					(0.63363, 0.19487)
-					(0.64396, 0.18664)
-					(0.65446, 0.18030)
-					(0.66514, 0.17558)
-					(0.67598, 0.17227)
-					(0.68701, 0.17016)
-					(0.69821, 0.16911)
-					(0.70959, 0.16897)
-					(0.72117, 0.16966)
-					(0.73292, 0.17107)
-		        };
-		    \end{axis}
-		\end{tikzpicture}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel = $\mu\text{m}$,
+                ylabel = $\eta_t$
+            ]
+                \addplot [mark=none, color=red] coordinates {
+                    (0.43678, 1.44930)
+                    (0.44390, 1.41260)
+                    (0.45114, 1.36610)
+                    (0.45850, 1.30950)
+                    (0.46598, 1.24270)
+                    (0.47358, 1.16640)
+                    (0.48130, 1.08210)
+                    (0.48915, 0.99182)
+                    (0.49712, 0.89849)
+                    (0.50523, 0.80543)
+                    (0.51347, 0.71590)
+                    (0.52184, 0.63260)
+                    (0.53035, 0.55731)
+                    (0.53900, 0.49085)
+                    (0.54779, 0.43326)
+                    (0.55672, 0.38405)
+                    (0.56580, 0.34242)
+                    (0.57503, 0.30751)
+                    (0.58440, 0.27843)
+                    (0.59393, 0.25437)
+                    (0.60362, 0.23457)
+                    (0.61346, 0.21841)
+                    (0.62346, 0.20533)
+                    (0.63363, 0.19487)
+                    (0.64396, 0.18664)
+                    (0.65446, 0.18030)
+                    (0.66514, 0.17558)
+                    (0.67598, 0.17227)
+                    (0.68701, 0.17016)
+                    (0.69821, 0.16911)
+                    (0.70959, 0.16897)
+                    (0.72117, 0.16966)
+                    (0.73292, 0.17107)
+                };
+            \end{axis}
+        \end{tikzpicture}
         \caption{Gold $\eta_t$}
         \label{fig:gold_eta_t}
     \end{minipage}
     \hspace{-6pt}
     \begin{minipage}[t]{0.5\linewidth}
         \centering
-		\begin{tikzpicture}
-		    \begin{axis}[
-		        xlabel = $\mu\text{m}$,
-		        ylabel = $k_t$
-		    ]
-		        \addplot [mark=none, color=blue] coordinates {
-			        (0.43678, 1.79880)
-					(0.44390, 1.78290)
-					(0.45114, 1.76810)
-					(0.45850, 1.75670)
-					(0.46598, 1.75090)
-					(0.47358, 1.75320)
-					(0.48130, 1.76610)
-					(0.48915, 1.79160)
-					(0.49712, 1.83120)
-					(0.50523, 1.88520)
-					(0.51347, 1.95300)
-					(0.52184, 2.03280)
-					(0.53035, 2.12220)
-					(0.53900, 2.21880)
-					(0.54779, 2.32010)
-					(0.55672, 2.42450)
-					(0.56580, 2.53050)
-					(0.57503, 2.63700)
-					(0.58440, 2.74340)
-					(0.59393, 2.84930)
-					(0.60362, 2.95450)
-					(0.61346, 3.05870)
-					(0.62346, 3.16210)
-					(0.63363, 3.26450)
-					(0.64396, 3.36620)
-					(0.65446, 3.46710)
-					(0.66514, 3.56750)
-					(0.67598, 3.66740)
-					(0.68701, 3.76690)
-					(0.69821, 3.86610)
-					(0.70959, 3.96530)
-					(0.72117, 4.06440)
-					(0.73292, 4.16350)
-			    };
-		    \end{axis}
-		\end{tikzpicture}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel = $\mu\text{m}$,
+                ylabel = $k_t$
+            ]
+                \addplot [mark=none, color=blue] coordinates {
+                    (0.43678, 1.79880)
+                    (0.44390, 1.78290)
+                    (0.45114, 1.76810)
+                    (0.45850, 1.75670)
+                    (0.46598, 1.75090)
+                    (0.47358, 1.75320)
+                    (0.48130, 1.76610)
+                    (0.48915, 1.79160)
+                    (0.49712, 1.83120)
+                    (0.50523, 1.88520)
+                    (0.51347, 1.95300)
+                    (0.52184, 2.03280)
+                    (0.53035, 2.12220)
+                    (0.53900, 2.21880)
+                    (0.54779, 2.32010)
+                    (0.55672, 2.42450)
+                    (0.56580, 2.53050)
+                    (0.57503, 2.63700)
+                    (0.58440, 2.74340)
+                    (0.59393, 2.84930)
+                    (0.60362, 2.95450)
+                    (0.61346, 3.05870)
+                    (0.62346, 3.16210)
+                    (0.63363, 3.26450)
+                    (0.64396, 3.36620)
+                    (0.65446, 3.46710)
+                    (0.66514, 3.56750)
+                    (0.67598, 3.66740)
+                    (0.68701, 3.76690)
+                    (0.69821, 3.86610)
+                    (0.70959, 3.96530)
+                    (0.72117, 4.06440)
+                    (0.73292, 4.16350)
+                };
+            \end{axis}
+        \end{tikzpicture}
         \caption{Gold $k_t$}
         \label{fig:gold_k_t}
     \end{minipage}
@@ -612,41 +616,81 @@ and reflecting more white light at greater grazing angle.
 \begin{figure}[htbp]
   \begin{minipage}[t]{0.5\linewidth}
     \centering
-	\begin{tikzpicture}
-		\begin{axis}[
-		    width=3in,
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=3in,
             ytick=\empty,
-		    enlargelimits=false, 
-		    axis equal=false, 
-		    scale only axis,
-		    axis equal image,
-		    xtick={0,15,...,90},
-		    xlabel = {Incident Angle in Degrees}]
- 			\addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Gold-Reflectance};
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Gold}
-	\label{fig:gold_reflectance}
+            enlargelimits=false, 
+            axis equal=false, 
+            scale only axis,
+            axis equal image,
+            xtick={0,15,...,90},
+            xlabel = {Incident Angle in Degrees}]
+             \addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Gold-Reflectance};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gold (Unweighted)}
+    \label{fig:gold_reflectance}
   \end{minipage}
   \hspace{-6pt}
   \begin{minipage}[t]{0.5\linewidth}
     \centering
-	\begin{tikzpicture}
-		\begin{axis}[
-		    width=3in,
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=3in,
             ytick=\empty,
-		    enlargelimits=false, 
-		    axis equal=false, 
-		    scale only axis,
-		    axis equal image,
-		    xtick={0,15,...,90},
-		    xlabel = {Incident Angle in Degrees}]
- 			\addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Copper-Reflectance};
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Copper}
-	\label{fig:copper_reflectance}
+            enlargelimits=false, 
+            axis equal=false, 
+            scale only axis,
+            axis equal image,
+            xtick={0,15,...,90},
+            xlabel = {Incident Angle in Degrees}]
+             \addplot graphics [xmin=0,xmax=90,ymin=0,ymax=20] {Copper-Reflectance};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Copper (Unweighted)}
+    \label{fig:copper_reflectance}
   \end{minipage}
+\end{figure}
+
+You can further see how it affects individual spectra of light in Figure \ref{fig:gold_spectrum_reflectance} on the next page.
+
+\newpage
+
+\begin{figure}[htp]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=5.8in,
+            height=2.9in,
+            enlargelimits=false, 
+            axis equal=false, 
+            scale only axis,
+            ytick={0,15,...,90},
+            xtick={450,480,...,740},
+            xlabel = {nm},
+            xmax=740,
+            ymax=90,
+            ylabel = {Incident Angle in Degrees}]
+            \addplot graphics [ymin=0,ymax=90,xmin=450,xmax=740] {Gold-Spectrum-Reflectance};
+        \end{axis}
+        
+        \begin{axis}[
+            axis y line*=right,
+            axis x line=none,
+            width=5.8in,
+            height=2.9in,
+            enlargelimits=false, 
+            axis equal=false, 
+            scale only axis,
+            ylabel style={rotate=180},
+            ytick={0.0,0.25,...,1.0},
+            ymin=0,ymax=1,
+            ylabel = {Reflectance at 45 Degrees}]
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gold Spectral Reflectance ($R^3$ for emphasis) at varying incident angles. The white line indicates reflectance at 45 Degrees.}
+    \label{fig:gold_spectrum_reflectance}
 \end{figure}
 
 \newpage
@@ -655,19 +699,19 @@ and reflecting more white light at greater grazing angle.
 
 \begin{figure}[htbp]
     \centering
-	\begin{tikzpicture}
-		\begin{axis}[
-		    enlargelimits=false, 
-		    axis equal=false, 
-		    scale only axis,
-		    xtick={0,15,...,90},
-		    xlabel = {Incident Angle in Degrees},
-			ylabel = $\eta_t$]
-			\addplot graphics [xmin=0,xmax=90,ymin=1,ymax=2] {Dielectric-Fresnel};
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Dielectric Fresnel Effect for various $\eta_t$}
-	\label{fig:dielectric_fresnel}
+    \begin{tikzpicture}
+        \begin{axis}[
+            enlargelimits=false, 
+            axis equal=false, 
+            scale only axis,
+            xtick={0,15,...,90},
+            xlabel = {Incident Angle in Degrees},
+            ylabel = $\eta_t$]
+            \addplot graphics [xmin=0,xmax=90,ymin=1,ymax=2] {Dielectric-Fresnel};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gold Reflectance}
+    \label{fig:dielectric_fresnel}
 \end{figure}
 
 \end{document}
