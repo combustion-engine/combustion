@@ -126,9 +126,12 @@ Here are the wavelengths used in Combustion:
 \end{align*}
 
 where the human eye's response to individual wavelengths is this:
-\begin{center}
-\includegraphics[width=20em]{Cone-fundamentals-with-srgb-spectrum}
-\end{center}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=20em]{Cone-fundamentals-with-srgb-spectrum}
+    \caption{Human Eye Wavelength Response}
+    \label{fig:eye_wavelength_response}
+\end{figure}
 
 which can be approximated using a modified Gaussian function like this:
 \begin{center}
@@ -155,7 +158,8 @@ which can be approximated using a modified Gaussian function like this:
 
 to form:
 
-\begin{center}
+\begin{figure}[htbp]
+    \centering
 	\pgfplotsset{width=30em, height=15em}
 	\begin{tikzpicture}
 		\begin{axis}[
@@ -187,7 +191,9 @@ to form:
 		\addlegendentry{Blue}
 		\end{axis}
 	\end{tikzpicture}
-\end{center}
+	\caption{Weighted RGB Wavelength Response}
+	\label{fig:rgb_wavelength_response}
+\end{figure}
 which is similar to our perception of pure Red, Green and Blue. Note that they don't line up exactly, 
 because there is a difference between wavelength and RGB color.
 
@@ -458,11 +464,11 @@ The full Dielectric-Conductor Fresnel equations are as follows:
     R_p &= R_s \frac{a^2 + b^2 - 2a \sin\theta \tan\theta + \sin^2\theta \tan^2\theta}{a^2+b^2+2 a\sin\theta \tan\theta + \sin^2\theta \tan^2\theta}\\
 \end{align*}
 where
-\begin{flalign*}
-    \eta_t &= \text{Surface IOR ($t$ for transmitted)}&\\
+\begin{align*}
+    \eta_t &= \text{Surface IOR ($t$ for transmitted)}\\
     k_t    &= \text{Surface Extinction Coefficient}\\
     \eta_i &= \text{External IOR ($i$ for incoming)}
-\end{flalign*}
+\end{align*}
 
 Furthermore, this gives us two reflectance values, $R_s$ and $R_p$, for parallel and perpendicular polarization of light.
 If light polarization is not important, these can be average together into a single reflectance value like so:
@@ -480,9 +486,135 @@ where they are averaged together.
 As mentioned in the Fresnel Effect theory section, the external IOR plays a very important role for scene that are not in air or vacuum. In air and/or vacuum, 
 the external IOR is usually assumed to be 1 so the equation can be simplified, but for underwater scenes or something more exotic this parameter is absolutely necessary.
 
-For metals, the extinction coefficient term ($k$) is important because it effectively represents how conductive the material is.
-For Dielectric materials, $k$ is \textbf{always} set to zero. It's also worth noting that we can only trust up to two or so decimal places because of floating point limitations
-in computers. They might as well be equal to zero, so by just rounding infinitesimal $k$ values to zero will just improve accuracy overall.
+\newpage
+
+\subsection{Metals}
+
+Metals are unique because they have no diffuse reflections, 
+and therefore their entire color is derived from the Fresnel effect on varying wavelengths of light.
+
+As you can see below in Figures \ref{fig:gold_eta_t} and \ref{fig:gold_k_t}, 
+Gold behaves very differently depending on wavelength. It absorbs blue-ish light and reflects more red-ish light, producing
+its characteristic yellow color.
+
+\begin{figure}[htbp]
+    \begin{minipage}[b]{0.5\linewidth}
+        \centering
+		\begin{tikzpicture}
+		    \begin{axis}[
+		        xlabel = $\mu\text{m}$,
+		        ylabel = $\eta_t$
+		    ]
+		        \addplot [mark=none, color=red] coordinates {
+				    (0.43678, 1.44930)
+					(0.44390, 1.41260)
+					(0.45114, 1.36610)
+					(0.45850, 1.30950)
+					(0.46598, 1.24270)
+					(0.47358, 1.16640)
+					(0.48130, 1.08210)
+					(0.48915, 0.99182)
+					(0.49712, 0.89849)
+					(0.50523, 0.80543)
+					(0.51347, 0.71590)
+					(0.52184, 0.63260)
+					(0.53035, 0.55731)
+					(0.53900, 0.49085)
+					(0.54779, 0.43326)
+					(0.55672, 0.38405)
+					(0.56580, 0.34242)
+					(0.57503, 0.30751)
+					(0.58440, 0.27843)
+					(0.59393, 0.25437)
+					(0.60362, 0.23457)
+					(0.61346, 0.21841)
+					(0.62346, 0.20533)
+					(0.63363, 0.19487)
+					(0.64396, 0.18664)
+					(0.65446, 0.18030)
+					(0.66514, 0.17558)
+					(0.67598, 0.17227)
+					(0.68701, 0.17016)
+					(0.69821, 0.16911)
+					(0.70959, 0.16897)
+					(0.72117, 0.16966)
+					(0.73292, 0.17107)
+		        };
+		    \end{axis}
+		\end{tikzpicture}
+        \caption{Gold $\eta_t$}
+        \label{fig:gold_eta_t}
+    \end{minipage}
+    \hspace{-6pt}
+    \begin{minipage}[b]{0.5\linewidth}
+        \centering
+		\begin{tikzpicture}
+		    \begin{axis}[
+		        xlabel = $\mu\text{m}$,
+		        ylabel = $k_t$
+		    ]
+		        \addplot [mark=none, color=blue] coordinates {
+			        (0.43678, 1.79880)
+					(0.44390, 1.78290)
+					(0.45114, 1.76810)
+					(0.45850, 1.75670)
+					(0.46598, 1.75090)
+					(0.47358, 1.75320)
+					(0.48130, 1.76610)
+					(0.48915, 1.79160)
+					(0.49712, 1.83120)
+					(0.50523, 1.88520)
+					(0.51347, 1.95300)
+					(0.52184, 2.03280)
+					(0.53035, 2.12220)
+					(0.53900, 2.21880)
+					(0.54779, 2.32010)
+					(0.55672, 2.42450)
+					(0.56580, 2.53050)
+					(0.57503, 2.63700)
+					(0.58440, 2.74340)
+					(0.59393, 2.84930)
+					(0.60362, 2.95450)
+					(0.61346, 3.05870)
+					(0.62346, 3.16210)
+					(0.63363, 3.26450)
+					(0.64396, 3.36620)
+					(0.65446, 3.46710)
+					(0.66514, 3.56750)
+					(0.67598, 3.66740)
+					(0.68701, 3.76690)
+					(0.69821, 3.86610)
+					(0.70959, 3.96530)
+					(0.72117, 4.06440)
+					(0.73292, 4.16350)
+			    };
+		    \end{axis}
+		\end{tikzpicture}
+        \caption{Gold $k_t$}
+        \label{fig:gold_k_t}
+    \end{minipage}    
+\end{figure}
+
+\newpage
+
+\subsection{Dielectrics}
+
+\begin{figure}[htbp]
+    \centering
+	\begin{tikzpicture}
+		\begin{axis}[
+		    enlargelimits=false, 
+		    axis equal=false, 
+		    scale only axis,
+		    xtick={0,15,...,90},
+		    xlabel = {Incident Angle in Degrees},
+			ylabel = $\eta_t$]
+			\addplot graphics [xmin=0,xmax=91,ymin=1,ymax=2] {Dielectric-Fresnel};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Dielectric Fresnel Effect for various $\eta_t$s}
+	\label{fig:dielectric_fresnel}
+\end{figure}
 
 \end{document}
 \makeatother
