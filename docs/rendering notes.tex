@@ -352,9 +352,11 @@ below the surface and re-emit it in the form of colored diffuse light.
 For perfectly smooth surfaces, diffuse reflectance can be approximated by a single operation:
 
 $$
-f_{diffuse} = N \cdot L
+f_{diffuse} = N \cdot L = \lVert N \rVert \lVert L \rVert \cos \theta
 $$
-which is simply $\cos\theta$ between the light and normal vectors, which has a curve like this:
+where $\lVert N \rVert$ and $\lVert L \rVert$ are the magnitudes of the vectors. Consequently, 
+because it is just $\cos \theta$ (when using normalized vectors), 
+Lambertian diffuse has a reflectance curve like this:
 \begin{figure}[htbp]
   \begin{minipage}[t]{0.5\linewidth}
     \centering
@@ -365,6 +367,7 @@ which is simply $\cos\theta$ between the light and normal vectors, which has a c
 		    axis lines = left,
 		    xlabel = $\theta \left(\text{Incident Angle}\right)$,
 		    ylabel = {Reflectance},
+   		    xtick={0,15,...,90},
 		]
 		\addplot [
 		    domain=0:90,
