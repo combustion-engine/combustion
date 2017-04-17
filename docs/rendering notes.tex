@@ -39,7 +39,7 @@
 Collection of equations and algorithms for use in the Combustion Engine, 
 as well as general reference for developers wishing to understand the final equations and how I came to them.
 
-{\large This is a \textbf{work in progress} document. I repeat myself several times and the graphics are not entirely up to par with my standards yet.}
+{\large This is a \textbf{work in progress} document.}
 \end{center}
 
 {\footnotesize \tableofcontents}
@@ -55,6 +55,10 @@ as well as general reference for developers wishing to understand the final equa
 
 Physically Based Rendering (or Physically Based Shading) is simply the technique of using real-world-like parameters to represent
 a material, for example \textbf{Roughness}, \textbf{Anisotropy}, \textbf{Metalness}, \textbf{Index of Refraction} ($\eta$), and so forth.
+
+Combined with newer forms of shading such as Cook-Torrance, Oren-Nayar and global illumination techniques, PBR allows easier 
+creation of photorealistic scenes. If photorealism isn't the goal, it at least makes it easier for artists to work with, rather 
+than arbitrary values such as a "shininess" exponent for the old Phong and Blinn-Phong shading models.
 
 \subsection{Physical Correctness}
 
@@ -226,9 +230,17 @@ $$
 
 \section{Specular Reflectance}
 
+\subsection{Phong}
+
+Phong and Blinn-Phong are less accurate than newer shading models, but are much cheaper to compute 
+so they allow for greater performance at the cost of accuracy and ease of use.
+
+
+
 \subsection{Cook-Torrance}
 
-The Cook-Torrance equation is the core component for specular reflections today.
+The Cook-Torrance equation is the core component for specular reflections today. 
+It is flexible and offers much greater accuracy than older methods, at the cost of being more complex.
 
 \begin{tcolorbox}[colback=white]
     Variables for equations:
@@ -251,14 +263,28 @@ For diffuse materials and how to mix diffuse and specular reflections, keep read
 
 \subsubsection{R. Cook and K. Torrance 1981}
 
-Original Definition:
+The original Cook-Torrance model, created by none other than R. Cook and K. Torrance in 1981, is originally defined as: 
 
 $$
 f_{spec} = \frac{D F G}{\pi \left( \omega_o \cdot n \right) \left( \omega_i \cdot n \right) }
 $$
 where $\omega_o$ is the view direction and $\omega_i$ is the incoming light direction.
 
-$G$, the \textbf{Geometric Attenuation} function, which describes self-shadowing due to microfacet orientation and roughness, is defined as:
+The idea was to take three terms representingseparate components of the surface model and combine them 
+together to create an accurate result. These three components are the \textbf{Fresnel} term (as discussed in 
+Section \ref{sec:fresnel}), the \textbf{Geometric Attenuation} function, 
+and the \textbf{Microfacet Distribution} function.
+
+The Geometric Attenuation function describes self-shadowing and self-masking of light from the microsurface of the material, like so:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=4in]{shadow-masking}
+    \caption{Shadow-Masking of light}
+    \label{fig:shadow_masking}
+\end{figure}
+
+For the original \textbf{Geometric Attenuation} function, $G$, these are combined into a single equation like so:
+
 $$
 G_{Cook-Torrance} = min \left\lbrace1, 
               \frac{2 \left( N \cdot H \right) \left( N \cdot V \right)}{\left( V \cdot H \right)}, 
@@ -266,8 +292,12 @@ G_{Cook-Torrance} = min \left\lbrace1,
         \right\rbrace
 $$
 
-$D$, the \textbf{Microfacet Distribution} function, is the Beckmann distribution,\\
-which is defined as:
+The \textbf{Microfacet Distribution}, $D$, is a probability distribution function (PDF) that describes the 
+mean orientation of the microfacet normals. A well-known example of a PDF is the Standard or Gaussian Distribution.
+However, for a surface the roughness must be accounted for, so the distribution can be quite complex. In the 
+original Cook-Torrance paper, the distribution function is the Beckmann Distribution.
+
+$D$, the Beckmann distribution is defined as:
 $$
 D_{Beckmann} = \frac{
     \text{exp}\left(
@@ -275,11 +305,12 @@ D_{Beckmann} = \frac{
                          {\alpha^2 {\left( n \cdot m \right)}^2} \right)}
     {\pi \alpha^2 {\left( n \cdot m \right)}^4}
 $$
-where $\alpha$ is the surface roughness from $\left[0,1\right]$, but it has been simplified to:
+where $\alpha$ is the surface roughness from $\left[0,1\right]$.
 
-$F$ is the \textbf{Fresnel} term, which was originally defined as:
+Although discussed in more detail later, an approximation for the Fresnel term, $F$, was given in the original paper 
+in the form of:
 $$
-F = \frac{1}{2}\frac{{\left( g - c \right)}^2}{{\left( g + c \right)}^2} 
+F_{Cook-Torrance} = \frac{1}{2}\frac{{\left( g - c \right)}^2}{{\left( g + c \right)}^2} 
     \left\lbrace
         1 + \frac{
             {\left[c\left( g + c \right) - 1\right]}^2
@@ -299,6 +330,9 @@ and $F_0$ is defined as:
 F_0 &= {\left\lbrace \frac{\eta - 1}{\eta + 1} \right\rbrace}^2
 \end{align*}
 where $\eta$ is the Index of Refraction of the material. Depending on how you do things, $F_0$ can be avoided entirely by just using the raw IOR $\eta$.
+
+Although slightly more accurate than Shlick's approximation (as discussed in section \ref{sec:schlick}), it is more
+expensive to compute so it is largely unused for realtime rendering.
 
 \newpage
 
@@ -459,6 +493,7 @@ and $\rho$ is the surface albedo (diffuse absorption), $\sigma$ is the surface r
 \newpage
 
 \section{Fresnel Equations}
+\label{sec:fresnel}
 
 The Fresnel equations determine how much light is reflected off of a surface, versus how much light is transmitted into it. Therefore,
 they are critical for correctly rendering any realistic material.
@@ -718,15 +753,26 @@ An example of such a lookup table for Copper is below in Figure \ref{fig:copper_
 
 Where the LUT can be accessed with the following GLSL code:
 
-\begin{tcolorbox}[colback=white]
-	\begin{lstlisting}
-		vec3 R = texture(TODO);
-	\end{lstlisting}
-\end{tcolorbox}
+
+\begin{lstlisting}
+        TODO GLSL CODE
+\end{lstlisting}
 
 \newpage
 
+The only drawback of this method is that every metal needs its own lookup table texture, 
+but unless you're going for as accurate as possible they don't need to be large, and can be automatically generated from
+the refractive index data sets.
+
+Additionally, this implies that materials can be \textbf{ONLY} purely metallic or purely dielectric. This is true. However,
+this can be solved by simply thinking about it physically, and layering the materials. For example, a thin layer or grease over 
+some steel surface could be represented as a linear interpolation of the metalic steel and the dielectric grease layer.
+
+Multiple layers can be mixed together using linear interpolation. You can read more about that in Section \ref{sec:mixing_layers} on mixing layers.
+
 \subsection{Dielectrics}
+
+Dielectric materials are all non-conductive materials, such as plastics, glass, most liquids, wood and basically everything non-metal.
 
 \begin{figure}[htbp]
     \centering
@@ -744,6 +790,43 @@ Where the LUT can be accessed with the following GLSL code:
     \caption{Dielectric Reflectance for varying $\eta_t$ and incident angles}
     \label{fig:dielectric_fresnel}
 \end{figure}
+
+For dielectric materials, the extinction coefficient ($k_t$) term in the Fresnel equation is \textbf{always} set to zero. This is because
+it simply doesn't conduct absorbed light across its surface. Instead, dielectric materials absorb the light photons into the atoms and molecules that
+make up the material, and then usually re-emit the energy as more photons with a wavelength determined by the material. This is how all dielectric materials
+are colored.
+
+\subsubsection{Schlick's Approximation}
+\label{sec:schlick}
+
+For dielectric materials, there exists a decent approximation of the Fresnel equations that is very simple. 
+Simple enough it can be run directly on the GPU.
+
+
+Schlick's Approximation of the Fresnel Equations is defined like so:
+$$
+R = F_0 + \left(1 - F_0\right){\left(1 - \cos \theta\right)}^5
+$$
+where $F_0$ is defined as:
+$$
+F_0 = {\frac{\eta_i - \eta_t}{\eta_i + \eta_t}}^2
+$$
+where $\theta$ is the incident angle, and $\eta_t$ and $\eta_i$ are the surface and external IORs, respectively.
+
+
+\newpage
+
+\part{Material Composition}
+
+\section{Mixing Layers}
+\label{sec:mixing_layers}
+
+Multiple layers of materials can be mixed together using linear interpolation like so:
+$$
+L_{final} = \left(1 - \omega_{thickness}\right)\left(L_{bottom}\right) + \omega_{thickness} L_{top}
+$$
+where $L_{bottom}$ can be an $L_{final}$ from another layer mix, 
+and $\omega_{thickness}$ is the thickness of the layer in the domain $\left[0,1\right]$
 
 \end{document}
 \makeatother
