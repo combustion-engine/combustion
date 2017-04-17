@@ -23,7 +23,19 @@ pub fn min<T: PartialOrd>(a: T, b: T) -> T {
 /// ```
 #[inline(always)]
 pub fn max<T: PartialOrd>(a: T, b: T) -> T {
-    if a > b { a } else { b }
+    if a >= b { a } else { b }
+}
+
+/// Generic min-max function for any `PartialOrd`
+///
+/// ```
+/// use combustion_common::num_utils::min_max;
+///
+/// assert_eq!(min_max(1, 2), (1, 2));
+/// ```
+#[inline(always)]
+pub fn min_max<T: PartialOrd>(a: T, b: T) -> (T, T) {
+    if a >= b { (b, a) } else { (a, b) }
 }
 
 /// Round a number to a certain multiple
