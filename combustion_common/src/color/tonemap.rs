@@ -100,13 +100,11 @@ fn aces_filmic_tonemap_component(x: f32) -> f32 {
 }
 
 /// ACES Tonemap from [https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/](https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/)
-///
-/// Currently missing saturation compensation
 pub fn aces_filmic_tonemap(color: Color, exposure: f32) -> Color {
     Color {
         r: aces_filmic_tonemap_component(color.r * exposure),
         g: aces_filmic_tonemap_component(color.g * exposure),
         b: aces_filmic_tonemap_component(color.b * exposure),
         a: color.a
-    }
+    }.clamp()
 }

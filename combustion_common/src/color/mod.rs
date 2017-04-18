@@ -18,7 +18,7 @@ pub mod palette {
 
 use self::palette::*;
 
-use num_utils::{AlmostEqExt, LerpGenericExt};
+use num_utils::{AlmostEqExt, LerpGenericExt, ClampExt};
 
 pub mod ops;
 pub mod blend;
@@ -134,10 +134,10 @@ impl Color {
     /// For HDR colors, use tonemapping instead of clamping
     pub fn clamp(self) -> Color {
         Color {
-            r: self.r.min(1.0).max(0.0),
-            g: self.g.min(1.0).max(0.0),
-            b: self.b.min(1.0).max(0.0),
-            a: self.a.min(1.0).max(0.0),
+            r: self.r.clamp(0.0, 1.0),
+            g: self.g.clamp(0.0, 1.0),
+            b: self.b.clamp(0.0, 1.0),
+            a: self.a.clamp(0.0, 1.0),
         }
     }
 
@@ -145,10 +145,10 @@ impl Color {
     ///
     /// For HDR colors, use tonemapping instead of clamping
     pub fn clamp_here(&mut self) {
-        self.r = self.r.min(1.0).max(0.0);
-        self.g = self.g.min(1.0).max(0.0);
-        self.b = self.b.min(1.0).max(0.0);
-        self.a = self.a.min(1.0).max(0.0);
+        self.r = self.r.clamp(0.0, 1.0);
+        self.g = self.g.clamp(0.0, 1.0);
+        self.b = self.b.clamp(0.0, 1.0);
+        self.a = self.a.clamp(0.0, 1.0);
     }
 
     /// Copies the color with a new alpha value
@@ -157,6 +157,17 @@ impl Color {
             a: alpha,
             ..*self
         }
+    }
+
+    /// Convert self into the `Rgba<D65, f64>` type from the `palette` crate
+    #[inline]
+    pub fn into_palette(self) -> Rgba<D65, f64> {
+        self.into()
+    }
+
+    /// Convert self into HSLA using the `palette` crate
+    pub fn into_hsla(self) -> Alpha<Hsl<D65, f64>, f64> {
+        self.into_palette().into()
     }
 }
 
