@@ -18,7 +18,11 @@ pub mod palette {
 
 use self::palette::*;
 
-use num_utils::AlmostEqExt;
+use num_utils::{AlmostEqExt, LerpGenericExt};
+
+pub mod ops;
+pub mod blend;
+pub mod tonemap;
 
 #[inline(always)]
 fn is_zero(value: &f32) -> bool {
@@ -124,7 +128,39 @@ impl Color {
     pub fn is_none(&self) -> bool {
         (self.r + self.g + self.b + self.a) <= EPSILON
     }
+
+    /// Clamp subcomponents to `[0,1]`
+    ///
+    /// For HDR colors, use tonemapping instead of clamping
+    pub fn clamp(self) -> Color {
+        Color {
+            r: self.r.min(1.0).max(0.0),
+            g: self.g.min(1.0).max(0.0),
+            b: self.b.min(1.0).max(0.0),
+            a: self.a.min(1.0).max(0.0),
+        }
+    }
+
+    /// Clamp subcomponents to `[0,1]` in place
+    ///
+    /// For HDR colors, use tonemapping instead of clamping
+    pub fn clamp_here(&mut self) {
+        self.r = self.r.min(1.0).max(0.0);
+        self.g = self.g.min(1.0).max(0.0);
+        self.b = self.b.min(1.0).max(0.0);
+        self.a = self.a.min(1.0).max(0.0);
+    }
+
+    /// Copies the color with a new alpha value
+    pub fn with_alpha(&self, alpha: f32) -> Color {
+        Color {
+            a: alpha,
+            ..*self
+        }
+    }
 }
+
+impl LerpGenericExt for Color {}
 
 impl Default for Color {
     #[inline(always)]
@@ -243,11 +279,11 @@ pub mod de {
 
     /// Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
     pub fn from_name_or_value<T, D>(d: D) -> Result<T, D::Error>
-        where T: Deserialize + FromStr<Err = Void>,
+        where T: Deserialize + FromStr<Err=Void>,
               D: Deserializer {
         struct NameOrValue<T>(PhantomData<T>);
 
-        impl<T> de::Visitor for NameOrValue<T> where T: Deserialize + FromStr<Err = Void> {
+        impl<T> de::Visitor for NameOrValue<T> where T: Deserialize + FromStr<Err=Void> {
             type Value = T;
 
             fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -270,6 +306,7 @@ pub mod de {
 #[cfg(test)]
 pub mod test {
     use super::*;
+    use ::num_utils::LerpGenericExt;
 
     #[test]
     fn is_zero_test() {
