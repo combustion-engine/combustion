@@ -46,7 +46,7 @@ pub struct SeparateBlendModes { pub color: BlendModes, pub alpha: BlendModes }
 pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     color: BlendModes {
         source: BlendMode::SourceAlpha,
-        destination: BlendMode::OneMinusSourceAlpha,
+        destination: BlendMode::DestinationAlpha,
     },
     alpha: BlendModes {
         source: BlendMode::One,
