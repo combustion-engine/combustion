@@ -1,5 +1,7 @@
 //! Numeric utilities
 
+use std::ops::{Add, Mul};
+
 use num_traits::{Num, Float};
 
 /// Generic min function for any `PartialOrd`
@@ -118,3 +120,62 @@ impl<T> AlmostEqExt for T where T: Float {
         (*self - b).abs() < accuracy
     }
 }
+
+/// Linear interpolation for numeric types
+///
+/// ```
+/// use combustion_common::num_utils::lerp;
+///
+/// assert_eq!(lerp(0.5f32, 0.0, 0.0, 1.0, 3.0), 1.5);
+/// ```
+pub fn lerp<T: Num + Copy>(x: T, x0: T, y0: T, x1: T, y1: T) -> T {
+    y0 + (x - x0) * ((y1 - y0) / (x1 - x0))
+}
+
+/// Generic linear interpolation for any supported types.
+///
+/// This form can support non-numeric `T` types if they satisfy the clause conditions.
+///
+/// ```
+/// use combustion_common::num_utils::lerp_generic as lerp;
+///
+/// assert_eq!(lerp(0.5f32, 0.0, 3.0), 1.5);
+/// ```
+pub fn lerp_generic<T, W: Num + Copy>(t: W, v0: T, v1: T) -> <<W as Mul<T>>::Output as Add>::Output
+    where W: Mul<T>,
+          T: Add<<W as Mul<T>>::Output>,
+          <W as Mul<T>>::Output: Add<<W as Mul<T>>::Output> {
+    (W::one() - t) * v0 + t * v1
+}
+
+/// Trait to add generic linear interpolation functionality to types directly.
+///
+/// ```
+/// use combustion_common::num_utils::LerpExt;
+///
+/// // using generic form
+/// assert_eq!(0.0f32.lerp_generic(0.5f32, 3.0), 1.5);
+///
+/// // using same-type form
+/// assert_eq!(0.0f32.lerp(0.5, 3.0), 1.5);
+/// ```
+pub trait LerpExt: Sized {
+    /// Linearly interpolate `self` with `other` based on the weight value `t`
+    ///
+    /// This is the generic form which can support non-numeric `Self` types if they satisfy the clause conditions.
+    fn lerp_generic<W: Num + Copy>(self, t: W, other: Self) -> <<W as Mul<Self>>::Output as Add>::Output
+        where W: Mul<Self>,
+              Self: Add<<W as Mul<Self>>::Output>,
+              <W as Mul<Self>>::Output: Add<<W as Mul<Self>>::Output> {
+        (W::one() - t) * self + t * other
+    }
+
+    /// Linearly interpolate `self` with `other` based on the weight value `t`
+    fn lerp(self, t: Self, other: Self) -> Self where Self: Num + Copy {
+        (Self::one() - t) * self + t * other
+    }
+}
+
+impl LerpExt for f32 {}
+
+impl LerpExt for f64 {}
