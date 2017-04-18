@@ -342,4 +342,11 @@ pub mod test {
     fn is_one_test2() {
         assert!(is_one(&0.999));
     }
+
+    #[test]
+    fn test_color_lerp() {
+        let gray = Color::new(0.5, 0.5, 0.5, 1.0);
+
+        assert_eq!(gray, Color::white().lerp(Color::black(), 0.5));
+    }
 }

@@ -54,12 +54,23 @@ pub fn round_multiple<T: Num + Copy>(num: T, multiple: T) -> T {
     ((num + multiple - T::one()) / multiple) * multiple
 }
 
+/// Clamp a value to the given range
+///
+/// ```
+/// use combustion_common::num_utils::clamp;
+///
+/// assert_eq!(clamp(15u32, 0, 5), 5);
+/// ```
+pub fn clamp<T>(value: T, min: T, max: T) -> T where T: PartialOrd {
+    if value < min { min } else if value > max { max } else { value }
+}
+
 /// Adds a `clamp` function to the type
 ///
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::num_utils::*;
+/// use combustion_common::num_utils::ClampExt;
 ///
 /// assert_eq!(15u32.clamp(0, 5), 5);
 /// assert!(3.14f32.clamp(0.0, 1.0) < 2.0);
@@ -81,7 +92,7 @@ impl<T> ClampExt for T where T: PartialOrd {
 /// E.g.,
 ///
 /// ```
-/// use combustion_common::num_utils::*;
+/// use combustion_common::num_utils::AlmostEqExt;
 ///
 /// assert!(5.12345f32.almost_eq(5.12, 0.1));
 /// assert!(0.00000001f32.almost_eq(0.0, 0.0000001));
@@ -138,8 +149,11 @@ pub fn lerp<T: Num + Copy>(x: T, x0: T, y0: T, x1: T, y1: T) -> T {
 ///
 /// ```
 /// use combustion_common::num_utils::lerp_generic as lerp;
+/// use combustion_common::color::Color;
 ///
-/// assert_eq!(lerp(0.5f32, 0.0, 3.0), 1.5);
+/// let gray = Color::new(0.5, 0.5, 0.5, 1.0);
+///
+/// assert_eq!(gray, lerp(Color::white(), Color::black(), 0.5));
 /// ```
 pub fn lerp_generic<T, W: Num + Copy>(v0: T, v1: T, t: W) -> <<T as Mul<W>>::Output as Add>::Output where T: Mul<W>,
                                                                                                           <T as Mul<W>>::Output: Add<<T as Mul<W>>::Output>,
@@ -153,10 +167,6 @@ pub fn lerp_generic<T, W: Num + Copy>(v0: T, v1: T, t: W) -> <<T as Mul<W>>::Out
 /// ```
 /// use combustion_common::num_utils::LerpExt;
 ///
-/// // using generic form
-/// assert_eq!(0.0f32.lerp_generic(0.5f32, 3.0), 1.5);
-///
-/// // using same-type form
 /// assert_eq!(0.0f32.lerp(0.5, 3.0), 1.5);
 /// ```
 pub trait LerpExt where Self: Num + Copy {
@@ -167,6 +177,15 @@ pub trait LerpExt where Self: Num + Copy {
 }
 
 /// Trait to add generic linear interpolation to types
+///
+/// ```
+/// use combustion_common::num_utils::LerpGenericExt;
+/// use combustion_common::color::Color;
+///
+/// let gray = Color::new(0.5, 0.5, 0.5, 1.0);
+///
+/// assert_eq!(gray, Color::white().lerp(Color::black(), 0.5));
+/// ```
 pub trait LerpGenericExt: Sized {
     /// Linearly interpolate `self` with `other` based on the weight value `t`
     ///
