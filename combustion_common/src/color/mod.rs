@@ -21,6 +21,7 @@ use self::palette::*;
 use num_utils::{AlmostEqExt, LerpGenericExt, ClampExt};
 
 pub mod ops;
+pub mod ext;
 pub mod blend;
 pub mod tonemap;
 
