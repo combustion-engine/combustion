@@ -141,11 +141,11 @@ pub fn lerp<T: Num + Copy>(x: T, x0: T, y0: T, x1: T, y1: T) -> T {
 ///
 /// assert_eq!(lerp(0.5f32, 0.0, 3.0), 1.5);
 /// ```
-pub fn lerp_generic<T, W: Num + Copy>(t: W, v0: T, v1: T) -> <<W as Mul<T>>::Output as Add>::Output
-    where W: Mul<T>,
-          T: Add<<W as Mul<T>>::Output>,
-          <W as Mul<T>>::Output: Add<<W as Mul<T>>::Output> {
-    (W::one() - t) * v0 + t * v1
+pub fn lerp_generic<T, W: Num + Copy>(v0: T, v1: T, t: W) -> <<T as Mul<W>>::Output as Add>::Output where T: Mul<W>,
+                                                                                                          <T as Mul<W>>::Output: Add<<T as Mul<W>>::Output>,
+                                                                                                          <T as Mul<W>>::Output: Add<W> {
+    // Ordered like this to preserve RHS ops
+    v0 * (W::one() - t) + v1 * t
 }
 
 /// Trait to add generic linear interpolation functionality to types directly.
@@ -159,20 +159,22 @@ pub fn lerp_generic<T, W: Num + Copy>(t: W, v0: T, v1: T) -> <<W as Mul<T>>::Out
 /// // using same-type form
 /// assert_eq!(0.0f32.lerp(0.5, 3.0), 1.5);
 /// ```
-pub trait LerpExt: Sized {
+pub trait LerpExt where Self: Num + Copy {
+    /// Linearly interpolate `self` with `other` based on the weight value `t`
+    fn lerp(self, t: Self, other: Self) -> Self {
+        (Self::one() - t) * self + t * other
+    }
+}
+
+/// Trait to add generic linear interpolation to types
+pub trait LerpGenericExt: Sized {
     /// Linearly interpolate `self` with `other` based on the weight value `t`
     ///
     /// This is the generic form which can support non-numeric `Self` types if they satisfy the clause conditions.
-    fn lerp_generic<W: Num + Copy>(self, t: W, other: Self) -> <<W as Mul<Self>>::Output as Add>::Output
-        where W: Mul<Self>,
-              Self: Add<<W as Mul<Self>>::Output>,
-              <W as Mul<Self>>::Output: Add<<W as Mul<Self>>::Output> {
-        (W::one() - t) * self + t * other
-    }
-
-    /// Linearly interpolate `self` with `other` based on the weight value `t`
-    fn lerp(self, t: Self, other: Self) -> Self where Self: Num + Copy {
-        (Self::one() - t) * self + t * other
+    fn lerp<W: Num + Copy>(self, other: Self, t: W) -> <<Self as Mul<W>>::Output as Add>::Output where Self: Mul<W>,
+                                                                                                       <Self as Mul<W>>::Output: Add<<Self as Mul<W>>::Output>,
+                                                                                                       <Self as Mul<W>>::Output: Add<W> {
+        self * (W::one() - t) + other * t
     }
 }
 
