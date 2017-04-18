@@ -43,6 +43,10 @@ pub struct BlendModes { pub source: BlendMode, pub destination: BlendMode }
 
 pub struct SeparateBlendModes { pub color: BlendModes, pub alpha: BlendModes }
 
+impl Default for SeparateBlendModes {
+    fn default() -> SeparateBlendModes { DEFAULT_BLEND_MODES }
+}
+
 pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     color: BlendModes {
         source: BlendMode::SourceAlpha,
