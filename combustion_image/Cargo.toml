@@ -1,5 +1,5 @@
 [package]
-name = "combustion_2d"
+name = "combustion_image"
 version = "0.1.0"
 authors = ["Aaron Trent <novacrazy@gmail.com>"]
 
