@@ -176,6 +176,31 @@ pub trait LerpExt: Sized {
     }
 }
 
-impl LerpExt for f32 {}
+impl<T> LerpExt for T where T: Num + Copy {}
 
-impl LerpExt for f64 {}
+/// Scales a value between the range `in_min` and `in_max` to the range of `out_min` to `out_max`
+///
+/// ```
+/// use combustion_common::num_utils::scale;
+///
+/// assert_eq!(scale(0.5f32, 0.0, 1.0, 0.0, 2.0), 1.0);
+/// ```
+pub fn scale<T: Num + Copy>(x: T, in_min: T, in_max: T, out_min: T, out_max: T) -> T {
+    (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+}
+
+/// Add `scale` method to `Num + Copy` types to scale their value
+///
+/// ```
+/// use combustion_common::num_utils::ScaleExt;
+///
+/// assert_eq!(0.5f32.scale(0.0, 1.0, 0.0, 2.0), 1.0);
+/// ```
+pub trait ScaleExt where Self: Num + Copy {
+    /// Scales the value between the range `in_min` and `in_max` to the range of `out_min` to `out_max`
+    fn scale(self, in_min: Self, in_max: Self, out_min: Self, out_max: Self) -> Self {
+        (self - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    }
+}
+
+impl<T> ScaleExt for T where T: Num + Copy {}
