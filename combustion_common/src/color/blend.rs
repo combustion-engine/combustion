@@ -2,7 +2,7 @@
 
 #![allow(missing_docs, unused_imports)]
 
-use ::num_utils::{LerpExt, LerpGenericExt};
+use ::num_utils::{LerpExt, LerpGenericExt, min_max};
 
 use super::Color;
 use super::ext::ColorExt;
@@ -61,8 +61,17 @@ pub trait ColorBlend: Sized {
     fn difference(self, other: Color, modes: SeparateBlendModes) -> Color;
     fn multiply(self, other: Color, modes: SeparateBlendModes) -> Color;
     fn average(self, other: Color, modes: SeparateBlendModes) -> Color;
-    //fn negate(self, other: Color, modes: SeparateBlendModes) -> Color;
-    //fn exclusion(self, other: Color, modes: SeparateBlendModes) -> Color;
+    fn negate(self, other: Color, modes: SeparateBlendModes) -> Color;
+    fn exclusion(self, other: Color, modes: SeparateBlendModes) -> Color;
+
+    fn lighten(self, other: Color, modes: SeparateBlendModes) -> Color;
+    fn darken(self, other: Color, modes: SeparateBlendModes) -> Color;
+
+    fn screen(self, other: Color, modes: SeparateBlendModes) -> Color;
+    fn overlay(self, other: Color, modes: SeparateBlendModes) -> Color;
+
+    fn color_dodge(self, other: Color, modes: SeparateBlendModes) -> Color;
+    fn color_burn(self, other: Color, modes: SeparateBlendModes) -> Color;
 
     fn linear_dodge(self, other: Color, modes: SeparateBlendModes) -> Color {
         self.add(other, modes)
@@ -71,6 +80,8 @@ pub trait ColorBlend: Sized {
     fn linear_burn(self, other: Color, modes: SeparateBlendModes) -> Color {
         self.subtract(other, modes)
     }
+
+    fn phoenix(self, other: Color, modes: SeparateBlendModes) -> Color;
 
     fn over(self, other: Color) -> Color;
 }
@@ -146,6 +157,134 @@ impl ColorBlend for Color {
             g: (s.g + d.g) / 2.0,
             b: (s.b + d.b) / 2.0,
             a: (s.a + d.a) / 2.0,
+        }
+    }
+
+    fn negate(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        Color {
+            r: (1.0 - (1.0 - s.r - d.r).abs()).abs(),
+            g: (1.0 - (1.0 - s.g - d.g).abs()).abs(),
+            b: (1.0 - (1.0 - s.b - d.b).abs()).abs(),
+            a: (1.0 - (1.0 - s.a - d.a).abs()).abs(),
+        }
+    }
+
+    fn exclusion(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        Color {
+            r: s.r + d.r - 2.0 * s.r * d.r,
+            g: s.g + d.g - 2.0 * s.g * d.g,
+            b: s.b + d.b - 2.0 * s.b * d.b,
+            a: s.a + d.a - 2.0 * s.a * d.a,
+        }
+    }
+
+    fn lighten(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        Color {
+            r: s.r.max(d.r),
+            g: s.g.max(d.g),
+            b: s.b.max(d.b),
+            a: s.a.max(d.a),
+        }
+    }
+
+    fn darken(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        Color {
+            r: s.r.min(d.r),
+            g: s.g.min(d.g),
+            b: s.b.min(d.b),
+            a: s.a.min(d.a),
+        }
+    }
+
+    fn screen(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        fn screen_component(x: f32, y: f32) -> f32 {
+            1.0 - ((1.0 - x) * (1.0 - y))
+        }
+
+        Color {
+            r: screen_component(s.r, d.r),
+            g: screen_component(s.g, d.g),
+            b: screen_component(s.b, d.b),
+            a: screen_component(s.a, d.a),
+        }
+    }
+
+    fn overlay(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        fn overlay_component(x: f32, y: f32) -> f32 {
+            if x < 0.5 {
+                2.0 * x * y
+            } else {
+                1.0 - 2.0 * (1.0 - x) * (1.0 - y)
+            }
+        }
+
+        Color {
+            r: overlay_component(s.r, d.r),
+            g: overlay_component(s.g, d.g),
+            b: overlay_component(s.b, d.b),
+            a: overlay_component(s.a, d.a),
+        }
+    }
+
+    fn color_dodge(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        fn color_dodge_component(x: f32, y: f32) -> f32 {
+            if y == 1.0 { y } else {
+                x / (1.0 - y)
+            }
+        }
+
+        Color {
+            r: color_dodge_component(s.r, d.r),
+            g: color_dodge_component(s.g, d.g),
+            b: color_dodge_component(s.b, d.b),
+            a: color_dodge_component(s.a, d.a),
+        }
+    }
+
+    fn color_burn(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        fn color_burn_component(x: f32, y: f32) -> f32 {
+            if y == 0.0 { y } else {
+                (1.0 - ((1.0 - x) / y)).min(0.0)
+            }
+        }
+
+        Color {
+            r: color_burn_component(s.r, d.r),
+            g: color_burn_component(s.g, d.g),
+            b: color_burn_component(s.b, d.b),
+            a: color_burn_component(s.a, d.a),
+        }
+    }
+
+    fn phoenix(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        let (rmin, rmax) = min_max(s.r, d.r);
+        let (gmin, gmax) = min_max(s.g, d.g);
+        let (bmin, bmax) = min_max(s.b, d.b);
+        let (amin, amax) = min_max(s.a, d.a);
+
+        Color {
+            r: rmin - rmax + 1.0,
+            g: gmin - gmax + 1.0,
+            b: bmin - bmax + 1.0,
+            a: amin - amax + 1.0,
         }
     }
 
