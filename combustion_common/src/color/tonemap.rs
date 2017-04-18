@@ -3,14 +3,23 @@
 use super::Color;
 
 /// Defines a filmic tonemap with curve values
+///
+/// Filmic tone maps more accurately map HDR colors to linear colorspace like classical film would,
+/// making it appear more correct to the casual viewer.
 #[derive(Debug, Clone, Copy)]
 pub struct FilmicTonemap {
-    shoulder_strength: f32,
-    linear_strength: f32,
-    linear_angle: f32,
-    toe_strength: f32,
-    toe_numerator: f32,
-    toe_denominator: f32,
+    /// Shoulder Strength
+    pub shoulder_strength: f32,
+    /// Linear Strength
+    pub linear_strength: f32,
+    /// Linear Angle
+    pub linear_angle: f32,
+    /// Toe Strength
+    pub toe_strength: f32,
+    /// Toe Numerator
+    pub toe_numerator: f32,
+    /// Toe Denominator
+    pub toe_denominator: f32,
 }
 
 /// Tonemap using in Uncharted 2 as found here [http://filmicgames.com/archives/75](http://filmicgames.com/archives/75)
@@ -45,6 +54,9 @@ fn filmic_tonemap_component(x: f32, tonemap: &FilmicTonemap) -> f32 {
 }
 
 /// Maps an HDR color to a linear color using the Filmic tonemapping equation and some predefined tonemap
+///
+/// Filmic tone maps more accurately map HDR colors to linear colorspace like classical film would,
+/// making it appear more correct to the casual viewer.
 pub fn filmic_tonemap(color: Color, tonemap: &FilmicTonemap) -> Color {
     Color {
         r: filmic_tonemap_component(color.r, tonemap),
