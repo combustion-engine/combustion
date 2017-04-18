@@ -1,0 +1,12 @@
+[package]
+name = "combustion_2d"
+version = "0.1.0"
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+
+[dependencies]
+image = "0.12.3"
+rayon = "0.7.0"
+rusttype = "0.2.1"
+
+[dependencies.combustion_common]
+path = "../combustion_common"
