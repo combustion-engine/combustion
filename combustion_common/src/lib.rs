@@ -11,7 +11,7 @@ extern crate num_traits;
 
 #[cfg(feature = "mmap")]
 extern crate memmap;
-
+extern crate image;
 extern crate nalgebra;
 extern crate palette;
 extern crate time;

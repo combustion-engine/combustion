@@ -24,6 +24,7 @@ pub mod ops;
 pub mod ext;
 pub mod blend;
 pub mod tonemap;
+pub mod image;
 
 #[inline(always)]
 fn is_zero(value: &f32) -> bool {
@@ -68,6 +69,12 @@ impl Color {
     #[inline(always)]
     pub fn from_tuple(rgba: (f32, f32, f32, f32)) -> Color {
         Color::new(rgba.0, rgba.1, rgba.2, rgba.3)
+    }
+
+    /// Converts the color back into a tuple
+    #[inline(always)]
+    pub fn into_tuple(self) -> (f32, f32, f32, f32) {
+        (self.r, self.g, self.b, self.a)
     }
 
     /// Create a new color from its name.
