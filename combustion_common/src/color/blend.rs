@@ -7,22 +7,35 @@ use ::num_utils::{LerpExt, LerpGenericExt, min_max};
 use super::Color;
 use super::ext::ColorExt;
 
+/// Blend modes for alpha blending.
+///
+/// These are as close to identical to OpenGL's blend modes as possible.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub enum BlendMode {
+    /// C * 0
     Zero,
+    /// C * 1
     One,
+    /// C * sC
     SourceColor,
+    /// C * (1 - sC)
     OneMinusSourceColor,
+    /// C * dC
     DestinationColor,
+    /// C * (1 - dC)
     OneMinusDestinationColor,
+    /// C * sA
     SourceAlpha,
+    /// C * (1 - sA)
     OneMinusSourceAlpha,
+    /// C * dA
     DestinationAlpha,
+    /// C * (1 - dA)
     OneMinusDestinationAlpha,
 }
 
 impl BlendMode {
-    pub fn apply_alpha(&self, x: f32, sc: f32, dc: f32, sa: f32, da: f32) -> f32 {
+    fn apply_alpha(&self, x: f32, sc: f32, dc: f32, sa: f32, da: f32) -> f32 {
         match *self {
             BlendMode::Zero => { 0.0 }
             BlendMode::One => { x }
@@ -38,15 +51,19 @@ impl BlendMode {
     }
 }
 
+/// Separate blend modes for both source and destination colors
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub struct BlendModes { pub source: BlendMode, pub destination: BlendMode }
 
+/// Separate blend modes for color and alpha channels
 pub struct SeparateBlendModes { pub color: BlendModes, pub alpha: BlendModes }
 
 impl Default for SeparateBlendModes {
+    /// Returns `DEFAULT_BLEND_MODES`
     fn default() -> SeparateBlendModes { DEFAULT_BLEND_MODES }
 }
 
+/// Standard blending modes that only multiple the colors by their alphas
 pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     color: BlendModes {
         source: BlendMode::SourceAlpha,
@@ -58,8 +75,40 @@ pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     }
 };
 
+/// Standard blend operations for colors.
+///
+/// These generally match all functions provided by the `ColorBlend` trait, with the exception of `over`.
+///
+/// Use these values with the `complex` method on `ColorBlend` to blend color and alpha channels separately.
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
+pub enum BlendOp {
+    Add,
+    Subtract,
+    Difference,
+    Multiply,
+    Average,
+    Negate,
+    Exclusion,
+    Lighten,
+    Darken,
+    Screen,
+    Overlay,
+    ColorDodge,
+    ColorBurn,
+    LinearDodge,
+    LinearBurn,
+    Phoenix,
+}
+
 /// Color blending extensions
+///
+/// All of these take into account alpha blending,
+/// so if the results are not as expected,
+/// check your alpha values and blending options.
 pub trait ColorBlend: Sized {
+    /// Perform a combination of blend operations for color and alpha channels separately.
+    fn complex(self, other: Color, color_op: BlendOp, alpha_op: BlendOp, modes: SeparateBlendModes) -> Color;
+
     fn add(self, other: Color, modes: SeparateBlendModes) -> Color;
     fn subtract(self, other: Color, modes: SeparateBlendModes) -> Color;
     fn difference(self, other: Color, modes: SeparateBlendModes) -> Color;
@@ -87,6 +136,7 @@ pub trait ColorBlend: Sized {
 
     fn phoenix(self, other: Color, modes: SeparateBlendModes) -> Color;
 
+    /// "Over" operation taken from [https://en.wikipedia.org/wiki/Alpha_compositing](https://en.wikipedia.org/wiki/Alpha_compositing)
     fn over(self, other: Color) -> Color;
 }
 
@@ -108,7 +158,69 @@ fn alpha_blend_components(source: Color, destination: Color, modes: SeparateBlen
     (alpha_blended_source, alpha_blended_destination)
 }
 
+#[inline]
+fn screen_component(x: f32, y: f32) -> f32 {
+    1.0 - ((1.0 - x) * (1.0 - y))
+}
+
+fn overlay_component(x: f32, y: f32) -> f32 {
+    if x < 0.5 {
+        2.0 * x * y
+    } else {
+        1.0 - 2.0 * (1.0 - x) * (1.0 - y)
+    }
+}
+
+fn color_dodge_component(x: f32, y: f32) -> f32 {
+    if y == 1.0 { y } else {
+        x / (1.0 - y)
+    }
+}
+
+fn color_burn_component(x: f32, y: f32) -> f32 {
+    if y == 0.0 { y } else {
+        (1.0 - ((1.0 - x) / y)).min(0.0)
+    }
+}
+
+#[inline]
+fn blend_component(source: f32, destination: f32, op: BlendOp) -> f32 {
+    match op {
+        BlendOp::Add |
+        BlendOp::LinearDodge => { source + destination }
+        BlendOp::Subtract |
+        BlendOp::LinearBurn => { source + destination - 1.0 }
+        BlendOp::Difference => { (source - destination).abs() }
+        BlendOp::Multiply => { source * destination }
+        BlendOp::Average => { (source + destination) / 2.0 }
+        BlendOp::Negate => { (1.0 - (1.0 - source - destination).abs()).abs() }
+        BlendOp::Exclusion => { source + destination - 2.0 * source * destination }
+        BlendOp::Lighten => { source.max(destination) }
+        BlendOp::Darken => { source.min(destination) }
+        BlendOp::Screen => { screen_component(source, destination) }
+        BlendOp::Overlay => { overlay_component(source, destination) }
+        BlendOp::ColorDodge => { color_dodge_component(source, destination) }
+        BlendOp::ColorBurn => { color_burn_component(source, destination) }
+        BlendOp::Phoenix => {
+            let (min, max) = min_max(source, destination);
+
+            min - max + 1.0
+        }
+    }
+}
+
 impl ColorBlend for Color {
+    fn complex(self, other: Color, color_op: BlendOp, alpha_op: BlendOp, modes: SeparateBlendModes) -> Color {
+        let (s, d) = alpha_blend_components(self, other, modes);
+
+        Color {
+            r: blend_component(s.r, d.r, color_op),
+            g: blend_component(s.g, d.g, color_op),
+            b: blend_component(s.b, d.b, color_op),
+            a: blend_component(s.a, d.a, alpha_op),
+        }
+    }
+
     fn add(self, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
@@ -211,10 +323,6 @@ impl ColorBlend for Color {
     fn screen(self, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
-        fn screen_component(x: f32, y: f32) -> f32 {
-            1.0 - ((1.0 - x) * (1.0 - y))
-        }
-
         Color {
             r: screen_component(s.r, d.r),
             g: screen_component(s.g, d.g),
@@ -225,14 +333,6 @@ impl ColorBlend for Color {
 
     fn overlay(self, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
-
-        fn overlay_component(x: f32, y: f32) -> f32 {
-            if x < 0.5 {
-                2.0 * x * y
-            } else {
-                1.0 - 2.0 * (1.0 - x) * (1.0 - y)
-            }
-        }
 
         Color {
             r: overlay_component(s.r, d.r),
@@ -245,12 +345,6 @@ impl ColorBlend for Color {
     fn color_dodge(self, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
-        fn color_dodge_component(x: f32, y: f32) -> f32 {
-            if y == 1.0 { y } else {
-                x / (1.0 - y)
-            }
-        }
-
         Color {
             r: color_dodge_component(s.r, d.r),
             g: color_dodge_component(s.g, d.g),
@@ -261,12 +355,6 @@ impl ColorBlend for Color {
 
     fn color_burn(self, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
-
-        fn color_burn_component(x: f32, y: f32) -> f32 {
-            if y == 0.0 { y } else {
-                (1.0 - ((1.0 - x) / y)).min(0.0)
-            }
-        }
 
         Color {
             r: color_burn_component(s.r, d.r),
