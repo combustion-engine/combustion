@@ -75,6 +75,30 @@ pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     }
 };
 
+/// Blend modes that prefer to overlay the source color
+pub const PREFER_SOURCE_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
+    color: BlendModes {
+        source: BlendMode::SourceAlpha,
+        destination: BlendMode::OneMinusSourceAlpha,
+    },
+    alpha: BlendModes {
+        source: BlendMode::One,
+        destination: BlendMode::One,
+    }
+};
+
+/// Ignore alpha blending
+pub const IGNORE_ALPHA_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
+    color: BlendModes {
+        source: BlendMode::One,
+        destination: BlendMode::One,
+    },
+    alpha: BlendModes {
+        source: BlendMode::One,
+        destination: BlendMode::One,
+    }
+};
+
 /// Standard blend operations for colors.
 ///
 /// These generally match all functions provided by the `ColorBlend` trait, with the exception of `over`.
@@ -82,6 +106,7 @@ pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
 /// Use these values with the `complex` method on `ColorBlend` to blend color and alpha channels separately.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub enum BlendOp {
+    Normal,
     Add,
     Subtract,
     Difference,
@@ -108,6 +133,8 @@ pub enum BlendOp {
 pub trait ColorBlend: Sized {
     /// Perform a combination of blend operations for color and alpha channels separately.
     fn complex(self, other: Color, color_op: BlendOp, alpha_op: BlendOp, modes: SeparateBlendModes) -> Color;
+
+    fn normal(self, other: Color, modes: SeparateBlendModes) -> Color;
 
     fn add(self, other: Color, modes: SeparateBlendModes) -> Color;
     fn subtract(self, other: Color, modes: SeparateBlendModes) -> Color;
@@ -138,6 +165,9 @@ pub trait ColorBlend: Sized {
 
     /// "Over" operation taken from [https://en.wikipedia.org/wiki/Alpha_compositing](https://en.wikipedia.org/wiki/Alpha_compositing)
     fn over(self, other: Color) -> Color;
+
+    /// Short for `other.over(self)`
+    fn under(self, other: Color) -> Color;
 }
 
 fn alpha_blend_components(source: Color, destination: Color, modes: SeparateBlendModes) -> (Color, Color) {
@@ -208,6 +238,7 @@ mod blend_ops {
 #[inline]
 fn blend_component(source: f32, destination: f32, op: BlendOp) -> f32 {
     match op {
+        BlendOp::Normal => { destination }
         BlendOp::Add |
         BlendOp::LinearDodge => { source + destination }
         BlendOp::Subtract |
@@ -241,6 +272,12 @@ impl ColorBlend for Color {
             b: blend_component(s.b, d.b, color_op),
             a: blend_component(s.a, d.a, alpha_op),
         }
+    }
+
+    fn normal(self, other: Color, modes: SeparateBlendModes) -> Color {
+        let (_, d) = alpha_blend_components(self, other, modes);
+
+        d
     }
 
     fn add(self, other: Color, modes: SeparateBlendModes) -> Color {
@@ -414,5 +451,9 @@ impl ColorBlend for Color {
             b: over_component(self.b, other.b, self.a, other.a),
             a: self.a + other.a * (1.0 - self.a)
         }
+    }
+
+    fn under(self, other: Color) -> Color {
+        other.over(self)
     }
 }
