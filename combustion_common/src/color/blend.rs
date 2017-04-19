@@ -158,28 +158,50 @@ fn alpha_blend_components(source: Color, destination: Color, modes: SeparateBlen
     (alpha_blended_source, alpha_blended_destination)
 }
 
-#[inline]
-fn screen_component(x: f32, y: f32) -> f32 {
-    1.0 - ((1.0 - x) * (1.0 - y))
-}
+/// More complex blend ops that are best put into their own functions
+mod blend_ops {
+    // Simple functions get #[inline]
+    // Simple functions with no conditionals get #[inline(always)]
+    // Complex functions with conditionals get no inlining
 
-fn overlay_component(x: f32, y: f32) -> f32 {
-    if x < 0.5 {
-        2.0 * x * y
-    } else {
-        1.0 - 2.0 * (1.0 - x) * (1.0 - y)
+    #[inline]
+    pub fn subtract_component(source: f32, destination: f32) -> f32 {
+        (source + destination - 1.0).max(0.0)
     }
-}
 
-fn color_dodge_component(x: f32, y: f32) -> f32 {
-    if y == 1.0 { y } else {
-        x / (1.0 - y)
+    #[inline]
+    pub fn negate_component(source: f32, destination: f32) -> f32 {
+        (1.0 - (1.0 - source - destination).abs()).abs()
     }
-}
 
-fn color_burn_component(x: f32, y: f32) -> f32 {
-    if y == 0.0 { y } else {
-        (1.0 - ((1.0 - x) / y)).min(0.0)
+    #[inline(always)]
+    pub fn exclusion_component(source: f32, destination: f32) -> f32 {
+        source + destination - 2.0 * source * destination
+    }
+
+    #[inline(always)]
+    pub fn screen_component(source: f32, destination: f32) -> f32 {
+        1.0 - ((1.0 - source) * (1.0 - destination))
+    }
+
+    pub fn overlay_component(source: f32, destination: f32) -> f32 {
+        if source < 0.5 {
+            2.0 * source * destination
+        } else {
+            1.0 - 2.0 * (1.0 - source) * (1.0 - destination)
+        }
+    }
+
+    pub fn color_dodge_component(source: f32, destination: f32) -> f32 {
+        if destination == 1.0 { destination } else {
+            source / (1.0 - destination)
+        }
+    }
+
+    pub fn color_burn_component(source: f32, destination: f32) -> f32 {
+        if destination == 0.0 { destination } else {
+            (1.0 - ((1.0 - source) / destination)).min(0.0)
+        }
     }
 }
 
@@ -189,18 +211,18 @@ fn blend_component(source: f32, destination: f32, op: BlendOp) -> f32 {
         BlendOp::Add |
         BlendOp::LinearDodge => { source + destination }
         BlendOp::Subtract |
-        BlendOp::LinearBurn => { source + destination - 1.0 }
+        BlendOp::LinearBurn => { blend_ops::subtract_component(source, destination) }
         BlendOp::Difference => { (source - destination).abs() }
         BlendOp::Multiply => { source * destination }
         BlendOp::Average => { (source + destination) / 2.0 }
-        BlendOp::Negate => { (1.0 - (1.0 - source - destination).abs()).abs() }
-        BlendOp::Exclusion => { source + destination - 2.0 * source * destination }
+        BlendOp::Negate => { blend_ops::negate_component(source, destination) }
+        BlendOp::Exclusion => { blend_ops::exclusion_component(source, destination) }
         BlendOp::Lighten => { source.max(destination) }
         BlendOp::Darken => { source.min(destination) }
-        BlendOp::Screen => { screen_component(source, destination) }
-        BlendOp::Overlay => { overlay_component(source, destination) }
-        BlendOp::ColorDodge => { color_dodge_component(source, destination) }
-        BlendOp::ColorBurn => { color_burn_component(source, destination) }
+        BlendOp::Screen => { blend_ops::screen_component(source, destination) }
+        BlendOp::Overlay => { blend_ops::overlay_component(source, destination) }
+        BlendOp::ColorDodge => { blend_ops::color_dodge_component(source, destination) }
+        BlendOp::ColorBurn => { blend_ops::color_burn_component(source, destination) }
         BlendOp::Phoenix => {
             let (min, max) = min_max(source, destination);
 
@@ -236,10 +258,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: (s.r + d.r - 1.0).max(0.0),
-            g: (s.g + d.g - 1.0).max(0.0),
-            b: (s.b + d.b - 1.0).max(0.0),
-            a: (s.a + d.a - 1.0).max(0.0),
+            r: blend_ops::subtract_component(s.r, d.r),
+            g: blend_ops::subtract_component(s.g, d.g),
+            b: blend_ops::subtract_component(s.b, d.b),
+            a: blend_ops::subtract_component(s.a, d.a),
         }
     }
 
@@ -280,10 +302,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: (1.0 - (1.0 - s.r - d.r).abs()).abs(),
-            g: (1.0 - (1.0 - s.g - d.g).abs()).abs(),
-            b: (1.0 - (1.0 - s.b - d.b).abs()).abs(),
-            a: (1.0 - (1.0 - s.a - d.a).abs()).abs(),
+            r: blend_ops::negate_component(s.r, d.r),
+            g: blend_ops::negate_component(s.g, d.g),
+            b: blend_ops::negate_component(s.b, d.b),
+            a: blend_ops::negate_component(s.a, d.a),
         }
     }
 
@@ -291,10 +313,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: s.r + d.r - 2.0 * s.r * d.r,
-            g: s.g + d.g - 2.0 * s.g * d.g,
-            b: s.b + d.b - 2.0 * s.b * d.b,
-            a: s.a + d.a - 2.0 * s.a * d.a,
+            r: blend_ops::exclusion_component(s.r, d.r),
+            g: blend_ops::exclusion_component(s.g, d.g),
+            b: blend_ops::exclusion_component(s.b, d.b),
+            a: blend_ops::exclusion_component(s.a, d.a),
         }
     }
 
@@ -324,10 +346,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: screen_component(s.r, d.r),
-            g: screen_component(s.g, d.g),
-            b: screen_component(s.b, d.b),
-            a: screen_component(s.a, d.a),
+            r: blend_ops::screen_component(s.r, d.r),
+            g: blend_ops::screen_component(s.g, d.g),
+            b: blend_ops::screen_component(s.b, d.b),
+            a: blend_ops::screen_component(s.a, d.a),
         }
     }
 
@@ -335,10 +357,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: overlay_component(s.r, d.r),
-            g: overlay_component(s.g, d.g),
-            b: overlay_component(s.b, d.b),
-            a: overlay_component(s.a, d.a),
+            r: blend_ops::overlay_component(s.r, d.r),
+            g: blend_ops::overlay_component(s.g, d.g),
+            b: blend_ops::overlay_component(s.b, d.b),
+            a: blend_ops::overlay_component(s.a, d.a),
         }
     }
 
@@ -346,10 +368,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: color_dodge_component(s.r, d.r),
-            g: color_dodge_component(s.g, d.g),
-            b: color_dodge_component(s.b, d.b),
-            a: color_dodge_component(s.a, d.a),
+            r: blend_ops::color_dodge_component(s.r, d.r),
+            g: blend_ops::color_dodge_component(s.g, d.g),
+            b: blend_ops::color_dodge_component(s.b, d.b),
+            a: blend_ops::color_dodge_component(s.a, d.a),
         }
     }
 
@@ -357,10 +379,10 @@ impl ColorBlend for Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
-            r: color_burn_component(s.r, d.r),
-            g: color_burn_component(s.g, d.g),
-            b: color_burn_component(s.b, d.b),
-            a: color_burn_component(s.a, d.a),
+            r: blend_ops::color_burn_component(s.r, d.r),
+            g: blend_ops::color_burn_component(s.g, d.g),
+            b: blend_ops::color_burn_component(s.b, d.b),
+            a: blend_ops::color_burn_component(s.a, d.a),
         }
     }
 
