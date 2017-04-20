@@ -8,7 +8,6 @@ publish = false
 version = "0.2.0"
 
 [dependencies]
-image = "0.12.3"
 num-traits = "0.1"
 rand = "0.3"
 serde = "0.9"

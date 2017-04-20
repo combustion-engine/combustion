@@ -1,111 +1,99 @@
-//! Thin Color compatibility with the `image` crate
+//! Bare-bones image structure
 
-use image::{Pixel, ColorType, Rgb, Rgba, Luma, LumaA};
+use std::fmt::{Debug, Formatter, Result as FmtResult};
 
 use super::Color;
 
-/// To avoid polluting the `Color` type with the `Pixel` trait, this struct wraps it.
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct ColorPixel(pub Color);
+/// Bare-bones image structure
+#[derive(Clone)]
+pub struct Image {
+    data: Vec<Color>,
+    width: u32,
+    height: u32,
+}
 
-impl From<Color> for ColorPixel {
-    #[inline(always)]
-    fn from(color: Color) -> ColorPixel {
-        ColorPixel(color)
+impl Debug for Image {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "Image {{width: {}, height: {}}}", self.width, self.height)
     }
 }
 
-impl From<ColorPixel> for Color {
-    #[inline(always)]
-    fn from(pixel: ColorPixel) -> Color {
-        pixel.0
-    }
-}
-
-impl Pixel for ColorPixel {
-    type Subpixel = f32;
-
-    #[inline(always)]
-    fn channel_count() -> u8 { 4 }
-
-    fn channels(&self) -> &[Self::Subpixel] {
-        unsafe { ::std::slice::from_raw_parts(self as *const _ as *const f32, 4) }
+impl Image {
+    /// Create new `Image`
+    pub fn new(width: u32, height: u32) -> Image {
+        Image::with_pixel(width, height, Color::black())
     }
 
-    fn channels_mut(&mut self) -> &mut [Self::Subpixel] {
-        unsafe { ::std::slice::from_raw_parts_mut(self as *mut _ as *mut f32, 4) }
+    /// Create new `Image` with a default pixel color
+    pub fn with_pixel(width: u32, height: u32, pixel: Color) -> Image {
+        let len = width * height;
+
+        Image {
+            data: vec![pixel; len as usize],
+            width: width,
+            height: height,
+        }
     }
 
-    #[inline(always)]
-    fn color_model() -> &'static str { "RGBA" }
+    /// Image width
+    pub fn width(&self) -> u32 { self.width }
 
-    #[inline(always)]
-    fn color_type() -> ColorType {
-        ColorType::RGBA(32)
+    /// Image height
+    pub fn height(&self) -> u32 { self.height }
+
+    /// Get immutable reference to a pixel
+    pub fn pixel(&self, x: u32, y: u32) -> Option<&Color> {
+        if x < self.width && y < self.height {
+            let i = x + self.width * (self.height - y - 1);
+
+            Some(&self.data[i as usize])
+        } else {
+            None
+        }
     }
 
-    #[inline(always)]
-    fn channels4(&self) -> (f32, f32, f32, f32) {
-        self.0.into_tuple()
+    /// Get mutable reference to a pixel
+    pub fn pixel_mut(&mut self, x: u32, y: u32) -> Option<&mut Color> {
+        if x < self.width && y < self.height {
+            let i = x + self.width * (self.height - y - 1);
+
+            Some(&mut self.data[i as usize])
+        } else {
+            None
+        }
     }
 
-    #[inline(always)]
-    fn from_channels(a: f32, b: f32, c: f32, d: f32) -> ColorPixel {
-        ColorPixel(Color::from_tuple((a, b, c, d)))
+    /// Map a function to all pixels in an image to return a new image
+    pub fn map<F>(self, f: F) -> Image where F: Fn(Color) -> Color {
+        Image {
+            data: self.data.into_iter().map(f).collect(),
+            ..self
+        }
     }
 
-    fn from_slice<'a>(slice: &'a [Self::Subpixel]) -> &'a Self {
-        unsafe { ::std::mem::transmute(&*slice.as_ptr()) }
+    /// Apply a function to all pixels in an image in-place
+    pub fn apply<F>(&mut self, f: F) where F: Fn(&mut Color) {
+        for mut pixel in &mut self.data {
+            f(pixel)
+        }
     }
 
-    fn from_slice_mut<'a>(slice: &'a mut [Self::Subpixel]) -> &'a mut Self {
-        unsafe { ::std::mem::transmute(&mut *slice.as_mut_ptr()) }
+    /// Convert into `Vec<Color>`
+    pub fn into_vec(self) -> Vec<Color> {
+        self.data
     }
 
-    fn to_rgb(&self) -> Rgb<Self::Subpixel> {
-        Rgb { data: [self.0.r, self.0.g, self.0.b] }
-    }
+    /// Convert into vector of every subpixel converted into `u8`
+    pub fn into_u8_component_vec(self) -> Vec<u8> {
+        let mut res = Vec::with_capacity(self.data.len() * 4);
 
-    fn to_rgba(&self) -> Rgba<Self::Subpixel> {
-        Rgba { data: [self.0.r, self.0.g, self.0.b, self.0.a] }
-    }
+        for color in &self.data {
+            res.push((color.r * 255.0) as u8);
+            res.push((color.g * 255.0) as u8);
+            res.push((color.b * 255.0) as u8);
+            res.push((color.a * 255.0) as u8);
+        }
 
-    fn to_luma(&self) -> Luma<Self::Subpixel> {
-        self.to_rgb().to_luma()
-    }
-
-    fn to_luma_alpha(&self) -> LumaA<Self::Subpixel> {
-        self.to_rgba().to_luma_alpha()
-    }
-
-    fn map<F>(&self, _: F) -> Self where F: Fn(Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-    fn apply<F>(&mut self, _: F) where F: Fn(Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-
-    fn map_with_alpha<F, G>(&self, _: F, _: G) -> Self where F: Fn(Self::Subpixel) -> Self::Subpixel, G: Fn(Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-
-    fn apply_with_alpha<F, G>(&mut self, _: F, _: G) where F: Fn(Self::Subpixel) -> Self::Subpixel, G: Fn(Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-
-    fn map2<F>(&self, _: &Self, _: F) -> Self where F: Fn(Self::Subpixel, Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-
-    fn apply2<F>(&mut self, _: &Self, _: F) where F: Fn(Self::Subpixel, Self::Subpixel) -> Self::Subpixel {
-        unimplemented!()
-    }
-
-    fn invert(&mut self) {
-        unimplemented!()
-    }
-
-    fn blend(&mut self, _: &Self) {
-        unimplemented!()
+        res
     }
 }
