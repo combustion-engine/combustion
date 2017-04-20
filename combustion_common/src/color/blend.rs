@@ -2,7 +2,7 @@
 
 #![allow(missing_docs, unused_imports)]
 
-use ::num_utils::{LerpExt, LerpGenericExt, min_max};
+use ::num_utils::{LerpExt, LerpGenericExt, ClampExt, min_max};
 
 use super::Color;
 use super::ext::ColorExt;
@@ -132,7 +132,7 @@ pub enum BlendOp {
 /// check your alpha values and blending options.
 pub trait ColorBlend: Sized {
     /// Perform a combination of blend operations for color and alpha channels separately.
-    fn complex(self, other: Color, color_op: BlendOp, alpha_op: BlendOp, modes: SeparateBlendModes) -> Color;
+    fn complex(self, color_op: BlendOp, alpha_op: BlendOp, other: Color, modes: SeparateBlendModes) -> Color;
 
     fn normal(self, other: Color, modes: SeparateBlendModes) -> Color;
 
@@ -175,14 +175,16 @@ fn alpha_blend_components(source: Color, destination: Color, modes: SeparateBlen
         r: modes.color.source.apply_alpha(source.r, source.r, destination.r, source.a, destination.a),
         g: modes.color.source.apply_alpha(source.g, source.g, destination.g, source.a, destination.a),
         b: modes.color.source.apply_alpha(source.b, source.b, destination.b, source.a, destination.a),
-        a: modes.alpha.source.apply_alpha(source.a, source.a, destination.a, source.a, destination.a),
+        a: modes.alpha.source.apply_alpha(source.a, source.a, destination.a, source.a, destination.a)
+                             .clamp(0.0, 1.0),
     };
 
     let alpha_blended_destination = Color {
         r: modes.color.destination.apply_alpha(destination.r, source.r, destination.r, source.a, destination.a),
         g: modes.color.destination.apply_alpha(destination.g, source.g, destination.g, source.a, destination.a),
         b: modes.color.destination.apply_alpha(destination.b, source.b, destination.b, source.a, destination.a),
-        a: modes.alpha.destination.apply_alpha(destination.a, source.a, destination.a, source.a, destination.a),
+        a: modes.alpha.destination.apply_alpha(destination.a, source.a, destination.a, source.a, destination.a)
+                                  .clamp(0.0, 1.0),
     };
 
     (alpha_blended_source, alpha_blended_destination)
@@ -263,7 +265,8 @@ fn blend_component(source: f32, destination: f32, op: BlendOp) -> f32 {
 }
 
 impl ColorBlend for Color {
-    fn complex(self, other: Color, color_op: BlendOp, alpha_op: BlendOp, modes: SeparateBlendModes) -> Color {
+    #[inline]
+    fn complex(self, color_op: BlendOp, alpha_op: BlendOp, other: Color, modes: SeparateBlendModes) -> Color {
         let (s, d) = alpha_blend_components(self, other, modes);
 
         Color {
