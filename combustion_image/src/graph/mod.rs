@@ -1,10 +1,6 @@
-pub mod line;
-pub mod function;
+pub mod plot;
 pub mod dots;
-pub mod shapes;
-
-pub trait Graphable {
-    type PlotData;
-
-    fn plot(x: u32, y: u32, i: f64, Self::PlotData);
-}
+pub mod line;
+pub mod curve;
+pub mod function;
+pub mod shape;
