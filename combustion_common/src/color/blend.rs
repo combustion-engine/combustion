@@ -75,11 +75,24 @@ pub const DEFAULT_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     }
 };
 
-/// Blend modes that prefer to overlay the source color
+/// Blend modes that used the source alpha for blending
 pub const PREFER_SOURCE_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
     color: BlendModes {
         source: BlendMode::SourceAlpha,
         destination: BlendMode::OneMinusSourceAlpha,
+    },
+    alpha: BlendModes {
+        source: BlendMode::One,
+        destination: BlendMode::One,
+    }
+};
+
+/// The opposite of `PREFER_SOURCE_BLEND_MODES`,
+/// this uses the destination alpha for blending.
+pub const PREFER_DESTINATION_BLEND_MODES: SeparateBlendModes = SeparateBlendModes {
+    color: BlendModes {
+        source: BlendMode::OneMinusDestinationAlpha,
+        destination: BlendMode::DestinationAlpha,
     },
     alpha: BlendModes {
         source: BlendMode::One,
