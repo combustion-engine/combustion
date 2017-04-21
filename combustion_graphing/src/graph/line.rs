@@ -2,8 +2,6 @@
 //!
 //! All of these take a `plot` function to draw a single pixel on the image.
 
-use common::num_utils::min_max;
-
 use super::plot::plot_gaussian_dot;
 
 /// Uses Xiaolin Wu's algorithm to draw a line, but where it would normally draw a single pixel it instead draws a thick dot determined

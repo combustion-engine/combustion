@@ -101,7 +101,7 @@ pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut p
 }
 
 /// Draws a rectangle at the points given
-pub fn draw_rectangle<L>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut draw_line: L) where L: FnMut(i64, i64, i64, i64) {
+pub fn draw_rectangle<L>(x0: i64, y0: i64, x1: i64, y1: i64, mut draw_line: L) where L: FnMut(i64, i64, i64, i64) {
     draw_line(x0, y0, x1, y0);
     draw_line(x0, y0, x0, y1);
     draw_line(x1, y0, x1, y1);
