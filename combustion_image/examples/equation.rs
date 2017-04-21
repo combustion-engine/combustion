@@ -76,7 +76,7 @@ fn main() {
 
         foreground.set(Color::from_name("red").unwrap());
 
-        combustion_image::graph::function::graph_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
+        combustion_image::graph::function::graph_linear_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
             combustion_image::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
         });
 
@@ -87,7 +87,7 @@ fn main() {
 
         foreground.set(Color::from_name("blue").unwrap());
 
-        combustion_image::graph::function::graph_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
+        combustion_image::graph::function::graph_linear_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
             combustion_image::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
         });
 
@@ -97,7 +97,7 @@ fn main() {
 
         foreground.set(Color::from_name("green").unwrap());
 
-        combustion_image::graph::function::graph_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
+        combustion_image::graph::function::graph_linear_equation(w, h, x_domain.clone(), y_domain.clone(), w as usize, func, |x0, y0, x1, y1| {
             combustion_image::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
         });
     }

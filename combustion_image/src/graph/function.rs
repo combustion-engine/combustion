@@ -2,8 +2,8 @@ use std::ops::Range;
 
 use common::num_utils::ScaleExt;
 
-pub fn graph_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, mut draw_line: L) where F: Fn(f64) -> f64,
-                                                                                                                                             L: FnMut(i64, i64, i64, i64) {
+pub fn graph_linear_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, mut draw_line: L) where F: Fn(f64) -> f64,
+                                                                                                                                                    L: FnMut(i64, i64, i64, i64) {
     let dx = (domain_x.end - domain_x.start) / steps as f64;
 
     let mut x0 = domain_x.start;
@@ -84,7 +84,7 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
 }
 
 // WIP
-pub fn graph_planar<F, P>(width: u32, height: u32, domain_k: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, x_step: usize, y_step: usize, f: F, mut plot: P) where F: Fn(f64, f64) -> f64,
+pub fn graph_planar_equation<F, P>(width: u32, height: u32, domain_k: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, x_step: usize, y_step: usize, f: F, mut plot: P) where F: Fn(f64, f64) -> f64,
                                                                                                                                                                             P: FnMut(i64, i64, f64, f64) {
     let (w, h) = (width as i64, height as i64);
     let (wf, hf) = (width as f64, height as f64);
