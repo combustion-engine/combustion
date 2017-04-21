@@ -83,6 +83,7 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
     }
 }
 
+// WIP
 pub fn graph_planar<F, P>(width: u32, height: u32, domain_k: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, x_step: usize, y_step: usize, f: F, mut plot: P) where F: Fn(f64, f64) -> f64,
                                                                                                                                                                             P: FnMut(i64, i64, f64, f64) {
     let (w, h) = (width as i64, height as i64);

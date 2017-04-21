@@ -87,6 +87,7 @@ pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut p
             dy += a;
             err += dy;
         }
+
         if e2 >= dx || 2 * err > dy {
             x0 += 1;
             x1 -= 1;
