@@ -19,6 +19,10 @@ pub enum LineStyle {
     Thick {
         width: f64,
         hardness: f64,
+    },
+    ThickAA {
+        width: f64,
+        hardness: f64,
     }
 }
 
@@ -26,6 +30,15 @@ impl LineStyle {
     /// Convenience method for `LineStyle::Thick`
     pub fn thick(width: f64, hardness: f64) -> LineStyle {
         LineStyle::Thick { width: width, hardness: hardness }
+    }
+
+    /// Add anti-aliasing to the line
+    pub fn aa(self) -> LineStyle {
+        match self {
+            LineStyle::Thin => LineStyle::ThinAA,
+            LineStyle::Thick { width, hardness } => LineStyle::ThickAA { width: width, hardness: hardness },
+            _ => self
+        }
     }
 }
 
@@ -125,19 +138,26 @@ impl Plotter for Plot {
 
     #[inline]
     fn draw_line(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle) {
-        let draw_pixel = |x, y, alpha| {
-            self.draw_pixel(x, y, alpha)
-        };
-
         match style {
             LineStyle::Thin => {
-                line::draw_line_bresenham(x0, y0, x1, y1, draw_pixel)
+                line::draw_line_bresenham(x0, y0, x1, y1, |x, y, alpha| {
+                    self.draw_pixel(x, y, alpha)
+                })
             }
             LineStyle::ThinAA => {
-                line::draw_line_xiaolin_wu(x0, y0, x1, y1, draw_pixel)
+                line::draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
+                    self.draw_pixel(x, y, alpha)
+                })
             }
             LineStyle::Thick { width, hardness } => {
-                line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, draw_pixel)
+                line::draw_line_bresenham(x0, y0, x1, y1, |x, y, alpha| {
+                    self.draw_dot(x, y, alpha, width, hardness)
+                })
+            }
+            LineStyle::ThickAA { width, hardness } => {
+                line::draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
+                    self.draw_dot(x, y, alpha, width, hardness)
+                })
             }
         }
     }
@@ -145,11 +165,17 @@ impl Plotter for Plot {
     #[inline]
     fn draw_circle(&mut self, x: i64, y: i64, radius: i64, style: LineStyle) {
         match style {
-            LineStyle::Thin | LineStyle::ThinAA => {
+            LineStyle::Thin => {
                 shape::draw_circle(x, y, radius, |x, y, alpha| self.draw_pixel(x, y, alpha))
+            }
+            LineStyle::ThinAA => {
+                shape::draw_circle_aa(x, y, radius, |x, y, alpha| self.draw_pixel(x, y, alpha))
             }
             LineStyle::Thick { width, hardness } => {
                 shape::draw_circle(x, y, radius, |x, y, alpha| self.draw_dot(x, y, alpha, width, hardness))
+            }
+            LineStyle::ThickAA { width, hardness } => {
+                shape::draw_circle_aa(x, y, radius, |x, y, alpha| self.draw_dot(x, y, alpha, width, hardness))
             }
         }
     }
@@ -157,11 +183,17 @@ impl Plotter for Plot {
     #[inline]
     fn draw_ellipse(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle) {
         match style {
-            LineStyle::Thin | LineStyle::ThinAA => {
+            LineStyle::Thin => {
                 shape::draw_ellipse(x0, y0, x1, y1, |x, y, alpha| self.draw_pixel(x, y, alpha))
+            }
+            LineStyle::ThinAA => {
+                shape::draw_ellipse_aa(x0, y0, x1, y1, |x, y, alpha| self.draw_pixel(x, y, alpha))
             }
             LineStyle::Thick { width, hardness } => {
                 shape::draw_ellipse(x0, y0, x1, y1, |x, y, alpha| self.draw_dot(x, y, alpha, width, hardness))
+            }
+            LineStyle::ThickAA { width, hardness } => {
+                shape::draw_ellipse_aa(x0, y0, x1, y1, |x, y, alpha| self.draw_dot(x, y, alpha, width, hardness))
             }
         }
     }

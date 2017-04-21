@@ -13,25 +13,31 @@ use graphing::graph::{LineStyle, Graph, RectangularGraph, Plotter};
 fn main() {
     let mut graph = Graph::with_background(1000, 1000, Color::white(), -10.0..10.0, -10.0..10.0);
 
+    let samples = graph.width() as usize + 1;
+
     graph.set_foreground(Color::black());
 
     graph.draw_axis(LineStyle::Thin);
 
+    graph.draw_circle(300, 300, 10, LineStyle::thick(5.0, 1.0).aa());
+
+    graph.draw_ellipse(200, 700, 400, 800, LineStyle::thick(2.0, 1.0).aa());
+
     graph.set_foreground(Color::from_name("red").unwrap());
 
-    graph.linear_equation(1000, LineStyle::thick(2.0, 2.0), |x| {
+    graph.linear_equation(samples, LineStyle::thick(4.0, 1.0), |x| {
         2.0f64.powf(x.sin())
     });
 
     graph.set_foreground(Color::from_name("blue").unwrap());
 
-    graph.linear_equation(1000, LineStyle::thick(2.0, 2.0), |x| {
+    graph.linear_equation(samples, LineStyle::thick(4.0, 1.0), |x| {
         -2.0f64.powf(-x.sin())
     });
 
     graph.set_foreground(Color::from_name("green").unwrap());
 
-    graph.linear_equation(1000, LineStyle::thick(2.0, 2.0), |x| {
+    graph.linear_equation(samples, LineStyle::thick(2.0, 1.0).aa(), |x| {
         x.sin() + (x * x).sin()
     });
 
