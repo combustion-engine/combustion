@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 
-extern crate combustion_image;
+extern crate combustion_graphing;
 extern crate combustion_common as common;
 
 extern crate image;
@@ -16,7 +16,7 @@ use common::color::blend::PREFER_DESTINATION_BLEND_MODES;
 use common::color::tonemap::aces_filmic_tonemap;
 use common::color::image::Image;
 
-use combustion_image::stat::gaussian_dot_pdf;
+use combustion_graphing::stat::gaussian_dot_pdf;
 
 fn main() {
     let background = Color::from_name("purple").unwrap();
@@ -36,8 +36,8 @@ fn main() {
 
         let func = |x: f64| -> f64 { x.sin() / x };
 
-        combustion_image::graph::shape::graph_circle(1000, 1000, -15.0..15.0, -0.25..1.1, 501, func, |x0, y0, x1, y1| {
-            combustion_image::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
+        combustion_graphing::graph::shape::graph_circle(1000, 1000, -15.0..15.0, -0.25..1.1, 501, func, |x0, y0, x1, y1| {
+            combustion_graphing::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
         });
     }
 

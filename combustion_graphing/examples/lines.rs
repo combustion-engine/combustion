@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 
-extern crate combustion_image;
+extern crate combustion_graphing;
 extern crate combustion_common as common;
 
 extern crate image;
@@ -29,19 +29,19 @@ fn main() {
             *image.pixel_mut(x, y).unwrap() = p.under(foreground.with_alpha(alpha.clamp(0.0, 1.0) as f32));
         };
 
-        combustion_image::graph::line::draw_line_bresenham(50, 300, 950, 950, &mut plot);
+        combustion_graphing::graph::line::draw_line_bresenham(50, 300, 950, 950, &mut plot);
 
-        combustion_image::graph::line::draw_line_bresenham_aa(50, 400, 950, 850, &mut plot);
-        combustion_image::graph::line::draw_line_xiaolin_wu2(50, 500, 950, 740, &mut plot);
-        combustion_image::graph::line::draw_line_xiaolin_wu2(50, 740, 950, 500, &mut plot);
+        combustion_graphing::graph::line::draw_line_bresenham_aa(50, 400, 950, 850, &mut plot);
+        combustion_graphing::graph::line::draw_line_xiaolin_wu2(50, 500, 950, 740, &mut plot);
+        combustion_graphing::graph::line::draw_line_xiaolin_wu2(50, 740, 950, 500, &mut plot);
 
         // These are effectively the same
-        combustion_image::graph::line::draw_line_bresenham_aa(400, 20, 500, 950, &mut plot);
-        combustion_image::graph::line::draw_line_xiaolin_wu(405, 20, 505, 950, &mut plot);
+        combustion_graphing::graph::line::draw_line_bresenham_aa(400, 20, 500, 950, &mut plot);
+        combustion_graphing::graph::line::draw_line_xiaolin_wu(405, 20, 505, 950, &mut plot);
 
         // Comparing versions, even though they're the same
-        combustion_image::graph::line::draw_line_xiaolin_wu2(300, 20, 600, 950, &mut plot);
-        combustion_image::graph::line::draw_line_xiaolin_wu(305, 20, 605, 950, &mut plot);
+        combustion_graphing::graph::line::draw_line_xiaolin_wu2(300, 20, 600, 950, &mut plot);
+        combustion_graphing::graph::line::draw_line_xiaolin_wu(305, 20, 605, 950, &mut plot);
     }
 
     RgbaImage::from_raw(image.width(), image.height(),
