@@ -1,24 +1,14 @@
 use std::ops::Range;
 
-use super::function::graph_parametric_equation;
+use super::function::graph_polar_equation;
 
-#[inline(always)]
-fn polar_to_parametric(offset: (f64, f64), radius: f64, polar: f64, angle: f64, rotation: f64) -> (f64, f64) {
-    let x = offset.0 + radius * polar * (angle + rotation).cos();
-    let y = offset.1 + radius * polar * (angle + rotation).sin();
-
-    (x, y)
+/// Draw any n-sided regular polygon
+pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64,
+                               domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(i64, i64, i64, i64) {
+    graph_polar_equation(width, height, x, y, rotation, domain_x, domain_y, sides, |_: f64| radius, draw_line);
 }
 
-/// Totally not just a polar equation `r = 1`
-pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64, domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(i64, i64, i64, i64) {
-    graph_parametric_equation(width, height, 0.0..1.0, domain_x, domain_y, sides, |t: f64| {
-        let t = t * 2.0 * ::std::f64::consts::PI;
-
-        polar_to_parametric((x, y), radius, 1.0, t, rotation)
-    }, draw_line);
-}
-
+/// Draw's a smooth circle using the midpoint circle algorithm
 pub fn draw_circle<P>(x: i64, y: i64, mut radius: i64, mut plot: P) where P: FnMut(i64, i64, f64) {
     let mut x1 = -radius;
     let mut y1 = 0;
@@ -46,6 +36,7 @@ pub fn draw_circle<P>(x: i64, y: i64, mut radius: i64, mut plot: P) where P: FnM
     }
 }
 
+/// Draw's a smooth ellipse using the midpoint circle algorithm
 pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut plot: P) where P: FnMut(i64, i64, f64) {
     let mut a = (x1 - x0).abs();
     let b = (y1 - x0).abs();
@@ -107,4 +98,12 @@ pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut p
         y0 += 1;
         y1 -= 1;
     }
+}
+
+/// Draws a rectangle at the points given
+pub fn draw_rectangle<L>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut draw_line: L) where L: FnMut(i64, i64, i64, i64) {
+    draw_line(x0, y0, x1, y0);
+    draw_line(x0, y0, x0, y1);
+    draw_line(x1, y0, x1, y1);
+    draw_line(x0, y1, x1, y1);
 }

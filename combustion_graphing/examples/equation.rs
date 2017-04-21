@@ -42,7 +42,7 @@ fn main() {
         let hardness = 2.0;
 
         let x_domain = -10.0..10.0;
-        let y_domain = -15.0..10.0;
+        let y_domain = -10.0..10.0;
 
         graphing::graph::axis::draw_axis(w, h, x_domain.clone(), y_domain.clone(), |x0, y0, x1, y1| {
             graphing::graph::line::draw_line_bresenham(x0, y0, x1, y1, &mut plot);
@@ -66,6 +66,10 @@ fn main() {
 
         graphing::graph::shape::draw_ellipse(100, 100, 400, 300, |x, y, a| {
             graphing::graph::plot::plot_gaussian_dot(x, y, a, 5.0, hardness, &mut plot);
+        });
+
+        graphing::graph::shape::draw_rectangle(100 - 10, 100 - 10, 400 + 10, 300 + 10, |x0, y0, x1, y1| {
+            graphing::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, 2.0, hardness, &mut plot)
         });
 
         let func = |x: f64| -> f64 {

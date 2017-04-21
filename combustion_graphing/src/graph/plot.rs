@@ -2,6 +2,7 @@ use ::stat::gaussian_dot_pdf;
 
 const ALPHA_LIMIT: f64 = 1.0 / 255.0;
 
+/// Plots a dot using a Gaussian function for opacity.
 pub fn plot_gaussian_dot<P>(x: i64, y: i64, alpha: f64, width: f64, hardness: f64, mut plot: P) where P: FnMut(i64, i64, f64) {
     let mut x0: i64 = 0;
 

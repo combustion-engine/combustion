@@ -2,6 +2,9 @@ use std::ops::Range;
 
 use common::num_utils::ScaleExt;
 
+/// Graphs a linear equation.
+///
+/// [https://en.wikipedia.org/wiki/Linear_equation](https://en.wikipedia.org/wiki/Linear_equation)
 pub fn graph_linear_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, mut draw_line: L) where F: Fn(f64) -> f64,
                                                                                                                                                     L: FnMut(i64, i64, i64, i64) {
     let dx = (domain_x.end - domain_x.start) / steps as f64;
@@ -39,6 +42,9 @@ pub fn graph_linear_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>
     }
 }
 
+/// Graphs a parametric equation.
+///
+/// [https://en.wikipedia.org/wiki/Parametric_equation](https://en.wikipedia.org/wiki/Parametric_equation)
 pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, mut draw_line: L) where F: Fn(f64) -> (f64, f64),
                                                                                                                                                                               L: FnMut(i64, i64, i64, i64) {
     let dt = (domain_t.end - domain_t.start) / steps as f64;
@@ -79,7 +85,22 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
     }
 }
 
-// WIP
+/// Graphs a polar equation.
+///
+/// [https://en.wikipedia.org/wiki/Polar_coordinate_system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
+pub fn graph_polar_equation<F, L>(width: u32, height: u32, x: f64, y: f64, rotation: f64, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, draw_line: L) where F: Fn(f64) -> f64,
+                                                                                                                                                                              L: FnMut(i64, i64, i64, i64) {
+    graph_parametric_equation(width, height, 0.0..1.0, domain_x, domain_y, steps, |t: f64| {
+        let angle = t * 2.0 * ::std::f64::consts::PI;
+
+        let r = f(angle);
+
+        (x + r * (angle + rotation).cos(),
+         y + r * (angle + rotation).sin())
+    }, draw_line);
+}
+
+/// WIP, do not use yet
 #[allow(unused_variables)]
 pub fn graph_planar_equation<F, P>(width: u32, height: u32, domain_k: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, x_step: usize, y_step: usize, f: F, mut plot: P) where F: Fn(f64, f64) -> f64,
                                                                                                                                                                                      P: FnMut(i64, i64, f64) {

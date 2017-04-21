@@ -1,32 +1,20 @@
+//! Line drawing routines
+//!
+//! All of these take a `plot` function to draw a single pixel on the image.
+
 use common::num_utils::min_max;
 
 use super::plot::plot_gaussian_dot;
 
-pub fn draw_line_naive<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64, f64) {
-    let (xmin, xmax) = min_max(x0, x1);
-
-    let dx = xmax - xmin;
-    let dy = y1 - y0;
-
-    let distance = (dx as f64).hypot(dy as f64);
-
-    let mut x = xmin;
-
-    while x < xmax {
-        let y = y0 + dy * (x - x0) / dx;
-
-        plot(x, y, 1.0, distance);
-
-        x += 1;
-    }
-}
-
+/// Uses Xiaolin Wu's algorithm to draw a line, but where it would normally draw a single pixel it instead draws a thick dot determined
+/// by a Gaussian function, giving the appearance of a thick, anti-aliased line with controllable width and hardness (falloff).
 pub fn draw_line_thick_gaussian<F>(x0: i64, y0: i64, x1: i64, y1: i64, width: f64, hardness: f64, mut plot: F) where F: FnMut(i64, i64, f64) {
     draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
         plot_gaussian_dot(x, y, alpha, width, hardness, &mut plot);
     });
 }
 
+/// Uses Bresenham's algorithm to draw an aliased line.
 pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64) {
     let dx = (x1 - x0).abs();
     let dy = -(y1 - y0).abs();
@@ -55,6 +43,7 @@ pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut pl
     }
 }
 
+/// Uses Xiaolin Wu's algorithm to draw an anti-aliased line.
 pub fn draw_line_xiaolin_wu<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64) {
     use std::mem::swap;
 

@@ -1,3 +1,5 @@
+//! Simple Bezier Curve container and evaluator
+
 pub type BezierControls = Vec<(f64, f64)>;
 
 pub struct BezierCurve {

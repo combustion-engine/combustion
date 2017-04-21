@@ -1,3 +1,5 @@
+//! Routines for drawing on a graph
+
 pub mod plot;
 pub mod line;
 pub mod axis;
