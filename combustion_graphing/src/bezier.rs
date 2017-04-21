@@ -27,7 +27,6 @@ impl BezierCurve {
             1 => {
                 let (p0, p1) = (self.controls[0], self.controls[1]);
 
-
                 let (x, y) = (u * p0.0 + t * p1.0,
                               u * p0.1 + t * p1.1);
 
