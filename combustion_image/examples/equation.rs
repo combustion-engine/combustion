@@ -22,14 +22,14 @@ use combustion_image::stat::gaussian_dot_pdf;
 
 fn main() {
     let background = Color::from_name("white").unwrap();
-    let mut foreground = Cell::new(Color::from_name("black").unwrap());
+    let foreground = Cell::new(Color::from_name("black").unwrap());
 
     let (w, h) = (1000, 1000);
 
     let mut image = Image::with_pixel(w, h, background);
 
     {
-        let mut plot = |x, y, alpha: f64, _: f64| {
+        let mut plot = |x, y, alpha: f64| {
             if x >= 0 && y >= 0 {
                 let x = x as u32;
                 let y = y as u32;
@@ -61,12 +61,12 @@ fn main() {
             combustion_image::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, 10.0, hardness, &mut plot);
         });
 
-        combustion_image::graph::shape::draw_circle(250, 400, 50, |x, y, a, d| {
-            combustion_image::graph::plot::plot_gaussian_dot(x, y, a, d, 5.0, hardness, &mut plot);
+        combustion_image::graph::shape::draw_circle(250, 400, 50, |x, y, a| {
+            combustion_image::graph::plot::plot_gaussian_dot(x, y, a, 5.0, hardness, &mut plot);
         });
 
-        combustion_image::graph::shape::draw_ellipse(100, 100, 400, 300, |x, y, a, d| {
-            combustion_image::graph::plot::plot_gaussian_dot(x, y, a, d, 5.0, hardness, &mut plot);
+        combustion_image::graph::shape::draw_ellipse(100, 100, 400, 300, |x, y, a| {
+            combustion_image::graph::plot::plot_gaussian_dot(x, y, a, 5.0, hardness, &mut plot);
         });
 
         let func = |x: f64| -> f64 {

@@ -21,17 +21,15 @@ pub fn draw_line_naive<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where
     }
 }
 
-pub fn draw_line_thick_gaussian<F>(x0: i64, y0: i64, x1: i64, y1: i64, width: f64, hardness: f64, mut plot: F) where F: FnMut(i64, i64, f64, f64) {
-    draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha, distance| {
-        plot_gaussian_dot(x, y, alpha, distance, width, hardness, &mut plot);
+pub fn draw_line_thick_gaussian<F>(x0: i64, y0: i64, x1: i64, y1: i64, width: f64, hardness: f64, mut plot: F) where F: FnMut(i64, i64, f64) {
+    draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
+        plot_gaussian_dot(x, y, alpha, width, hardness, &mut plot);
     });
 }
 
-pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64, f64) {
+pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64) {
     let dx = (x1 - x0).abs();
     let dy = -(y1 - y0).abs();
-
-    let distance = (dx as f64).hypot(dy as f64);
 
     let sx = if x0 < x1 { 1 } else { -1 };
     let sy = if y0 < y1 { 1 } else { -1 };
@@ -39,7 +37,7 @@ pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut pl
     let mut err = dx + dy;
 
     loop {
-        plot(x0, y0, 1.0, distance);
+        plot(x0, y0, 1.0);
 
         if x0 == x1 && y0 == y1 { break; }
 
@@ -57,8 +55,12 @@ pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut pl
     }
 }
 
-pub fn draw_line_xiaolin_wu<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64, f64) {
+pub fn draw_line_xiaolin_wu<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64) {
     use std::mem::swap;
+
+    let mut plot_float = |x: f64, y: f64, opacity: f64| {
+        plot(x as i64, y as i64, opacity)
+    };
 
     let mut x0 = x0 as f64;
     let mut y0 = y0 as f64;
@@ -79,12 +81,6 @@ pub fn draw_line_xiaolin_wu<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) 
 
     let dx = x1 - x0;
     let dy = y1 - y0;
-
-    let distance = (dx as f64).hypot(dy as f64);
-
-    let mut plot_float = |x: f64, y: f64, opacity: f64| {
-        plot(x as i64, y as i64, opacity, distance)
-    };
 
     let gradient = if dx < 0.0001 { 1.0 } else { dy / dx };
 

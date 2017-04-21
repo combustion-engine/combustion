@@ -16,9 +16,7 @@ pub fn graph_linear_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>
 
         let y1 = f(x1);
 
-        let on_graph = !(y0.is_nan() || y1.is_nan()) &&
-            ((domain_x.contains(x0) && domain_y.contains(y0)) ||
-                (domain_x.contains(x1) && domain_y.contains(y1)));
+        let on_graph = !(y0.is_nan() || y1.is_nan()) && (domain_y.contains(y0) || domain_y.contains(y1));
 
         if on_graph {
             let px0 = x0.scale(domain_x.start, domain_x.end, 0.0, width as f64) as i64;
@@ -45,10 +43,9 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
                                                                                                                                                                               L: FnMut(i64, i64, i64, i64) {
     let dt = (domain_t.end - domain_t.start) / steps as f64;
 
-    let mut t0 = domain_t.start;
-    let mut xy0 = f(t0);
+    let mut xy0 = f(domain_t.start);
 
-    let mut t1 = t0 + dt;
+    let mut t1 = domain_t.start + dt;
 
     loop {
         if t1 > domain_t.end { break };
@@ -74,7 +71,6 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
 
         if t1 == domain_t.end { break };
 
-        t0 = t1;
         xy0 = xy1;
 
         let t1dt = t1 + dt;
@@ -84,8 +80,9 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
 }
 
 // WIP
+#[allow(unused_variables)]
 pub fn graph_planar_equation<F, P>(width: u32, height: u32, domain_k: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, x_step: usize, y_step: usize, f: F, mut plot: P) where F: Fn(f64, f64) -> f64,
-                                                                                                                                                                            P: FnMut(i64, i64, f64, f64) {
+                                                                                                                                                                                     P: FnMut(i64, i64, f64) {
     let (w, h) = (width as i64, height as i64);
     let (wf, hf) = (width as f64, height as f64);
 
@@ -106,7 +103,7 @@ pub fn graph_planar_equation<F, P>(width: u32, height: u32, domain_k: Range<f64>
 
             let k = k.scale(domain_k.start, domain_k.end, 0.0, 1.0);
 
-            plot(x, y, k, 0.0);
+            plot(x, y, k);
 
             y += 1;
         }

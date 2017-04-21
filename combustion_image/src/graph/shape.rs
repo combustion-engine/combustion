@@ -11,7 +11,7 @@ fn polar_to_parametric(offset: (f64, f64), radius: f64, polar: f64, angle: f64, 
 }
 
 /// Totally not just a polar equation `r = 1`
-pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64, domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, mut draw_line: L) where L: FnMut(i64, i64, i64, i64) {
+pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64, domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(i64, i64, i64, i64) {
     graph_parametric_equation(width, height, 0.0..1.0, domain_x, domain_y, sides, |t: f64| {
         let t = t * 2.0 * ::std::f64::consts::PI;
 
@@ -19,16 +19,16 @@ pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: 
     }, draw_line);
 }
 
-pub fn draw_circle<P>(x: i64, y: i64, mut radius: i64, mut plot: P) where P: FnMut(i64, i64, f64, f64) {
+pub fn draw_circle<P>(x: i64, y: i64, mut radius: i64, mut plot: P) where P: FnMut(i64, i64, f64) {
     let mut x1 = -radius;
     let mut y1 = 0;
     let mut err = 2 - 2 * radius;
 
     loop {
-        plot(x - x1, y + y1, 1.0, 0.0); /*   I. Quadrant */
-        plot(x - y1, y - x1, 1.0, 0.0); /*  II. Quadrant */
-        plot(x + x1, y - y1, 1.0, 0.0); /* III. Quadrant */
-        plot(x + y1, y + x1, 1.0, 0.0); /*  IV. Quadrant */
+        plot(x - x1, y + y1, 1.0); /*   I. Quadrant */
+        plot(x - y1, y - x1, 1.0); /*  II. Quadrant */
+        plot(x + x1, y - y1, 1.0); /* III. Quadrant */
+        plot(x + y1, y + x1, 1.0); /*  IV. Quadrant */
 
         radius = err;
 
@@ -46,7 +46,7 @@ pub fn draw_circle<P>(x: i64, y: i64, mut radius: i64, mut plot: P) where P: FnM
     }
 }
 
-pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut plot: P) where P: FnMut(i64, i64, f64, f64) {
+pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut plot: P) where P: FnMut(i64, i64, f64) {
     let mut a = (x1 - x0).abs();
     let b = (y1 - x0).abs();
 
@@ -74,10 +74,10 @@ pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut p
     b1 = 8 * b * b;
 
     loop {
-        plot(x1, y0, 1.0, 0.0); /*   I. Quadrant */
-        plot(x0, y0, 1.0, 0.0); /*  II. Quadrant */
-        plot(x0, y1, 1.0, 0.0); /* III. Quadrant */
-        plot(x1, y1, 1.0, 0.0); /*  IV. Quadrant */
+        plot(x1, y0, 1.0); /*   I. Quadrant */
+        plot(x0, y0, 1.0); /*  II. Quadrant */
+        plot(x0, y1, 1.0); /* III. Quadrant */
+        plot(x1, y1, 1.0); /*  IV. Quadrant */
 
         let e2 = 2 * err;
 
@@ -99,10 +99,10 @@ pub fn draw_ellipse<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mut p
     }
 
     while (y0 - y1) < b {
-        plot(x0 - 1, y0, 1.0, 0.0);
-        plot(x1 + 1, y0, 1.0, 0.0);
-        plot(x0 - 1, y1, 1.0, 0.0);
-        plot(x1 + 1, y1, 1.0, 0.0);
+        plot(x0 - 1, y0, 1.0);
+        plot(x1 + 1, y0, 1.0);
+        plot(x0 - 1, y1, 1.0);
+        plot(x1 + 1, y1, 1.0);
 
         y0 += 1;
         y1 -= 1;
