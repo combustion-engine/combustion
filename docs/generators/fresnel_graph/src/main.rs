@@ -7,15 +7,11 @@ extern crate rayon;
 extern crate combustion_common as common;
 extern crate combustion_graphing as graphing;
 
-use std::cell::Cell;
-
 use image::RgbaImage;
 
-use common::num_utils::ClampExt;
-
 use common::color::Color;
-use common::color::blend::ColorBlend;
-use common::color::image::Image;
+
+use graphing::graph::{LineStyle, Graph, RectangularGraph, Plotter};
 
 pub mod tables;
 pub mod wavelength;
@@ -67,63 +63,40 @@ pub fn wavelength_reflectance(cos_theta: f64, eta_i: f64, rgb_response: weighted
 }
 
 fn main() {
-    let background = Color::from_name("white").unwrap();
-    let foreground = Cell::new(Color::from_name("black").unwrap());
+    let mut graph = Graph::with_background(1000, 1000, Color::white(), -0.25..1.0, -0.25..1.0);
 
-    let (w, h) = (1000, 1000);
+    let samples = 300; //graph.width() as usize + 1;
 
-    let mut image = Image::with_pixel(w, h, background);
+    graph.set_foreground(Color::black());
 
-    {
-        let mut plot = |x, y, alpha: f64| {
-            if x >= 0 && y >= 0 {
-                let x = x as u32;
-                let y = y as u32;
+    let thick_line = LineStyle::thick(2.0, 1.25).aa();
 
-                if let Some(p) = image.pixel(x, y).cloned() {
-                    *image.pixel_mut(x, y).unwrap() = p.under(foreground.get().with_alpha(alpha.clamp(0.0, 1.0) as f32));
-                }
-            }
-        };
+    let n_t = 1.45;
+    let k_t = 0.0;
+    let n_i = 1.0;
 
-        let width = 1.5;
-        let hardness = 2.0;
+    graph.draw_axis(LineStyle::Thin);
 
-        let x_domain = -0.25..1.0;
-        let y_domain = -0.25..1.0;
+    graph.set_foreground(Color::from_name("blue").unwrap());
 
-        let samples = 750;
+    graph.linear_equation(samples, thick_line, |x| {
+        let cos_theta = (x * 90.0).to_radians().cos();
 
-        let n_t = 1.45;
-        let k_t = 0.0;
-        let n_i = 1.0;
+        let (rs, rp) = fresnel(cos_theta, n_t, k_t, n_i);
 
-        graphing::graph::axis::draw_axis(w, h, x_domain.clone(), y_domain.clone(), |x0, y0, x1, y1| {
-            graphing::graph::line::draw_line_bresenham(x0, y0, x1, y1, &mut plot);
-        });
+        (rs + rp) / 2.0
+    });
 
-        let mut draw_thick_line = |x0, y0, x1, y1| {
-            graphing::graph::line::draw_line_thick_gaussian(x0, y0, x1, y1, width, hardness, &mut plot);
-        };
+    graph.set_foreground(Color::from_name("red").unwrap());
 
-        foreground.set(Color::from_name("blue").unwrap());
+    graph.linear_equation(samples, thick_line, |x| {
+        let cos_theta = (x * 90.0).to_radians().cos();
 
-        graphing::graph::function::graph_linear_equation(w, h, x_domain.clone(), y_domain.clone(), samples, |x| {
-            let cos_theta = (x * 90.0).to_radians().cos();
+        fresnel_schlick(cos_theta, n_t, n_i)
+    });
 
-            let (rs, rp) = fresnel(cos_theta, n_t, k_t, n_i);
 
-            (rs + rp) / 2.0
-        }, &mut draw_thick_line);
-
-        foreground.set(Color::from_name("red").unwrap());
-
-        graphing::graph::function::graph_linear_equation(w, h, x_domain.clone(), y_domain.clone(), samples, |x| {
-            let cos_theta = (x * 90.0).to_radians().cos();
-
-            fresnel_schlick(cos_theta, n_t, n_i)
-        }, &mut draw_thick_line);
-    }
+    let image = graph.into_plotter().into_image();
 
     RgbaImage::from_raw(image.width(), image.height(),
                         image.into_u8_component_vec())
