@@ -1,5 +1,6 @@
 [workspace]
 members = [
-	"combustion_common", "combustion_backend", "combustion_protocols", "combustion_geometry", "combustion_scripting", "combustion_asset", "combustion_gui", "combustion_audio", "combustion_physics", "combustion_events", "combustion_ecs", "combustion_scene", "combustion_macros", "combustion_core", "combustion_game", "combustion_plugin", "combustion_test", "combustion_window", "combustion_shader", "combustion_log",
-	"tools/texture_compressor", "tools/texture_viewer", "tools/model_converter", "tools/material_viewer"
+	"combustion_common", "combustion_backend", "combustion_protocols", "combustion_geometry", "combustion_scripting", "combustion_asset", "combustion_gui", "combustion_audio", "combustion_physics", "combustion_events", "combustion_ecs", "combustion_scene", "combustion_macros", "combustion_core", "combustion_game", "combustion_plugin", "combustion_test", "combustion_window", "combustion_shader", "combustion_log", "combustion_graphing",
+	"tools/texture_compressor", "tools/texture_viewer", "tools/model_converter", "tools/material_viewer",
+	"docs/generators/fresnel_graph"
 ]

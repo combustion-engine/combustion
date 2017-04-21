@@ -1,0 +1,15 @@
+[package]
+authors = ["Aaron Trent <novacrazy@gmail.com>"]
+name = "fresnel_graph"
+version = "0.1.0"
+
+[dependencies]
+image = "0.12.3"
+rayon = "0.7.0"
+rusttype = "0.2.1"
+
+[dependencies.combustion_common]
+path = "../../../combustion_common"
+
+[dependencies.combustion_graphing]
+path = "../../../combustion_graphing"
