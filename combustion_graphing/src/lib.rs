@@ -1,7 +1,4 @@
-#![feature(range_contains, conservative_impl_trait)]
-
-extern crate image;
-extern crate rayon;
+#![feature(range_contains)]
 
 extern crate combustion_common as common;
 
