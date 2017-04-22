@@ -22,8 +22,8 @@ pub fn draw_polar_axis<L>(width: u32, height: u32, domain_x: Range<f64>, domain_
     while a > FRAC_PI_2 {
         let slope = a.tan();
 
-        graph_linear_equation(width, height, domain_x.clone(), domain_y.clone(), divisions, |x| { slope * x }, &mut draw_line);
-        graph_linear_equation(width, height, domain_x.clone(), domain_y.clone(), divisions, |x| { -slope * x }, &mut draw_line);
+        graph_linear_equation(width, height, domain_x.clone(), domain_y.clone(), divisions, false, |x| { slope * x }, &mut draw_line);
+        graph_linear_equation(width, height, domain_x.clone(), domain_y.clone(), divisions, false, |x| { -slope * x }, &mut draw_line);
 
         a -= da;
     }

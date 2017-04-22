@@ -205,7 +205,7 @@ impl Plotter for Plot {
 }
 
 pub trait RectangularGraph {
-    fn linear_equation<F>(&mut self, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> f64;
+    fn linear_equation<F>(&mut self, samples: usize, break_discontiuous: bool, style: LineStyle, f: F) where F: Fn(f64) -> f64;
     fn parametric_equation<F>(&mut self, t_domain: Range<f64>, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> (f64, f64);
     fn draw_axis(&mut self, style: LineStyle);
 }
@@ -228,6 +228,10 @@ impl Graph<Plot> {
 
     pub fn with_background(width: u32, height: u32, background: Color, x_domain: Range<f64>, y_domain: Range<f64>) -> Graph<Plot> {
         Graph::with_plotter(Plot::with_background(width, height, background), x_domain, y_domain)
+    }
+
+    pub fn into_image(self) -> Image {
+        self.plotter.into_image()
     }
 }
 
@@ -254,9 +258,9 @@ impl<P: Plotter> Graph<P> {
 }
 
 impl<P: Plotter> RectangularGraph for Graph<P> {
-    fn linear_equation<F>(&mut self, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> f64 {
+    fn linear_equation<F>(&mut self, samples: usize, break_discontiuous: bool, style: LineStyle, f: F) where F: Fn(f64) -> f64 {
         function::graph_linear_equation(self.plotter.width(), self.plotter.height(),
-                                        self.x_domain(), self.y_domain(), samples, f,
+                                        self.x_domain(), self.y_domain(), samples, break_discontiuous, f,
                                         |x0, y0, x1, y1| self.plotter.draw_line(x0, y0, x1, y1, style));
     }
 
