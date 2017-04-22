@@ -205,7 +205,7 @@ impl Plotter for Plot {
 }
 
 pub trait RectangularGraph {
-    fn linear_equation<F>(&mut self, samples: usize, break_discontiuous: bool, style: LineStyle, f: F) where F: Fn(f64) -> f64;
+    fn linear_equation<F>(&mut self, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> f64;
     fn parametric_equation<F>(&mut self, t_domain: Range<f64>, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> (f64, f64);
     fn draw_axis(&mut self, style: LineStyle);
 }
@@ -219,6 +219,7 @@ pub struct Graph<P: Plotter> {
     plotter: P,
     x_domain: Range<f64>,
     y_domain: Range<f64>,
+    break_discontinuous: bool,
 }
 
 impl Graph<Plot> {
@@ -240,7 +241,8 @@ impl<P: Plotter> Graph<P> {
         Graph {
             plotter: plotter,
             x_domain: x_domain,
-            y_domain: y_domain
+            y_domain: y_domain,
+            break_discontinuous: true,
         }
     }
 
@@ -255,12 +257,20 @@ impl<P: Plotter> Graph<P> {
     pub fn into_plotter(self) -> P {
         self.plotter
     }
+
+    pub fn break_discontinuous(&mut self) {
+        self.break_discontinuous = true;
+    }
+
+    pub fn bridge_discontinuous(&mut self) {
+        self.break_discontinuous = false;
+    }
 }
 
 impl<P: Plotter> RectangularGraph for Graph<P> {
-    fn linear_equation<F>(&mut self, samples: usize, break_discontiuous: bool, style: LineStyle, f: F) where F: Fn(f64) -> f64 {
+    fn linear_equation<F>(&mut self, samples: usize, style: LineStyle, f: F) where F: Fn(f64) -> f64 {
         function::graph_linear_equation(self.plotter.width(), self.plotter.height(),
-                                        self.x_domain(), self.y_domain(), samples, break_discontiuous, f,
+                                        self.x_domain(), self.y_domain(), samples, self.break_discontinuous, f,
                                         |x0, y0, x1, y1| self.plotter.draw_line(x0, y0, x1, y1, style));
     }
 
