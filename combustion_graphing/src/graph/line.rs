@@ -6,7 +6,7 @@ use super::plot::plot_gaussian_dot;
 
 /// Uses Xiaolin Wu's algorithm to draw a line, but where it would normally draw a single pixel it instead draws a thick dot determined
 /// by a Gaussian function, giving the appearance of a thick, anti-aliased line with controllable width and hardness (falloff).
-pub fn draw_line_thick_gaussian<F>(x0: i64, y0: i64, x1: i64, y1: i64, width: f64, hardness: f64, mut plot: F) where F: FnMut(i64, i64, f64) {
+pub fn draw_line_thick_gaussian<F>(x0: f64, y0: f64, x1: f64, y1: f64, width: f64, hardness: f64, mut plot: F) where F: FnMut(i64, i64, f64) {
     draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
         plot_gaussian_dot(x, y, alpha, width, hardness, &mut plot);
     });
@@ -42,17 +42,12 @@ pub fn draw_line_bresenham<F>(mut x0: i64, mut y0: i64, x1: i64, y1: i64, mut pl
 }
 
 /// Uses Xiaolin Wu's algorithm to draw an anti-aliased line.
-pub fn draw_line_xiaolin_wu<F>(x0: i64, y0: i64, x1: i64, y1: i64, mut plot: F) where F: FnMut(i64, i64, f64) {
+pub fn draw_line_xiaolin_wu<F>(mut x0: f64, mut y0: f64, mut x1: f64, mut y1: f64, mut plot: F) where F: FnMut(i64, i64, f64) {
     use std::mem::swap;
 
     let mut plot_float = |x: f64, y: f64, opacity: f64| {
         plot(x as i64, y as i64, opacity)
     };
-
-    let mut x0 = x0 as f64;
-    let mut y0 = y0 as f64;
-    let mut x1 = x1 as f64;
-    let mut y1 = y1 as f64;
 
     let steep = (y1 - y0).abs() > (x1 - x0).abs();
 

@@ -68,7 +68,7 @@ pub trait Plotter {
 
     fn draw_pixel(&mut self, x: i64, y: i64, alpha: f64);
     fn draw_dot(&mut self, x: i64, y: i64, alpha: f64, width: f64, hardness: f64);
-    fn draw_line(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle);
+    fn draw_line(&mut self, x0: f64, y0: f64, x1: f64, y1: f64, style: LineStyle);
     fn draw_circle(&mut self, x: i64, y: i64, radius: i64, style: LineStyle);
     fn draw_ellipse(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle);
     fn draw_rectangle(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle);
@@ -137,12 +137,11 @@ impl Plotter for Plot {
     }
 
     #[inline]
-    fn draw_line(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle) {
+    fn draw_line(&mut self, x0: f64, y0: f64, x1: f64, y1: f64, style: LineStyle) {
         match style {
             LineStyle::Thin => {
-                line::draw_line_bresenham(x0, y0, x1, y1, |x, y, alpha| {
-                    self.draw_pixel(x, y, alpha)
-                })
+                line::draw_line_bresenham(x0.round() as i64, y0.round() as i64, x1.round() as i64, y1.round() as i64,
+                                          |x, y, alpha| self.draw_pixel(x, y, alpha))
             }
             LineStyle::ThinAA => {
                 line::draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
@@ -150,9 +149,8 @@ impl Plotter for Plot {
                 })
             }
             LineStyle::Thick { width, hardness } => {
-                line::draw_line_bresenham(x0, y0, x1, y1, |x, y, alpha| {
-                    self.draw_dot(x, y, alpha, width, hardness)
-                })
+                line::draw_line_bresenham(x0.round() as i64, y0.round() as i64, x1.round() as i64, y1.round() as i64,
+                                          |x, y, alpha| self.draw_dot(x, y, alpha, width, hardness))
             }
             LineStyle::ThickAA { width, hardness } => {
                 line::draw_line_xiaolin_wu(x0, y0, x1, y1, |x, y, alpha| {
@@ -200,7 +198,7 @@ impl Plotter for Plot {
 
     #[inline]
     fn draw_rectangle(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle) {
-        shape::draw_rectangle(x0, y0, x1, y1, |x0, y0, x1, y1| self.draw_line(x0, y0, x1, y1, style))
+        shape::draw_rectangle(x0, y0, x1, y1, |x0, y0, x1, y1| self.draw_line(x0 as f64, y0 as f64, x1 as f64, y1 as f64, style))
     }
 }
 

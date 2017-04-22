@@ -6,7 +6,7 @@ use super::function::graph_polar_equation;
 
 /// Draw any n-sided regular polygon
 pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64,
-                               domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(i64, i64, i64, i64) {
+                               domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(f64, f64, f64, f64) {
     graph_polar_equation(width, height, x, y, rotation, domain_x, domain_y, sides, |_: f64| radius, draw_line);
 }
 
@@ -175,7 +175,7 @@ pub fn draw_ellipse_aa<P>(mut x0: i64, mut y0: i64, mut x1: i64, mut y1: i64, mu
     let b = (y1 - y0).abs();
 
     if a == 0 || b == 0 {
-        super::line::draw_line_xiaolin_wu(x0, y0, x1, y1, plot);
+        super::line::draw_line_bresenham(x0, y0, x1, y1, plot);
     } else {
         let aa = (x1 + x0) / 2;
         let bb = (y1 + y0) / 2;
