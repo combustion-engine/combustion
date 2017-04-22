@@ -9,7 +9,6 @@
 //!
 //! Supported shapes:
 //!
-//! * Any regular polygon
 //! * Circles
 //! * Ellipses
 //! * Rectangles

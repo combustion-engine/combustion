@@ -88,15 +88,12 @@ pub fn graph_parametric_equation<F, L>(width: u32, height: u32, domain_t: Range<
 /// Graphs a polar equation.
 ///
 /// [https://en.wikipedia.org/wiki/Polar_coordinate_system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
-pub fn graph_polar_equation<F, L>(width: u32, height: u32, x: f64, y: f64, rotation: f64, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, draw_line: L) where F: Fn(f64) -> f64,
-                                                                                                                                                                              L: FnMut(f64, f64, f64, f64) {
-    graph_parametric_equation(width, height, 0.0..1.0, domain_x, domain_y, steps, |t: f64| {
-        let angle = t * 2.0 * ::std::f64::consts::PI;
-
+pub fn graph_polar_equation<F, L>(width: u32, height: u32, domain_a: Range<f64>, domain_x: Range<f64>, domain_y: Range<f64>, steps: usize, f: F, draw_line: L) where F: Fn(f64) -> f64,
+                                                                                                                                                                                    L: FnMut(f64, f64, f64, f64) {
+    graph_parametric_equation(width, height, domain_a, domain_x, domain_y, steps, |angle: f64| {
         let r = f(angle);
 
-        (x + r * (angle + rotation).cos(),
-         y + r * (angle + rotation).sin())
+        (r * (angle).cos(), r * (angle).sin())
     }, draw_line);
 }
 

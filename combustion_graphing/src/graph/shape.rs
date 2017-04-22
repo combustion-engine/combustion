@@ -1,14 +1,4 @@
-use std::ops::Range;
-
 use common::num_utils::min_max;
-
-use super::function::graph_polar_equation;
-
-/// Draw any n-sided regular polygon
-pub fn draw_regular_polygon<L>(width: u32, height: u32, x: f64, y: f64, radius: f64, rotation: f64,
-                               domain_x: Range<f64>, domain_y: Range<f64>, sides: usize, draw_line: L) where L: FnMut(f64, f64, f64, f64) {
-    graph_polar_equation(width, height, x, y, rotation, domain_x, domain_y, sides, |_: f64| radius, draw_line);
-}
 
 /// Draw's a smooth circle using the midpoint circle algorithm
 pub fn draw_circle<P>(xm: i64, ym: i64, mut radius: i64, mut plot: P) where P: FnMut(i64, i64, f64) {
