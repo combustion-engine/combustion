@@ -198,7 +198,9 @@ impl Plotter for Plot {
 
     #[inline]
     fn draw_rectangle(&mut self, x0: i64, y0: i64, x1: i64, y1: i64, style: LineStyle) {
-        shape::draw_rectangle(x0, y0, x1, y1, |x0, y0, x1, y1| self.draw_line(x0 as f64, y0 as f64, x1 as f64, y1 as f64, style))
+        shape::draw_rectangle(x0, y0, x1, y1, |x0, y0, x1, y1| {
+            self.draw_line(x0 as f64, y0 as f64, x1 as f64, y1 as f64, style)
+        })
     }
 }
 
