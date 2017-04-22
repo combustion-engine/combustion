@@ -10,9 +10,6 @@ use ::geometry::Intersection;
 pub fn graph_linear_equation<F, L>(width: u32, height: u32, domain_x: Range<f64>, domain_y: Range<f64>,
                                    steps: usize, break_discontinuous: bool, f: F, mut draw_line: L) where F: Fn(f64) -> f64,
                                                                                                           L: FnMut(f64, f64, f64, f64) {
-    let width = width;
-    let height = height;
-
     let (w, h) = (width as f64, height as f64);
 
     let dx = (domain_x.end - domain_x.start) / steps as f64;
