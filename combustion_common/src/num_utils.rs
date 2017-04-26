@@ -37,7 +37,7 @@ pub fn max<T: PartialOrd>(a: T, b: T) -> T {
 /// ```
 #[inline(always)]
 pub fn min_max<T: PartialOrd>(a: T, b: T) -> (T, T) {
-    if a >= b { (b, a) } else { (a, b) }
+    if a < b { (a, b) } else { (b, a) }
 }
 
 /// Round a number to a certain multiple
@@ -206,6 +206,7 @@ impl<T> LerpExt for T where T: Num + Copy {}
 ///
 /// assert_eq!(scale(0.5f32, 0.0, 1.0, 0.0, 2.0), 1.0);
 /// ```
+#[inline]
 pub fn scale<T: Num + Copy>(x: T, in_min: T, in_max: T, out_min: T, out_max: T) -> T {
     (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 }
@@ -219,8 +220,9 @@ pub fn scale<T: Num + Copy>(x: T, in_min: T, in_max: T, out_min: T, out_max: T) 
 /// ```
 pub trait ScaleExt where Self: Num + Copy {
     /// Scales the value between the range `in_min` and `in_max` to the range of `out_min` to `out_max`
+    #[inline]
     fn scale(self, in_min: Self, in_max: Self, out_min: Self, out_max: Self) -> Self {
-        (self - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+        scale(self, in_min, in_max, out_min, out_max)
     }
 }
 
