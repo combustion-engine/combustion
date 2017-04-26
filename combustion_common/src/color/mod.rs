@@ -297,12 +297,12 @@ pub mod de {
     use std::marker::PhantomData;
 
     /// Custom deserialization for `Color`s, allowing them to be deserialized by name or RGBA values
-    pub fn from_name_or_value<T, D>(d: D) -> Result<T, D::Error>
-        where T: Deserialize + FromStr<Err=Void>,
-              D: Deserializer {
+    pub fn from_name_or_value<'de, T, D>(d: D) -> Result<T, D::Error>
+        where T: Deserialize<'de> + FromStr<Err=Void>,
+              D: Deserializer<'de> {
         struct NameOrValue<T>(PhantomData<T>);
 
-        impl<T> de::Visitor for NameOrValue<T> where T: Deserialize + FromStr<Err=Void> {
+        impl<'de, T> de::Visitor<'de> for NameOrValue<T> where T: Deserialize<'de> + FromStr<Err=Void> {
             type Value = T;
 
             fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -313,12 +313,12 @@ pub mod de {
                 Ok(FromStr::from_str(value).unwrap())
             }
 
-            fn visit_map<M>(self, visitor: M) -> Result<T, M::Error> where M: de::MapVisitor {
-                Deserialize::deserialize(de::value::MapVisitorDeserializer::new(visitor))
+            fn visit_map<M>(self, visitor: M) -> Result<T, M::Error> where M: de::MapAccess<'de> {
+                Deserialize::deserialize(de::value::MapAccessDeserializer::new(visitor))
             }
         }
 
-        d.deserialize(NameOrValue(PhantomData))
+        d.deserialize_any(NameOrValue(PhantomData))
     }
 }
 
