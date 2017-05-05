@@ -402,7 +402,7 @@ Lambertian diffuse has a reflectance curve like this:
         \begin{axis}[
             legend pos=south west,
             axis lines = left,
-            xlabel = $\theta \left(\text{Incident Angle}\right)$,
+            xlabel = $\theta_i \left(\text{Incident Angle}\right)$,
             ylabel = {Reflectance},
                xtick={0,15,...,90},
                ymax=1.0,
@@ -800,8 +800,7 @@ are colored.
 \label{sec:schlick}
 
 For dielectric materials, there exists a decent approximation of the Fresnel equations that is very simple. 
-Simple enough it can be run directly on the GPU.
-
+Simple enough it can be run directly on the GPU without impacting performance too much.
 
 Schlick's Approximation of the Fresnel Equations is defined like so:
 $$
@@ -812,7 +811,6 @@ $$
 F_0 = {\frac{\eta_i - \eta_t}{\eta_i + \eta_t}}^2
 $$
 where $\theta$ is the incident angle, and $\eta_t$ and $\eta_i$ are the surface and external IORs, respectively.
-
 
 \newpage
 
@@ -827,6 +825,119 @@ L_{final} = \left(1 - \omega_{thickness}\right)\left(L_{bottom}\right) + \omega_
 $$
 where $L_{bottom}$ can be an $L_{final}$ from another layer mix, 
 and $\omega_{thickness}$ is the thickness of the layer in the domain $\left[0,1\right]$
+
+\newpage
+\part{Rendering}
+
+\section{Pixels}
+
+Pixels are the physical component to any image, meaning they have discrete size in real life. 
+This discreteness means that every pixel lies on an whole integer grid the size of the image, 
+and any single pixel can only be a single value (usually a color). This is an important distinction because when mapping 3D points
+onto a 2D image, you must choose the nearest whole integer $(x,y)$ coordinate, losing some accuracy.
+
+Essentially, any scene rendered must be divided into a discrete grid and sampled with whole integer locations.
+
+Supersampling and multisampling alleviate this somewhat by taking multiple samples per pixel in 
+slightly difference sub-pixel locations, then averaging their values together.
+
+\section{Framebuffers}
+
+A framebuffer is a simple collection of images used to store the rendering result. Most framebuffers contain a color
+component, for the colors that will actually be shown, and a depth component, to store the depth of a rendered object from the camera,
+which is used for hiding geometry behind other geometry.
+
+Additionally, a stencil buffer may be present, which allows storing an outline of sorts 
+of rendered geometry with a given numeric value. Any pixel that geometry touches is given the desired value
+in the stencil buffer.
+
+\subsection{Blending}
+
+An important part of rendering to a framebuffer is color blending, usually alpha blending. 
+For framebuffers with a color component that contains an alpha/transparency channel, for geometry to show up behind 
+transparent or translucent geometry, the color values must be blended together in a way that makes sense, and emulates
+the behavior of light as it is filtered and/or transmitted through the mediums.
+
+\section{Transformations}
+
+By themselves, all 3D geometry is pretty useless to a rendering engine. How is it supposed to take those points in 3D
+space and show them on a screen?
+
+If you've ever used OpenGL/DirectX/Anything before, you'll know the answer to that is to do it yourself.
+
+Most rendering pipelines have what is generally referred to as a \textbf{Vertex Shader}, which is tiny program that
+accepts a single point in 3D space, and is expected to turn that into something that can almost be displayed on the screen.
+
+Almost always, the vertex shader is:
+
+$$
+V_{clip} = M_{projection} \cdot M_{camera} \cdot M_{object} \cdot V_{local}
+$$
+where
+\begin{flalign*}
+V_{world} &= M_{object} \cdot V_{local}&\\
+V_{camera} &= M_{camera} \cdot V_{world}\\
+V_{clip} &= M_{projection} \cdot V_{camera}
+\end{flalign*}
+
+As you can see, all vertex transformations go through a few stages, using a few different transformation matrices.
+
+The first stage is to take the raw vertex positions, which is usually whatever is given in the mesh, 
+and transform it based on the mesh's position in the 3D world. This is known as transforming 
+the model-space vertex to world-space.
+
+The second stage is to transform it to how the camera sees it using the camera matrix $M_{camera}$, 
+which is usually just some translations and rotations based on where you want the camera to look.
+
+The third stage is the most important: Projection. Projection is the act of taking the final 
+3D coordinates and calculating their 2D positions, usually using some form of perspective distortion. The projection
+stage does all the hard work of transforming the vertices into something that can be rendered in 2D.
+
+\subsection{Normals}
+
+Alongside the vertex positions, most vertices also have normal vectors which are essential for shading. Like with positions, 
+normals need to be transformed into world-space as well, but because vector math is tricky, it needs to be done using sort of an odd matrix.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=4in]{CircleNormalScaling}
+    \caption{Normal Transformations}
+    \label{fig:normal_transformations}
+\end{figure}
+
+As you can see in the above figure, in the center image, simply applying the raw $M_{object}$ transformation 
+matrix to the normal vectors would squish and distort the normals, which is bad. What we really want is the right-most illustration, 
+which preserves the normals.
+
+As it turns out, doing this is as simply as transforming the normal vectors by the inverse transpose of the $M_{object}$ matrix.
+
+That is to say:
+$$
+M_{mit} = {\left(M_{object}^{-1}\right)}^T
+$$
+and then:
+$$
+N_{world} = M_{mit} \cdot N_{local}
+$$
+
+\subsection{Precomputing Matrices}
+
+Since the vertex shader is evaluated across all vertices, and matrix multiplication is somewhat expensive, 
+it's usually best to pre-compute the transformation matrices, like so:
+
+$$
+M_{mvp} = M_{projection} \cdot M_{camera} \cdot M_{model}
+$$
+and then:
+$$
+V_{clip} = M_{mvp} \cdot V_{local}
+$$
+which should improve floating point precision if the matrices are precomputed on the CPU, 
+and improve performance by performing fewer matrix multiplications in the vertex shader.
+
+\section{Rasterization}
+
+TODO
 
 \end{document}
 \makeatother
